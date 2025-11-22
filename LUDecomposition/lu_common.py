@@ -57,3 +57,6 @@ def lu_solve(A, o, b):
     return x
 
 
+
+
+
