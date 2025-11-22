@@ -6,20 +6,26 @@ from lu_common import lu_solve
 class crout_solver:
 
     #Constuctor for initializing system(A,B) and no of signifacant figures
-    def __init__(self,system:linear_system,noOfSig):
+    def __init__(self,system:linear_system,noOfSig=8):
         self.system = system
         self.noOfSig = noOfSig
 
 
-
+    #decompose A into L and U
     def decompose(self):
         A = self.system.A
         n = self.system.n
         noOfSig =self.noOfSig
+
+        #Initialize l and u
         l=[[0 for j in range(n)] for i in range(n)]
         u=[[0 for j in range(n)] for i in range(n)]
+
+        #make diagonal of u=1
         for i in range(n):
             u[i][i] = 1
+
+        #main Algorithm
         for j in range(n):
             for i in range(j,n):
                 total=0
@@ -34,6 +40,7 @@ class crout_solver:
                 u[j][k]=round_sig(temp/l[j][j],noOfSig)
         return l,u
 
+    #Method for merging l and u
     def merge(self):
         l,u=self.decompose()
         n=self.system.n
@@ -44,12 +51,13 @@ class crout_solver:
                     merged[i][j]=l[i][j]
         return merged
 
-
+    #Method to get x
     def solve(self):
          merged=self.merge()
          b=self.system.b
          n=self.system.n
-         x=lu_solve(merged,list(range(n)),b)
+         noOfSig=self.noOfSig
+         x=lu_solve(merged,list(range(n)),b,noOfSig,"crout")
          return x
 
 
