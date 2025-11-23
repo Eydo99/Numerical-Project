@@ -1,18 +1,19 @@
-from LUDecomposition.crout_solver import crout_solver
+from LUDecomposition.cholesky_solver import cholesky_solver
 from GaussElimination.linear_system import LinearSystem
 
-A=[[2,-1,1],
-   [4,5,6],
-   [-2,3,8]]
-b=[1,2,3]
-sigFigures=6
+A=[[4,12,-16],
+   [12,37,-43],
+   [-16,-43,98]]
+b=[-20,-43,192]
+sigFigures=8
 mysystem=LinearSystem(A,b)
 
-solver=crout_solver(mysystem,sigFigures)
-l,u=solver.decompose()
-merge=solver.merge()
-x=solver.solve()
-print("l=",l)
-print("u=",u)
-print("merge=",merge)
-print("x=",x)
+solver=cholesky_solver(mysystem,sigFigures)
+l,u=solver.decmpose()
+if(l==0 and u==0):
+    print("Matrix isn't PD")
+    exit()
+if(l==-1 and u==-1):
+    print("Matrix isn't symmetric")
+    exit()
+print(l,u)
