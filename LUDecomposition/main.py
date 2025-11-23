@@ -1,3 +1,5 @@
+import time
+
 from GaussElimination.linear_system import LinearSystem
 from LUDecomposition.crout_solver import crout_solver
 from doolittle_solver import doolittle
@@ -67,13 +69,9 @@ def main():
     print("\n========================Example on Crout Decomposition==========================")
     system=LinearSystem(A,b)
     croutSolver=crout_solver(system)
-    x_crout = croutSolver.solve()
-    l,u=croutSolver.decompose()
-    merge=croutSolver.merge()
-    print(l)
-    print(u)
-    print(merge)
-    print("\nSolution x (Crout):", x_crout)
+    start_time=time.perf_counter()
+    x_crout, exec_time = croutSolver.solve()
+    print("\nSolution x (Crout):",x_crout,"Execution time:",exec_time*1e6,"us")
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,5 @@
+import time
+
 from GaussElimination import linear_system
 from GaussElimination.back_substitution import round_sig
 from lu_common import lu_solve
@@ -53,12 +55,14 @@ class crout_solver:
 
     #Method to get x
     def solve(self):
+         start_time=time.perf_counter()
          merged=self.merge()
          b=self.system.b
          n=self.system.n
          noOfSig=self.noOfSig
          x=lu_solve(merged,list(range(n)),b,noOfSig,"crout")
-         return x
+         exec_time=time.perf_counter()-start_time
+         return x , exec_time
 
 
 
