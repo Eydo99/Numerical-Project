@@ -2,7 +2,7 @@ import time
 
 from GaussElimination import linear_system
 from GaussElimination.back_substitution import round_sig
-from lu_common import lu_solve
+from LUDecomposition.lu_common import lu_solve_crout
 
 
 class crout_solver:
@@ -27,7 +27,14 @@ class crout_solver:
         for i in range(n):
             u[i][i] = 1
 
-        #main Algorithm
+        """
+        main Algorithm using Formula:
+        Compute L (i >= j)
+        L_ij = A_ij - sum_{k=0}^{j-1} L_ik * U_kj
+
+        Compute U (i < j)
+        U_ij = ( A_ij - sum_{k=0}^{i-1} L_ik * U_kj ) / L_ii
+        """
         for j in range(n):
             for i in range(j,n):
                 total=0
@@ -60,9 +67,9 @@ class crout_solver:
          b=self.system.b
          n=self.system.n
          noOfSig=self.noOfSig
-         x=lu_solve(merged,list(range(n)),b,noOfSig,"crout")
+         x=lu_solve_crout(merged,list(range(n)),b,noOfSig)
          exec_time=time.perf_counter()-start_time
-         return x , exec_time
+         return x, exec_time
 
 
 

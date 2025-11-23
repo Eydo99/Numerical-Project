@@ -1,7 +1,7 @@
-from step_recorder import StepRecorder
-from linear_system import LinearSystem
-from pivot_manager import pivot_manager
-from back_substitution import back_substitution
+from .step_recorder import StepRecorder
+from .linear_system import LinearSystem
+from .pivot_manager import pivot_manager
+from .back_substitution import back_substitution
 import time
 import math
 

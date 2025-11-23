@@ -1,6 +1,7 @@
 import time
 
 from GaussElimination.linear_system import LinearSystem
+from LUDecomposition.cholesky_solver import cholesky_solver
 from LUDecomposition.crout_solver import crout_solver
 from doolittle_solver import doolittle
 
@@ -31,12 +32,11 @@ def extract_LU(A):
 
 
 def main():
-
     # Test system
-    A=[[3, 2, -1],
-    [2, -2, 4],
-    [-1, 0.5, -1]]
-    b = [1, -2, 0]
+    A=[[4, 12, -16],
+    [12, 37, -43],
+    [-16, -43, 98]]
+    b = [-20, -43, 192]
 
 
     print("========= DOOLITTLE WITH SCALED PIVOTING =========")
@@ -72,6 +72,24 @@ def main():
     start_time=time.perf_counter()
     x_crout, exec_time = croutSolver.solve()
     print("\nSolution x (Crout):",x_crout,"Execution time:",exec_time*1e6,"us")
+
+
+    print("\n===============================Example on Cholesky Decomposition=============================")
+
+    mysystem=LinearSystem(A,b)
+
+    solver = cholesky_solver(mysystem)
+    l,u = solver.decompose()
+    if l==0 and u==0:
+        print("Matrix ins't PD")
+        exit()
+    if l==-1 and u==-1:
+        print("Matrix ins't symmetric")
+        exit()
+    x_cholesky,exec_time=solver.solve()
+    print("\nSolution x (Cholesky):", x_cholesky,"Execution time:",exec_time*1e6,"us")
+
+
 
 if __name__ == "__main__":
     main()

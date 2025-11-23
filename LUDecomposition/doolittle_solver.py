@@ -1,4 +1,5 @@
-from lu_common import pivot_with_scaling, scaling_factors, pivot_no_scaling, lu_solve 
+from LUDecomposition.lu_common import lu_solve_dooliitle
+from lu_common import pivot_with_scaling, scaling_factors, pivot_no_scaling
 import math
 
 def round_sig(x, sig=8):
@@ -35,5 +36,5 @@ def doolittle(A, b, tol=1e-12, scaled=True, sig_figs=8):
     if pivot_ratio < tol:
         raise ValueError("Matrix is singular")
         
-    x = lu_solve(A, o, b, sig_figs,"doolittle")
+    x = lu_solve_dooliitle(A, o, b, sig_figs)
     return A, x
