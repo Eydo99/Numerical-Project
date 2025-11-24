@@ -9,7 +9,7 @@ class StepType :
     ELIM = "elim"
     SOL = "sol"
 
-class SolStep :
+class GaussStep :
     stepType : StepType
     matrix : list[list[float]]
     answers : list[float]
@@ -20,3 +20,14 @@ class SolStep :
         self.stepType = stepType
 
 
+
+class LUStep :
+    stepType : StepType
+    L : list[list[float]]
+    U : list[list[float]]
+    answers : list[float]
+    def __init__(self, L : list[list[float]], U : list[list[float]], stepType : StepType):
+        import copy
+        self.matrix = copy.deepcopy(L)
+        self.answers = copy.deepcopy(U)
+        self.stepType = stepType

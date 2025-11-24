@@ -1,8 +1,8 @@
 from flask import Flask, app, request
-from GaussEliminationStandard.auxilary import *
+from utils.models import *
+from utils.auxilary import *
 from GaussEliminationStandard.gauss_jordan import GaussJordanSolver
 from GaussEliminationStandard.gauss_solver import GaussSolver
-from GaussEliminationStandard.models import *
 import json
 
 app = Flask(__name__)
@@ -25,7 +25,7 @@ def handle_gauss_jordan():
         stepList.append({"type" : step.stepType, "matrix" : step.matrix, "answers" : step.answers})
 
     output = {"result" : ans, "steps" : stepList}
-    return output
+    return json.dumps(output)
 
 @app.route('/solve/gausselim', methods = ['POST'])
 def handle_gauss_elim():
@@ -44,7 +44,7 @@ def handle_gauss_elim():
         stepList.append({"type" : step.stepType, "matrix" : step.matrix, "answers" : step.answers})
 
     output = {"result" : ans, "steps" : stepList}
-    return output
+    return json.dumps(output)
 
 
 

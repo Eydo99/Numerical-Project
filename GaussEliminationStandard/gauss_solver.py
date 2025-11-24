@@ -1,7 +1,6 @@
-from .step_recorder import GaussStepRecorder
-from .models import LinearSystem, StepType, SolStep
-from .auxilary import pivot, back_sub, round_sig
-
+from utils.models import GaussStep, StepType, LinearSystem
+from utils.step_recorder import GaussStepRecorder
+from utils.auxilary import round_sig, pivot, back_sub
 import time
 import math
 
@@ -11,8 +10,7 @@ class GaussSolver:
         self.system = system
         self.step_recorder = GaussStepRecorder(single_step)
 
-    def solve(self, sig_figs=6, tol=1e-12,
-               scaling : bool = True)-> tuple[list[SolStep], list[float]] :
+    def solve(self, sig_figs=6, tol=1e-12, scaling : bool = True) -> tuple[list, list[list]] :
         
         A, b, n = self.system.A , self.system.b, self.system.n
 
@@ -34,4 +32,4 @@ class GaussSolver:
         x = back_sub(A,b,sig_figs)
         self.step_recorder.record(A, b, StepType.SOL)
         # end_time = time.perf_counter()
-        return self.step_recorder.steps, x
+        return x, A

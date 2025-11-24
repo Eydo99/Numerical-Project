@@ -1,7 +1,7 @@
 from typing import Optional
-from .models import SolStep, StepType, LinearSystem
-from .step_recorder import GaussStepRecorder
-from .auxilary import round_sig, pivot
+from utils.models import GaussStep, StepType, LinearSystem
+from utils.step_recorder import GaussStepRecorder
+from utils.auxilary import round_sig, pivot
 import copy
 
 class GaussJordanSolver :
@@ -10,8 +10,7 @@ class GaussJordanSolver :
         self.step_recorder = GaussStepRecorder(single_step)
 
     
-    def solve(self, sig_figs=6, tol=1e-12,
-               scaling : bool = True) -> tuple[list[SolStep], list[float]] :
+    def solve(self, sig_figs=6, tol=1e-12, scaling : bool = True)-> tuple[list,list[list]]:
         
         
         matrix = self.system.A
@@ -65,7 +64,7 @@ class GaussJordanSolver :
 
         self.step_recorder.record(matrix, answers, StepType.SOL)
 
-        return self.step_recorder.steps, answers
+        return answers, matrix
 
 
 

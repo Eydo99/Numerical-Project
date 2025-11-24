@@ -34,3 +34,31 @@ def pivot(A, b, col, scaling : bool = False, scales : list = None, tol=1e-12):
     # return A, b, 0
     # no need to return A,b and assign it since its passed by reference 
     return 0
+
+
+
+# Instead of having two methods and adding an if condition on use i merged the two methods 
+# and the flag will be just passed and internally handled
+def pivot_lu(A : list[list], col : int, o : list, scaling : bool = False, s: list = None, sig_figs=8):
+    n=len(A)
+    p = col
+    # This is the line that was modified
+    s = s if (scaling and s != None and len(s) == n) else [1]*n
+
+    big = round_sig(abs(A[o[col]][col] / s[o[col]]), sig_figs)
+
+    for i in range(col+1, n):
+        dummy = round_sig(abs(A[o[i]][col] /s[o[i]]), sig_figs)
+        if dummy > big:
+            big = dummy
+            p = i
+    
+    o[col], o[p] = o[p], o[col]
+
+
+def scaling_factors(A):
+    n = len(A)
+    s=[0]*n
+    for i in range(n):
+        s[i] = max(abs(val) for val in A[i])
+    return s
