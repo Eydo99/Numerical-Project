@@ -1,9 +1,9 @@
 import time
 
-from GaussElimination.linear_system import LinearSystem
-from LUDecomposition.cholesky_solver import cholesky_solver
-from LUDecomposition.crout_solver import crout_solver
-from LUStandard.dolittle_solver import doolittle
+from utils.models import LinearSystem
+from .cholesky_solver import cholesky_solver
+from .crout_solver import crout_solver
+from .dolittle_solver import doolittle
 
 
 def print_matrix(M, name):

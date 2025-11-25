@@ -21,7 +21,7 @@ class DolittleSolver :
 
             pivot_lu(A, k, o, scaled, s, sig_figs)
             pivot_ratio = round_sig(abs(A[o[k]][k] / s[o[k]]), sig_figs)
-            self.recorder.record_dolittle(A,o,StepType.SWAP)
+            # self.recorder.record_dolittle(A,o,StepType.SWAP)
 
             if pivot_ratio < tol:
                 raise ValueError("Matrix is singular.")
@@ -34,7 +34,7 @@ class DolittleSolver :
                 for j in range(k+1, n):
                     A[o[i]][j] -= round_sig(factor * A[o[k]][j], sig_figs)
                 
-                self.recorder.record_dolittle(A,o,StepType.ELIM)
+                # self.recorder.record_dolittle(A,o,StepType.ELIM)
                 
         #Last pivot check
         last = A[o[n-1]][n-1]
@@ -42,13 +42,13 @@ class DolittleSolver :
         if pivot_ratio < tol:
             raise ValueError("Matrix is singular")
         
-        self.recorder.record_dolittle(A, o, StepType.SOL)
+        # self.recorder.record_dolittle(A, o, StepType.SOL)
                 
         x = self.solve_helper(A, o, self.system.b, sig_figs)
 
         return x, A
     
-
+    @staticmethod
     def solve_helper(A, o, b, sig_figs=8):
         n = len(A)
         y = [0]*n

@@ -12,17 +12,17 @@ class CholeskySolver:
         self.recorder = LUStepRecorder(single_step)
 
 
-    def solve(self) -> list[float]:
+    def solve(self, sig_figs = 8) -> list[float]:
         A=self.system.A
         n=self.system.n
-        sig_figs=self.sig_figs
         b=self.system.b
-        l,lt=self.decompose()
+        l,lt=self.decompose(sig_figs)
         x=self.solve_helper(l,list(range(n)),b,sig_figs)
         return x
     # this was lu_solve_cholesky
     # No changes happened
-    def solve_helper(A, o, b, sig_figs=8):
+    @staticmethod
+    def solve_helper(A, o, b, sig_figs= 8):
         n = len(A)
         y = [0] * n
         x = [0] * n
@@ -47,9 +47,8 @@ class CholeskySolver:
         return x
 
     #Method to decompose A to l,lt
-    def decompose(self, sig_figs=8):
+    def decompose(self, sig_figs= 8):
         A=self.system.A
-        sig_figs=self.sig_figs
         n=self.system.n
 
         #initialize empty l

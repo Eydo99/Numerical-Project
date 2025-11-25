@@ -24,8 +24,8 @@ class LUStepRecorder:
         """ o : order array
             i : index of eliminating row
             j : index of row on which the elimination takes place"""
-        L = list[list]
-        U = list[list]
+        L = []
+        U = []
         n = len(A)
         if self.enabled:
             k : int 
