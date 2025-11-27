@@ -39,9 +39,10 @@ export class SolverService {
   getSolution(
     size: number,
     matrix: string[][],
-    precision: number,
+    sigFigures: number,
     maxIterations: number,
     tolerance: number,
+    initialGuess:number[],
     endpoint : string
   ) {
     this.parsedMatrix = this.parseMatrix(matrix);
@@ -51,9 +52,11 @@ export class SolverService {
       dim: size,
       coeff: this.coeffMatrix,
       answers: this.vectorB,
-      sig_figs: precision,
+      sig_figs: sigFigures,
       max_itrs: maxIterations,
       tol: tolerance,
+      intital:initialGuess,
+      single_step:true
     };
     console.log(this.coeffMatrix)
     console.log(this.vectorB)

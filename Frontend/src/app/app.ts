@@ -33,11 +33,11 @@ interface Method {
 export class App {
   matrixSize = 3;
   selectedMethod = 'gauss';
-  precision = 4;
+  sigFigures = 4;
   maxIterations = 100;
   tolerance = 0.0001;
   luAlgorithm = 'doolittle';
-  initialGuess: string[] = [];
+  initialGuess: number[] = [0,0,0];
   matrix: string[][] = [];
   solution: number[] | null = null;
   solutionError: string | null = null;
@@ -50,8 +50,10 @@ export class App {
     "gauss":"/solve/gausselim",
     "gauss-jordan":"/solve/gaussjordan",
     "cholesky":"/solve/cholesky",
-    "dolittle":"/solve/dolittle"
-
+    "dolittle":"/solve/dolittle",
+    "crout":"/solve/crout",
+    "jacobi":"/solve/jacobi",
+    "gauss-siedel":"/solve/gauss_seidel"
   };
   currentEndpoint = this.endpoints["gauss"];
 
@@ -115,19 +117,13 @@ export class App {
     // Check initial guess for iterative methods
     if (this.selectedMethod === 'jacobi' || this.selectedMethod === 'gauss-seidel') {
       for (let i = 0; i < this.initialGuess.length; i++) {
-        const value = this.initialGuess[i].trim();
+        const value = this.initialGuess[i];
 
-        if (value === '' || value === '-') {
+        if (!value) {
           continue;
         }
 
-        if (!validNumberPattern.test(value)) {
-          this.hasInvalidInput = true;
-          this.invalidInputMessage = `Invalid initial guess for x${
-            i + 1
-          }. Please enter a valid number.`;
-          return;
-        }
+        
       }
     }
   }
@@ -201,44 +197,52 @@ export class App {
   }
 
   solveSystem(): void {
+  
   this.validateInput();
   console.log(this.matrix);
+
   if (this.hasInvalidInput) {
     return;
   }
 
+  //reload
   this.isLoading = true;
-  this.solution = null; // Clear previous solution
+  this.solution = null; 
   this.solutionError = null;
+  this.executionTime = 0 ;
+
+
   switch(this.selectedMethod){
     case "gauss": this.currentEndpoint = this.endpoints["gauss"];break;
     case "gauss-jordan":this.currentEndpoint = this.endpoints["gauss-jordan"];break;
+    case "jacobi": this.currentEndpoint = this.endpoints["jacobi"];break;
+    case "gauss-siedel":this.currentEndpoint = this.endpoints["gauss-siedel"];break;
     case "lu":{
       switch(this.luAlgorithm){
         case "dolittle" : this.currentEndpoint = this.endpoints["dolittle"];break;
         case "cholesky" : this.currentEndpoint = this.endpoints["cholesky"];break;
-         
+        case "crout" :  this.currentEndpoint = this.endpoints["crout"];break;
       }
       break;
-      }
-
-      
-    }
-    
-  console.log("SELECTED METHOD : " +this.selectedMethod + ' '+ (this.selectedMethod === "lu" ? this.luAlgorithm : ''))
+      }  
+  }
+  console.log("initialGuess : " + this.initialGuess)  
+  console.log("SELECTED METHOD : " +this.selectedMethod + ' '+ (this.selectedMethod === "lu" ? this.luAlgorithm : ''));
+  
     this.solverService
       .getSolution(
         this.matrixSize,
         this.matrix,
-        this.precision,
+        this.sigFigures,
         this.maxIterations,
         this.tolerance,
+        this.initialGuess,
         this.currentEndpoint
       )
       .subscribe({
         next: (res) => {
           this.solution = res.result;
-          this.executionTime = res.executionTime || 0;
+          this.executionTime = res.exec_time || 0;
           this.iterations = res.iterations || 0;
           console.log("MATRIX A :"+this.solution);
           console.log("STEPS:" + res.steps);

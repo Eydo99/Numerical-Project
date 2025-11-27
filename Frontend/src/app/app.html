@@ -224,11 +224,11 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">
-                  Decimal Places
+                  Significant Figures
                 </label>
                 <input
                   type="number"
-                  [(ngModel)]="precision"
+                  [(ngModel)]="sigFigures"
                   min="1"
                   max="10"
                   class="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
@@ -273,14 +273,14 @@
               <label class="block text-sm font-medium text-slate-700 mb-3"> LU Algorithm </label>
               <div class="grid grid-cols-3 gap-2">
                 <button
-                  (click)="luAlgorithm = 'doolittle'"
+                  (click)="luAlgorithm = 'dolittle'"
                   [class]="
-                    luAlgorithm === 'doolittle'
+                    luAlgorithm === 'dolittle'
                       ? 'py-2 px-4 rounded-lg font-medium transition-all bg-indigo-600 text-white shadow-md'
                       : 'py-2 px-4 rounded-lg font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200'
                   "
                 >
-                  Doolittle
+                  Dolittle
                 </button>
                 <button
                   (click)="luAlgorithm = 'crout'"
@@ -384,7 +384,7 @@
                   >
                   <span class="text-green-600 font-bold text-xl">=</span>
                   <span class="text-green-900 font-bold text-2xl">{{
-                    val.toFixed(precision)
+                    val
                   }}</span>
                   <span
                     *ngIf="i < solution.length - 1"
