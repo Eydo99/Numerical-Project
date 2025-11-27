@@ -190,13 +190,19 @@
                 </div>
 
                 <ng-container *ngFor="let cell of row; let j = index; trackBy: trackByIndex">
-                  <input
+                  <span *ngIf="j === matrixSize" class="text-slate-400 font-bold">=</span>
+
+                   <input
                     type="text"
                     [(ngModel)]="matrix[i][j]"
                     (input)="validateInput()"
                     class="w-16 h-12 text-center border-2 border-slate-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all font-medium"
                     placeholder="0"
-                  />
+                  /> 
+
+                
+
+                  
 
                   <span *ngIf="j < matrixSize" class="text-slate-400 font-medium">
                     x<sub class="text-xs">{{ j + 1 }}</sub>
@@ -207,8 +213,6 @@
                     class="text-slate-400 font-bold"
                     >+</span
                   >
-
-                  <span *ngIf="j === matrixSize" class="text-slate-400 font-bold">=</span>
                 </ng-container>
               </div>
             </div>

@@ -2,7 +2,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { SolverService } from './solve-service';
+import { ChangeDetectorRef } from '@angular/core';
 interface Method {
   id: string;
   name: string;
@@ -31,7 +32,7 @@ interface Method {
 })
 export class App {
   matrixSize = 3;
-  selectedMethod = 'gaussian';
+  selectedMethod = 'gauss';
   precision = 4;
   maxIterations = 100;
   tolerance = 0.0001;
@@ -44,11 +45,19 @@ export class App {
   iterations: number = 0;
   isLoading = false;
   hasInvalidInput = false;
-  invalidInputMessage = ''
+  invalidInputMessage = '';
+  endpoints = {
+    "gauss":"/solve/gausselim",
+    "gauss-jordan":"/solve/gaussjordan",
+    "cholesky":"/solve/cholesky",
+    "dolittle":"/solve/dolittle"
+    
+  };
+  currentEndpoint = this.endpoints["gauss"];
 
   methods: Method[] = [
     {
-      id: 'gaussian',
+      id: 'gauss',
       name: 'Gaussian Elimination',
       description: 'Forward elimination only',
       icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"></path></svg>',
@@ -80,7 +89,6 @@ export class App {
   ];
 
   validateInput(): void {
-    
     const validNumberPattern = /^-?\d*\.?\d+(e[+-]?\d+)?$/i;
 
     this.hasInvalidInput = false;
@@ -95,11 +103,10 @@ export class App {
           continue;
         }
 
-        
         if (!validNumberPattern.test(value)) {
           this.hasInvalidInput = true;
-          this.invalidInputMessage = `Invalid input `
-           
+          this.invalidInputMessage = `Invalid input `;
+
           return;
         }
       }
@@ -125,7 +132,8 @@ export class App {
     }
   }
 
-  constructor() {
+    
+  constructor(private solverService: SolverService , private cdr: ChangeDetectorRef ) {
     this.initializeMatrix();
     this.initializeGuess();
   }
@@ -193,21 +201,59 @@ export class App {
   }
 
   solveSystem(): void {
-    this.validateInput();
-
-    if (this.hasInvalidInput) {
-      return;
-    }
-
-    this.isLoading = true;
-
-    // Placeholder: return all zeros for testing
-    // Replace this with your backend service call
-    const n = this.matrixSize;
-    this.solution = Array(n).fill(0);
-    this.solutionError = null;
-    this.executionTime = 0;
-    this.iterations = 0;
-    this.isLoading = false;
+  this.validateInput();
+  console.log(this.matrix);
+  if (this.hasInvalidInput) {
+    return;
   }
+
+  this.isLoading = true;
+  this.solution = null; // Clear previous solution
+  this.solutionError = null;
+  switch(this.selectedMethod){
+    case "gauss": this.currentEndpoint = this.endpoints["gauss"];break;
+    case "gauss-jordan":this.currentEndpoint = this.endpoints["gauss-jordan"];break;
+    case "lu":{
+      switch(this.luAlgorithm){
+        case "dolittle" : this.currentEndpoint = this.endpoints["dolittle"];break;
+        case "cholesky" : this.currentEndpoint = this.endpoints["cholesky"];break;
+         
+      }
+      break;
+      }
+
+      
+    }
+    
+    
+  
+  console.log("SELECTED METHOD : " +this.selectedMethod + ' '+ (this.selectedMethod === "lu" ? this.luAlgorithm : ''))
+    this.solverService
+      .getSolution(
+        this.matrixSize,
+        this.matrix,
+        this.precision,
+        this.maxIterations,
+        this.tolerance,
+        this.currentEndpoint
+      )
+      .subscribe({
+        next: (res) => {
+          this.solution = res.result;
+          this.executionTime = res.executionTime || 0;
+          this.iterations = res.iterations || 0;
+          console.log("MATRIX A :"+this.solution);
+          console.log("STEPS:" + res.steps);
+          
+          this.isLoading = false;
+          this.cdr.detectChanges(); // Manually trigger change detection
+        },
+        error: (err) => {
+          this.solutionError = 'Error solving system';
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  
+}
 }

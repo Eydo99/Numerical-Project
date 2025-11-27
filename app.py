@@ -9,6 +9,9 @@ import json
 
 app = Flask(__name__)
 
+from flask_cors import CORS
+CORS(app, resources={r"/*": {"origins": "*"}})  
+
 
 @app.route('/solve/gaussjordan', methods = ['POST'])
 def handle_gauss_jordan():
@@ -38,6 +41,8 @@ def handle_gauss_elim():
     matrix : list[list] = data.get("coeff")
     answers : list = data.get("answers")
 
+    print(matrix)
+    print(answers)
     solver = GaussSolver(LinearSystem(matrix, answers), True)
     ans,_ = solver.solve(10,scaling=True)
     steps : list[GaussStep] = solver.step_recorder.steps
