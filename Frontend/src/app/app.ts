@@ -51,7 +51,7 @@ export class App {
     "gauss-jordan":"/solve/gaussjordan",
     "cholesky":"/solve/cholesky",
     "dolittle":"/solve/dolittle"
-    
+
   };
   currentEndpoint = this.endpoints["gauss"];
 
@@ -225,8 +225,6 @@ export class App {
       
     }
     
-    
-  
   console.log("SELECTED METHOD : " +this.selectedMethod + ' '+ (this.selectedMethod === "lu" ? this.luAlgorithm : ''))
     this.solverService
       .getSolution(

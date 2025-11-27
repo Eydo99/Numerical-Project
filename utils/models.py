@@ -8,6 +8,8 @@ class StepType :
     SWAP = "swap"
     ELIM = "elim"
     SOL = "sol"
+    ITR_ROW = "itr_row"
+    ITR_ELE = "itr_ele"
 
 class GaussStep :
     stepType : StepType
@@ -28,6 +30,13 @@ class LUStep :
     answers : list[float]
     def __init__(self, L : list[list[float]], U : list[list[float]], stepType : StepType):
         import copy
-        self.matrix = copy.deepcopy(L)
-        self.answers = copy.deepcopy(U)
+        self.L = copy.deepcopy(L)
+        self.U = copy.deepcopy(U)
+        self.stepType = stepType
+
+class IterativeStep :
+    answers : list[float]
+    def __init__(self, answers: list, stepType : StepType):
+        import copy
+        self.answers = copy.deepcopy(answers)
         self.stepType = stepType
