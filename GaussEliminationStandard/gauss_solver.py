@@ -1,6 +1,7 @@
 from utils.models import GaussStep, StepType, LinearSystem
 from utils.step_recorder import GaussStepRecorder
 from utils.auxilary import round_sig, pivot, back_sub
+from exceptions.singular import SingularMatrixException
 import time
 import math
 
@@ -18,7 +19,7 @@ class GaussSolver:
         for col in range(n):
             er = pivot(A, b, col, scaling, None, tol=tol)
             if er == -1:
-                return self.step_recorder.steps, None
+                raise SingularMatrixException()
             self.step_recorder.record(A, b, StepType.SWAP)
 
             for row in range(col+1, n):

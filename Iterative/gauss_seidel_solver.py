@@ -9,7 +9,7 @@ class GaussSeidelSolver :
     def __init__(self, system: LinearSystem, single_step : bool = False):
         self.system = system
         self.recorder = IterativeStepRecorder(single_step)
-    def solve(self,initial : list, sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, bool, list[list]] :
+    def solve(self,initial : list, sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, int, list[list], bool, bool] :
         A = self.system.A
         b = self.system.b
         n = self.system.n
@@ -36,7 +36,7 @@ class GaussSeidelSolver :
             print("\nVector B:", b)
             print("\nInitial Guess:", initial)
             print("\n---------------------------------------------\n")
-
+        i = 0
         for i in range(max_itrs):
             if debug : print("Iteration no. ",i+1,"\n")
             Old = initial.copy() 
@@ -78,7 +78,8 @@ class GaussSeidelSolver :
             if stop and (i+1)!=max_itrs:
                 if debug : print("Stopping early: all relative errors < margin.\n")
                 break
-            
+
+        success = i < max_itrs
         if debug : print("Gauss-Sediel End")
 
         end =time.perf_counter()
@@ -86,4 +87,4 @@ class GaussSeidelSolver :
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
 
-        return initial, DD, newA
+        return initial, i, newA, DD, success
