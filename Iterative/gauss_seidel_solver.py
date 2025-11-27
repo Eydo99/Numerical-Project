@@ -15,10 +15,11 @@ class GaussSeidelSolver :
         n = self.system.n
         start1=time.perf_counter()   
 
-        DD, newA = check_diagonal_dominance(A)
+        DD, newA,newb = check_diagonal_dominance(A,b)
         if DD:
             if debug : print("matrix is diagonally dominant => Jacobi will to converge.")
             A = newA
+            b = newb
         else:
             if debug : print("matrix is not diagonally dominant => Jacobi may not converge.")
 
