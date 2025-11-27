@@ -10,16 +10,17 @@ class JacobiSolver :
         self.system = system
         self.recorder = IterativeStepRecorder(single_step)
     
-    def solve(self,initial : list,  sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, bool, list[list]] :
+    def solve(self,initial : list,  sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, list[list], int, bool, bool] :
         A = self.system.A
         b = self.system.b
         n = self.system.n
         helper = initial.copy()
         start1=time.perf_counter()
-        DD, newA = check_diagonal_dominance(A)
+        DD, newA,newb = check_diagonal_dominance(A,b)
         if DD:
             if debug : print("matrix is diagonally dominant => Jacobi will to converge.")
             A = newA
+            b=newb
         else:
             if debug : print("matrix is not diagonally dominant => Jacobi may not converge.")
 
@@ -39,7 +40,7 @@ class JacobiSolver :
             print("\nInitial Guess:", initial)
             print("\n---------------------------------------------\n")
 
-
+        i = 0
         for i in range(max_itrs):
             if debug : print("Iteration no. ",i+1,"\n")
 
@@ -72,7 +73,6 @@ class JacobiSolver :
             for e in errors:
                 if e >= tol:
                     stop = False
-                    print(i)
                     break
                    
             if stop and (i+1)!=max_itrs:
@@ -83,7 +83,7 @@ class JacobiSolver :
             initial=helper.copy()
             self.recorder.record(initial)
 
-
+        success = i < max_itrs
         if debug : print("Jacobi End")
 
         end =time.perf_counter()
@@ -91,7 +91,7 @@ class JacobiSolver :
         if debug : 
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
-        return initial, DD, newA
+        return initial, i, newA, DD, success
 
 
 

@@ -8,6 +8,9 @@ from LUStandard.dolittle_solver import DolittleSolver
 from LUStandard.crout_solver import CroutSolver
 from Iterative.gauss_seidel_solver import GaussSeidelSolver
 from Iterative.jacobi_solver import JacobiSolver
+from exceptions.singular import SingularMatrixException
+from exceptions.asymmetric import AsymmetricMatrixException
+from exceptions.positive_indefinite import PositiveIndefiniteException
 import time
 import json
 
@@ -31,7 +34,11 @@ def handle_gauss_jordan():
 
     start = time.time()
     solver = GaussJordanSolver(LinearSystem(matrix, answers), False)
-    ans,_ = solver.solve(sig_figs, tol,scaling=False)
+    try :
+        ans,_ = solver.solve(sig_figs, tol,scaling=False)
+    except SingularMatrixException as e:
+        return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
+
     end = time.time()
     exec_time = end - start
 
@@ -45,7 +52,9 @@ def handle_gauss_jordan():
     for step in steps :
         stepList.append({"type" : step.stepType, "matrix" : step.matrix, "answers" : step.answers})
 
-    output = {"result" : ans, "steps" : stepList, "exec_time" : exec_time}
+    output = {"result" : ans, 
+              "steps" : stepList, 
+              "exec_time" : exec_time}
     return json.dumps(output)
 
 @app.route('/solve/gausselim', methods = ['POST'])
@@ -63,7 +72,11 @@ def handle_gauss_elim():
 
     start = time.time()
     solver = GaussSolver(LinearSystem(matrix, answers), False)
-    ans,_ = solver.solve(sig_figs, tol,scaling=False)
+    try :
+        ans,_ = solver.solve(sig_figs, tol,scaling=False)
+    except SingularMatrixException as e:
+        return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
+    
     end = time.time()
     exec_time = end - start
 
@@ -79,7 +92,9 @@ def handle_gauss_elim():
     for step in steps :
         stepList.append({"type" : step.stepType, "matrix" : step.matrix, "answers" : step.answers})
 
-    output = {"result" : ans, "steps" : stepList, "exec_time" : exec_time}
+    output = {"result" : ans, 
+              "steps" : stepList, 
+              "exec_time" : exec_time}
     return json.dumps(output)
 
 
@@ -96,14 +111,28 @@ def handle_cholesky():
     sig_figs : int = data.get("sig_figs")
 
     solver = CholeskySolver(LinearSystem(matrix, answers), False)
-    ans = solver.solve(sig_figs)
+    
+    start = time.time()
+    try :
+        ans = solver.solve(sig_figs, tol)
+    except SingularMatrixException as e:
+        return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
+    except AsymmetricMatrixException as e:
+        return json.dumps({"problem" : str(e), "flags" : {"asymmetric" : True}})
+    except PositiveIndefiniteException as e:
+        return json.dumps({"problem" : str(e), "flags" : {"positive_indef" : True}})
+    end = time.time()
+    exec_time = end - start
+
     steps : list[LUStep] = solver.recorder.steps
 
     stepList = []
     for step in steps :
         stepList.append({"type" : step.stepType, "L" : step.L, "U" : step.U})
 
-    output = {"result" : ans, "steps" : stepList}
+    output = {"result" : ans, 
+              "steps" : stepList,
+              "exec_time" : exec_time}
     return json.dumps(output)
 
 @app.route('/solve/crout', methods = ['POST'])
@@ -119,14 +148,21 @@ def handle_crout():
     sig_figs : int = data.get("sig_figs")
 
     solver = CroutSolver(LinearSystem(matrix, answers), False)
-    ans,exec_time = solver.solve(sig_figs)
+    
+    try :
+        ans,exec_time = solver.solve(sig_figs, tol)
+    except SingularMatrixException as e:
+        return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
+    
     steps : list[LUStep] = solver.recorder.steps
 
     stepList = []
     for step in steps :
         stepList.append({"type" : step.stepType, "L" : step.L, "U" : step.U})
 
-    output = {"result" : ans, "steps" : stepList, "exec_time" : exec_time}
+    output = {"result" : ans, 
+              "steps" : stepList, 
+              "exec_time" : exec_time}
     return json.dumps(output)
 
 
@@ -144,7 +180,12 @@ def handle_dolittle():
 
     start = time.time()
     solver = DolittleSolver(LinearSystem(matrix, answers), False)
-    ans,_ = solver.solve(sig_figs, tol,scaled=True)
+    
+    try :
+        ans,_ = solver.solve(sig_figs, tol,scaled=True)
+    except SingularMatrixException as e:
+        return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
+    
     end = time.time()
     exec_time = end - start
 
@@ -158,7 +199,10 @@ def handle_dolittle():
     for step in steps :
         stepList.append({"type" : step.stepType, "L" : step.L, "U" : step.U})
 
-    output = {"result" : ans, "steps" : stepList}
+    output = {
+        "result" : ans, 
+        "steps" : stepList,
+        "exec_time" : exec_time}
     return json.dumps(output)
 
 @app.route('/solve/jacobi', methods = ['POST'])
@@ -179,8 +223,9 @@ def handle_jacobi():
 
     start = time.time()
     solver = JacobiSolver(LinearSystem(matrix, answers), False)
-    ans,_,_ = solver.solve(init_guess, sig_figs, tol, max_itrs)
+    ans, newA, DD, itr_cnt, non_conv = solver.solve(init_guess, sig_figs, tol, max_itrs)
     end = time.time()
+    
     
     exec_time : float = end - start
 
@@ -195,7 +240,13 @@ def handle_jacobi():
     for step in steps :
         stepList.append({"type" : step.stepType, "answers" : step.answers})
 
-    output = {"result" : ans, "steps" : stepList, "exec_time" : exec_time}
+    output = {
+            "result" : ans,
+            "steps" : stepList,
+            "matrix" : newA,
+            "itr_cnt" : itr_cnt,
+            "exec_time" : exec_time,
+            "flags" : {"dd" : DD, "conv" : not non_conv} }
     return json.dumps(output)
 
 @app.route('/solve/gauss_seidel', methods = ['POST'])
@@ -216,7 +267,7 @@ def handle_gauss_seidel():
 
     start = time.time()
     solver = GaussSeidelSolver(LinearSystem(matrix, answers), False)
-    ans,_,_ = solver.solve( init_guess, sig_figs, tol, max_itrs)
+    ans, newA, DD, itr_cnt, non_conv = solver.solve( init_guess, sig_figs, tol, max_itrs)
     end = time.time()
     
     exec_time : float = end - start
@@ -232,7 +283,13 @@ def handle_gauss_seidel():
     for step in steps :
         stepList.append({"type" : step.stepType, "answers" : step.answers})
 
-    output = {"result" : ans, "steps" : stepList, "exec_time" : exec_time}
+        output = {
+            "result" : ans,
+            "steps" : stepList,
+            "matrix" : newA,
+            "itr_cnt" : itr_cnt,
+            "exec_time" : exec_time,
+            "flags" : {"dd" : DD, "conv" : not non_conv} }
     return json.dumps(output)
 # if app.name == "__main__" :
 app.run(debug= True, port= 8080)

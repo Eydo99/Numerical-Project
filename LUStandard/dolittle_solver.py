@@ -3,6 +3,7 @@ from utils.auxilary import scaling_factors, round_sig, pivot_lu
 from utils.models import LinearSystem
 from utils.step_recorder import LUStepRecorder
 from utils.models import StepType
+from exceptions.singular import SingularMatrixException
 
 
 class DolittleSolver :
@@ -26,7 +27,7 @@ class DolittleSolver :
             
 
             if pivot_ratio < tol:
-                raise ValueError("Matrix is singular.")
+                raise SingularMatrixException()
             
             #Elimination
 
@@ -46,7 +47,7 @@ class DolittleSolver :
         last = A[o[n-1]][n-1]
         pivot_ratio = round_sig(abs(last) / s[o[n-1]], sig_figs)
         if pivot_ratio < tol:
-            raise ValueError("Matrix is singular")
+            raise SingularMatrixException()
         
         self.recorder.record_dolittle(A, o,n - 1,n - 1, StepType.SOL)
                 
@@ -56,7 +57,7 @@ class DolittleSolver :
         return x, A
     
     @staticmethod
-    def solve_helper(A, o, b, sig_figs=8):
+    def solve_helper(A, o, b, sig_figs=8, tol = 1e-6):
         n = len(A)
         y = [0]*n
         x = [0]*n
