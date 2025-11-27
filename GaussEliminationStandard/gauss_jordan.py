@@ -1,7 +1,7 @@
 from typing import Optional
 from utils.models import GaussStep, StepType, LinearSystem
 from utils.step_recorder import GaussStepRecorder
-from utils.auxilary import round_sig, pivot
+from utils.auxilary import round_sig, pivot, scaling_factors
 import copy
 
 class GaussJordanSolver :
@@ -18,16 +18,16 @@ class GaussJordanSolver :
 
         # Forward Elimination
         length = self.system.n
-        scales = [1] * length
+        scales = scaling_factors(matrix) if scaling else [1] * length
 
         # Only apply scaling if required
-        if(scaling):
-            for i, row in enumerate(matrix) :
-                scales[i] = row[0]
-                for j in range(1,length):
-                    scales[i] = max(scales[i], abs(row[j]))
-                # Now we enforce rounding
-                scales[i] = round_sig(scales[i], sig_figs)
+        # if(scaling):
+        #     for i, row in enumerate(matrix) :
+        #         scales[i] = row[0]
+        #         for j in range(1,length):
+        #             scales[i] = max(scales[i], abs(row[j]))
+        #         # Now we enforce rounding
+        #         scales[i] = round_sig(scales[i], sig_figs)
         
         # Forward + Back Elimination
         for i in range(length) :
@@ -58,7 +58,7 @@ class GaussJordanSolver :
             
             
         for i in range(length):
-            answers[i] /= matrix[i][i]
+            answers[i] = round_sig(answers[i] / matrix[i][i], sig_figs) 
             matrix[i][i] = 1
         
 

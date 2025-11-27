@@ -21,6 +21,7 @@ class CholeskySolver:
         return x
     # this was lu_solve_cholesky
     # No changes happened
+
     @staticmethod
     def solve_helper(A, o, b, sig_figs= 8):
         n = len(A)

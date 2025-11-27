@@ -1,23 +1,61 @@
 import time
 
-from GaussElimination import linear_system
-from GaussElimination.back_substitution import round_sig
-from LUDecomposition.lu_common import lu_solve_crout
+from utils.models import LinearSystem
+from utils.auxilary import round_sig
+from utils.step_recorder import LUStepRecorder
 
 
-class crout_solver:
+
+class CroutSolver:
 
     #Constuctor for initializing system(A,B) and no of signifacant figures
-    def __init__(self,system:linear_system,noOfSig=8):
+    def __init__(self,system: LinearSystem, single_step : bool = False):
         self.system = system
-        self.noOfSig = noOfSig
+        self.recorder = LUStepRecorder(single_step)
 
 
-    #decompose A into L and U
-    def decompose(self):
+    #Method to get x
+    def solve(self, sig_figs=8):
+         start_time=time.perf_counter()
+         merged=self.merge()
+         b=self.system.b
+         n=self.system.n
+         noOfSig=sig_figs
+         x= self.solve_helper(merged,list(range(n)),b,noOfSig)
+         exec_time=time.perf_counter()-start_time
+         return x, exec_time
+
+
+    @staticmethod
+    def solve_helper(A, o, b, sig_figs=8):
+        n = len(A)
+        y = [0] * n
+        x = [0] * n
+
+        # Forward Subst --> solving Ly=b
+        #Algorithm using Formula: y_i = b_i - sum_{j=0}^{i-1} L[i][j] * y_j
+        y[o[0]] = b[o[0]] / A[o[0]][0]
+        for i in range(1, n):
+            s = b[o[i]]
+            for j in range(i):
+                s -= round_sig(A[o[i]][j] * y[o[j]], sig_figs)
+            y[o[i]] = round_sig(s / A[o[i]][i], sig_figs)
+
+        # Backward Subst --> solving Ux=y
+        #Algorithm using Formula:  x_i = ( y_i - sum_{j=i+1}^{n-1} U[i][j] * x_j ) / U[i][i]
+        x[n - 1] = y[o[n - 1]]
+        for i in range(n - 2, -1, -1):
+            s = 0
+            for j in range(i + 1, n):
+                s += round_sig(A[o[i]][j] * x[j], sig_figs)
+            x[i] = round_sig(y[o[i]] - s, sig_figs)
+        return x
+    
+        #decompose A into L and U
+    def decompose(self, sig_figs = 6):
         A = self.system.A
         n = self.system.n
-        noOfSig =self.noOfSig
+        noOfSig = sig_figs
 
         #Initialize l and u
         l=[[0 for j in range(n)] for i in range(n)]
@@ -60,16 +98,7 @@ class crout_solver:
                     merged[i][j]=l[i][j]
         return merged
 
-    #Method to get x
-    def solve(self):
-         start_time=time.perf_counter()
-         merged=self.merge()
-         b=self.system.b
-         n=self.system.n
-         noOfSig=self.noOfSig
-         x=lu_solve_crout(merged,list(range(n)),b,noOfSig)
-         exec_time=time.perf_counter()-start_time
-         return x, exec_time
+
 
 
 
