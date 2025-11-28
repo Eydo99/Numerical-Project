@@ -10,7 +10,7 @@ class JacobiSolver :
         self.system = system
         self.recorder = IterativeStepRecorder(single_step)
     
-    def solve(self,initial : list,  sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, list[list], int, bool, bool] :
+    def solve(self,initial : list,  sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, list[list], int, bool, int] :
         A = self.system.A
         b = self.system.b
         n = self.system.n
