@@ -16,8 +16,8 @@ import json
 
 app = Flask(__name__)
 
-# from flask_cors import CORS
-# CORS(app, resources={r"/*": {"origins": "*"}})  
+from flask_cors import CORS
+CORS(app, resources={r"/*": {"origins": "*"}})  
 
 
 @app.route('/solve/gaussjordan', methods = ['POST'])
@@ -33,14 +33,14 @@ def handle_gauss_jordan():
     tol : float = data.get("tol")
     sig_figs : int = data.get("sig_figs")
 
-    start = time.time()
+    start = time.perf_counter()
     solver = GaussJordanSolver(LinearSystem(matrix, answers), False)
     try :
         ans,_ = solver.solve(sig_figs, tol, scaled)
     except SingularMatrixException as e:
         return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
 
-    end = time.time()
+    end = time.perf_counter()
     exec_time = end - start
 
     if single_step :
@@ -72,14 +72,14 @@ def handle_gauss_elim():
     sig_figs : int = data.get("sig_figs")
 
 
-    start = time.time()
+    start = time.perf_counter()
     solver = GaussSolver(LinearSystem(matrix, answers), False)
     try :
         ans,_ = solver.solve(sig_figs, tol, scaled)
     except SingularMatrixException as e:
         return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
     
-    end = time.time()
+    end = time.perf_counter()
     exec_time = end - start
 
     if single_step :
@@ -114,7 +114,7 @@ def handle_cholesky():
 
     solver = CholeskySolver(LinearSystem(matrix, answers), False)
     
-    start = time.time()
+    start = time.perf_counter()
     try :
         ans = solver.solve(sig_figs, tol)
     except SingularMatrixException as e:
@@ -123,7 +123,7 @@ def handle_cholesky():
         return json.dumps({"problem" : str(e), "flags" : {"asymmetric" : True}})
     except PositiveIndefiniteException as e:
         return json.dumps({"problem" : str(e), "flags" : {"positive_indef" : True}})
-    end = time.time()
+    end = time.perf_counter()
     exec_time = end - start
 
     steps : list[LUStep] = solver.recorder.steps
@@ -181,7 +181,7 @@ def handle_dolittle():
     tol : float = data.get("tol")
     sig_figs : int = data.get("sig_figs")
 
-    start = time.time()
+    start = time.perf_counter()
     solver = DolittleSolver(LinearSystem(matrix, answers), False)
     
     try :
@@ -189,7 +189,7 @@ def handle_dolittle():
     except SingularMatrixException as e:
         return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
     
-    end = time.time()
+    end = time.perf_counter()
     exec_time = end - start
 
     if single_step :
@@ -224,10 +224,10 @@ def handle_jacobi():
     tol : float = data.get("tol")
     sig_figs : int = data.get("sig_figs")
     
-    start = time.time()
+    start = time.perf_counter()
     solver = JacobiSolver(LinearSystem(matrix, answers), False)
     ans, newA, itr_cnt, DD, status = solver.solve(init_guess, sig_figs, tol, max_itrs)
-    end = time.time()
+    end = time.perf_counter()
     
     
     exec_time : float = end - start
@@ -269,10 +269,10 @@ def handle_gauss_seidel():
     tol : float = data.get("tol")
     sig_figs : int = data.get("sig_figs")
 
-    start = time.time()
+    start = time.perf_counter()
     solver = GaussSeidelSolver(LinearSystem(matrix, answers), False)
     ans, newA, itr_cnt, DD, status = solver.solve( init_guess, sig_figs, tol, max_itrs)
-    end = time.time()
+    end = time.perf_counter()
     
     exec_time : float = end - start
 
