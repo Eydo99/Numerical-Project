@@ -264,7 +264,7 @@
           <div class="mt-6 pt-6 border-t border-slate-200">
             <h3 class="text-md font-semibold text-slate-800 mb-4">Method-Specific Options</h3>
 
-            <!-- LU Decomposition Algorithm Selection -->
+            <!-- LU Decomposition  -->
             <div *ngIf="selectedMethod === 'lu'" class="mb-4">
               <label class="block text-sm font-medium text-slate-700 mb-3"> LU Algorithm </label>
               <div class="grid grid-cols-3 gap-2">
@@ -452,7 +452,7 @@
               {{ steps && steps.length > 0 ? 'Simulate Solution Steps' : 'No Steps Available' }}
             </button>
 
-            <!-- ========== STEP SIMULATOR (MODAL/EXPANDED SECTION) ========== -->
+            <!-- ========== STEP SIMULATOR  ========== -->
             <div *ngIf="showSimulator && steps && steps.length > 0" class="mt-6">
               <div
                 class="bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6"

@@ -44,7 +44,7 @@ export class App {
   matrixSize = 3;
   selectedMethod = 'gauss';
   sigFigures = 4;
-  maxIterations = 100;
+  maxIterations = 101;
   tolerance = 0.0001;
   luAlgorithm = 'doolittle';
   initialGuess: number[] = Array(this.matrixSize).fill(0);
@@ -65,7 +65,7 @@ export class App {
     dolittle: '/solve/dolittle',
     crout: '/solve/crout',
     jacobi: '/solve/jacobi',
-    'gauss-siedel': '/solve/gauss_seidel',
+    'gauss-seidel': '/solve/gauss_seidel',
   };
   currentEndpoint = this.endpoints['gauss'];
 
@@ -135,7 +135,7 @@ export class App {
       }
     }
 
-    // Check initial guess for iterative methods
+    //initial_guess
     if (this.selectedMethod === 'jacobi' || this.selectedMethod === 'gauss-seidel') {
       for (let i = 0; i < this.initialGuess.length; i++) {
         const value = this.initialGuess[i];
@@ -151,7 +151,7 @@ export class App {
     this.initializeMatrix();
     this.initializeGuess();
   }
-
+  //on opening app
   initializeMatrix(): void {
     this.matrix = Array(this.matrixSize)
       .fill(null)
@@ -252,8 +252,8 @@ export class App {
       case 'jacobi':
         this.currentEndpoint = this.endpoints['jacobi'];
         break;
-      case 'gauss-siedel':
-        this.currentEndpoint = this.endpoints['gauss-siedel'];
+      case 'gauss-seidel':
+        this.currentEndpoint = this.endpoints['gauss-seidel'];
         break;
       case 'lu': {
         switch (this.luAlgorithm) {
@@ -309,19 +309,21 @@ export class App {
             this.iterations = res.itr_cnt || 0;
             this.steps = res.steps || [];
           }
+          console.log("conv : ",res.flags?.conv[0]);
           if (!res.flags?.dd && res.flags?.conv[0] === 0) {
             this.problemMessage =
               "(THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION MAY NOT CONVERGE)";
           }
           else if( res.flags?.conv[0] === -1)this.problemMessage =
               "( THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION WILL DIVERGE)";
-          else if(res.flags?.dd)this.problemMessage = "(THE MATRIX IS DIAGONALLY DOMINANT) ";
+          else if(!res.flags?.dd)this.problemMessage = "(THE MATRIX IS DIAGONALLY DOMINANT) ";
+          //else this.problemMessage = "(THE SOLUTION WILL DIVERGE)";
 
           this.isLoading = false;
 
           
 
-          this.cdr.detectChanges(); // Manually trigger change detection
+          this.cdr.detectChanges(); // trigger change 
         },
         error: (err) => {
           this.solutionError = 'Error solving system';
@@ -436,7 +438,7 @@ export class App {
     }
   }
 
-  // Add this method to your component class
+  // booleans
   shouldShowSimulator(): boolean {
     // Don't show simulator for LU decomposition methods
     if (this.selectedMethod === 'lu' && this.luAlgorithm != "dolittle") {
@@ -453,7 +455,7 @@ export class App {
     return this.selectedMethod === 'lu' && this.luAlgorithm === "dolittle" ;
   }
 
-  // Update getCurrentStep to handle matrix display
+  // matrix step
   getCurrentStep(): Step | null {
     const index = this.currentStepIndex$.value;
     return this.steps[index] || null;
