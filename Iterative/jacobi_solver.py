@@ -100,7 +100,7 @@ class JacobiSolver :
         if debug : 
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
-        return initial, i, newA, DD, status
+        return initial,newA,i, DD, status
 
 
 
