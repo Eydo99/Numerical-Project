@@ -9,7 +9,7 @@ class GaussSeidelSolver :
     def __init__(self, system: LinearSystem, single_step : bool = False):
         self.system = system
         self.recorder = IterativeStepRecorder(single_step)
-    def solve(self,initial : list, sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, int, list[list], bool, bool] :
+    def solve(self,initial : list, sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, list[list], int, bool, bool] :
         A = self.system.A
         b = self.system.b
         n = self.system.n
@@ -87,4 +87,4 @@ class GaussSeidelSolver :
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
 
-        return initial, i, newA, DD, success
+        return initial, newA, i, DD, success

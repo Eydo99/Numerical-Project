@@ -1,6 +1,6 @@
 from utils.models import GaussStep, StepType, LinearSystem
 from utils.step_recorder import GaussStepRecorder
-from utils.auxilary import round_sig, pivot, back_sub
+from utils.auxilary import round_sig, pivot, back_sub, scaling_factors
 from exceptions.singular import SingularMatrixException
 import time
 import math
@@ -14,10 +14,10 @@ class GaussSolver:
     def solve(self, sig_figs=6, tol=1e-12, scaling : bool = True) -> tuple[list, list[list]] :
         
         A, b, n = self.system.A , self.system.b, self.system.n
-
+        scales = scaling_factors(A) if scaling else [1]*n
         # start_time = time.perf_counter()
         for col in range(n):
-            er = pivot(A, b, col, scaling, None, tol=tol)
+            er = pivot(A, b, col, scaling, scales, tol=tol)
             if er == -1:
                 raise SingularMatrixException()
             self.step_recorder.record(A, b, StepType.SWAP)
