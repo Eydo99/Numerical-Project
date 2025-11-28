@@ -196,6 +196,17 @@ export class App {
         ['0', '0', '1', '3', '1', '10'],
         ['1', '0', '0', '1', '2', '7'],
       ];
+    } else if (this.matrixSize === 8) {
+      this.matrix = [
+        ['2', '1', '0', '0', '1', '0', '0', '0', '10'],
+        ['1', '3', '1', '0', '0', '1', '0', '0', '15'],
+        ['0', '1', '4', '1', '0', '0', '1', '0', '20'],
+        ['0', '0', '1', '3', '1', '0', '0', '1', '18'],
+        ['1', '0', '0', '1', '2', '1', '0', '0', '12'],
+        ['0', '1', '0', '0', '1', '3', '1', '0', '17'],
+        ['0', '0', '1', '0', '0', '1', '4', '1', '22'],
+        ['0', '0', '0', '1', '0', '0', '1', '3', '19'],
+      ];
     }
   }
 
@@ -277,23 +288,23 @@ export class App {
         next: (res) => {
           console.log('MATRIX A :' + this.solution);
           console.log(res.steps);
-
+          console.log(res.result);
           if (!res.result) {
             console.log(res.flags.singular);
             if (res.flags.singular) this.solutionError = 'MATRIX IS SINGULAR , NO UNIQUE SOLUTION';
             else if (res.flags.asymmetric)
               this.solutionError = 'MATRIX IS ASYMMETRIC , NO SOLUTION';
             else if (res.flags.positive_indef)
-              this.solutionError = "MATRIX ISN'T SPD , NO SOLUTION";
+              this.solutionError = "MATRIX ISN'T Positive Definite , NO SOLUTION";
             else this.solutionError = 'NO SOLUTION';
           } else {
             this.solution = res.result;
-            this.executionTime = res.exec_time || 0;
+            this.executionTime = res.exec_time * 1000 || 0;
             this.iterations = res.itr_cnt || 0;
             this.steps = res.steps || [];
           }
           if (res.flags?.conv === false) {
-            console.log(res.flags.conv);
+            //console.log(res.flags.conv);
             this.problemMessage =
               "(THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION MAY NOT CONVERGE)";
           }
