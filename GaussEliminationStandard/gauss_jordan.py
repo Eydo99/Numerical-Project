@@ -47,6 +47,7 @@ class GaussJordanSolver :
                 
                 answers[j] = round_sig(answers[j] - round_sig(factor * answers[i], sig_figs), sig_figs)
 
+                print(f"{matrix}" + "\n\n\n")
                 self.step_recorder.record(matrix, answers, StepType.ELIM)
             
             

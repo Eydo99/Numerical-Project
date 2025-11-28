@@ -50,7 +50,6 @@ def handle_gauss_jordan():
     
     stepList = []
     for step in steps :
-        print(step.matrix)
         stepList.append({"type" : step.stepType, "matrix" : step.matrix, "answers" : step.answers})
 
     output = {"result" : ans, 
@@ -227,7 +226,7 @@ def handle_jacobi():
 
     start = time.time()
     solver = JacobiSolver(LinearSystem(matrix, answers), False)
-    ans, newA, DD, itr_cnt, non_conv = solver.solve(init_guess, sig_figs, tol, max_itrs)
+    ans, newA, itr_cnt, DD, non_conv = solver.solve(init_guess, sig_figs, tol, max_itrs)
     end = time.time()
     
     
@@ -272,7 +271,7 @@ def handle_gauss_seidel():
 
     start = time.time()
     solver = GaussSeidelSolver(LinearSystem(matrix, answers), False)
-    ans, newA, DD, itr_cnt, non_conv = solver.solve( init_guess, sig_figs, tol, max_itrs)
+    ans, newA, itr_cnt, DD, non_conv = solver.solve( init_guess, sig_figs, tol, max_itrs)
     end = time.time()
     
     exec_time : float = end - start
