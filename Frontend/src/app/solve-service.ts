@@ -44,6 +44,7 @@ export class SolverService {
     maxIterations: number,
     tolerance: number,
     initialGuess:number[],
+    scaling : boolean,
     endpoint : string
   ) {
     this.parsedMatrix = this.parseMatrix(matrix);
@@ -57,6 +58,7 @@ export class SolverService {
       max_itrs: maxIterations,
       tol: tolerance,
       initial:initialGuess as Array<number>,
+      scaling : scaling ,
       single_step:true
     };
     console.log(this.coeffMatrix)

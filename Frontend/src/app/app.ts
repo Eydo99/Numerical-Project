@@ -55,6 +55,7 @@ export class App {
   hasInvalidInput = false;
   invalidInputMessage = '';
   problemMessage = '';
+  scaling = false;
   endpoints = {
     gauss: '/solve/gausselim',
     'gauss-jordan': '/solve/gaussjordan',
@@ -237,6 +238,7 @@ export class App {
     this.executionTime = 0;
     this.problemMessage = '';
     this.steps = [];
+    this.showSimulator = false
 
     switch (this.selectedMethod) {
       case 'gauss':
@@ -282,6 +284,7 @@ export class App {
         this.maxIterations,
         this.tolerance,
         this.initialGuess,
+        this.scaling,
         this.currentEndpoint
       )
       .subscribe({
@@ -322,6 +325,17 @@ export class App {
           this.cdr.detectChanges();
         },
       });
+  }
+
+  
+
+  
+  shouldShowScalingOption(): boolean {
+    return (
+      this.selectedMethod === 'gauss' ||
+      this.selectedMethod === 'gauss-jordan' ||
+      (this.selectedMethod === 'lu' && this.luAlgorithm === 'dolittle')
+    );
   }
 
   openSimulator(): void {
