@@ -26,6 +26,7 @@ def handle_gauss_jordan():
     data = request.json
     dim : int = int(data.get("dim"))
     single_step : bool = data.get("single_step")
+    scaled : bool = data.get("scaled")
     
     matrix : list[list] = data.get("coeff")
     answers : list = data.get("answers")
@@ -35,7 +36,7 @@ def handle_gauss_jordan():
     start = time.time()
     solver = GaussJordanSolver(LinearSystem(matrix, answers), False)
     try :
-        ans,_ = solver.solve(sig_figs, tol,scaling=False)
+        ans,_ = solver.solve(sig_figs, tol, scaled)
     except SingularMatrixException as e:
         return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
 
@@ -44,7 +45,7 @@ def handle_gauss_jordan():
 
     if single_step :
         solver = GaussJordanSolver(LinearSystem(matrix, answers), True)
-        solver.solve(sig_figs, tol,scaling=False)
+        solver.solve(sig_figs, tol, scaled)
     
     steps : list[GaussStep] = solver.step_recorder.steps
     
@@ -63,6 +64,7 @@ def handle_gauss_elim():
     data = request.json
     dim : int = int(data.get("dim"))
     single_step : bool = data.get("single_step")
+    scaled : bool = data.get("scaled")
     
     matrix : list[list] = data.get("coeff")
     answers : list = data.get("answers")
@@ -73,7 +75,7 @@ def handle_gauss_elim():
     start = time.time()
     solver = GaussSolver(LinearSystem(matrix, answers), False)
     try :
-        ans,_ = solver.solve(sig_figs, tol,scaling=False)
+        ans,_ = solver.solve(sig_figs, tol, scaled)
     except SingularMatrixException as e:
         return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
     
@@ -82,7 +84,7 @@ def handle_gauss_elim():
 
     if single_step :
         solver = GaussSolver(LinearSystem(matrix, answers), True)
-        solver.solve(sig_figs, tol,scaling=False)
+        solver.solve(sig_figs, tol, scaled)
         
     steps : list[GaussStep] = solver.step_recorder.steps
 
@@ -172,6 +174,7 @@ def handle_dolittle():
     data = request.json
     dim : int = int(data.get("dim")) 
     single_step : bool = data.get("single_step")
+    scaled : bool = data.get("scaled")
 
     matrix : list[list] = data.get("coeff")
     answers : list = data.get("answers")
@@ -182,7 +185,7 @@ def handle_dolittle():
     solver = DolittleSolver(LinearSystem(matrix, answers), False)
     
     try :
-        ans,_ = solver.solve(sig_figs, tol,scaled=True)
+        ans,_ = solver.solve(sig_figs, tol, scaled)
     except SingularMatrixException as e:
         return json.dumps({"problem" : str(e), "flags" : {"singular" : True}})
     
@@ -191,7 +194,7 @@ def handle_dolittle():
 
     if single_step :
         solver = DolittleSolver(LinearSystem(matrix, answers), True)
-        solver.solve(sig_figs, tol,scaled=True)  
+        solver.solve(sig_figs, tol, scaled)  
 
     steps : list[LUStep] = solver.recorder.steps
 
@@ -226,7 +229,7 @@ def handle_jacobi():
 
     start = time.time()
     solver = JacobiSolver(LinearSystem(matrix, answers), False)
-    ans, newA, itr_cnt, DD, non_conv = solver.solve(init_guess, sig_figs, tol, max_itrs)
+    ans, newA, itr_cnt, DD, status = solver.solve(init_guess, sig_figs, tol, max_itrs)
     end = time.time()
     
     
@@ -250,7 +253,7 @@ def handle_jacobi():
             "matrix" : newA,
             "itr_cnt" : itr_cnt,
             "exec_time" : exec_time,
-            "flags" : {"dd" : DD, "conv" : not non_conv} }
+            "flags" : {"dd" : DD, "conv" : status} }
     return json.dumps(output)
 
 @app.route('/solve/gauss_seidel', methods = ['POST'])
@@ -271,7 +274,7 @@ def handle_gauss_seidel():
 
     start = time.time()
     solver = GaussSeidelSolver(LinearSystem(matrix, answers), False)
-    ans, newA, itr_cnt, DD, non_conv = solver.solve( init_guess, sig_figs, tol, max_itrs)
+    ans, newA, itr_cnt, DD, status = solver.solve( init_guess, sig_figs, tol, max_itrs)
     end = time.time()
     
     exec_time : float = end - start
@@ -283,7 +286,7 @@ def handle_gauss_seidel():
     steps : list[IterativeStep] = solver.recorder.steps
 
     stepList = []
-    print("divergence : " ,bool(non_conv))
+    # print("divergence : " ,bool(non_conv))
     for step in steps :
         stepList.append({"type" : step.stepType, "answers" : step.answers})
     
@@ -293,7 +296,7 @@ def handle_gauss_seidel():
         "matrix" : newA,
         "itr_cnt" : itr_cnt,
         "exec_time" : exec_time,
-        "flags" : {"dd" : DD, "conv" : not non_conv} }
+        "flags" : {"dd" : DD, "conv" : status} }
     return json.dumps(output)
 # if app.name == "__main__" :
 app.run(debug= True, port= 8080)

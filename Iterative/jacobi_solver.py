@@ -1,4 +1,4 @@
-from .diagonal_dominance_checker import check_diagonal_dominance
+from .checks import check_diagonal_dominance, convergence_status
 from utils.models import LinearSystem
 from utils.auxilary import round_sig
 from utils.step_recorder import IterativeStepRecorder
@@ -30,6 +30,7 @@ class JacobiSolver :
 
         start2=time.perf_counter()
 
+        recent_max_errors = []
 
         if debug :
             print("\n Jacobi start \n")
@@ -63,6 +64,8 @@ class JacobiSolver :
                 else:
                     Ea = 0
                 errors.append(round_sig(Ea, sig_figs))
+            
+            recent_max_errors.append(max(errors))
 
             if debug :
                 for j in range(n):    
@@ -84,15 +87,20 @@ class JacobiSolver :
             initial=helper.copy()
             self.recorder.record(initial,True)
 
-        success = i < max_itrs
         if debug : print("Jacobi End")
+
+        reached_max_iterations = (i+1 == max_itrs)
+
+        status = convergence_status(recent_max_errors, tol, DD, reached_max_iterations)
+
+        if debug : print("\nFinal Status:", status)
 
         end =time.perf_counter()
 
         if debug : 
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
-        return initial, i, newA, DD, success
+        return initial, i, newA, DD, status
 
 
 

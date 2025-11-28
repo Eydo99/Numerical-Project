@@ -1,4 +1,4 @@
-from .diagonal_dominance_checker import check_diagonal_dominance
+from .checks import check_diagonal_dominance, convergence_status
 from utils.models import LinearSystem
 from utils.auxilary import round_sig
 from utils.step_recorder import IterativeStepRecorder
@@ -26,6 +26,8 @@ class GaussSeidelSolver :
 
         X= [ "X"+str(i+1) for i in range(n) ]
         
+        recent_max_errors = []
+
         start2=time.perf_counter()
 
         if debug :
@@ -63,6 +65,8 @@ class GaussSeidelSolver :
                     Ea = 0
                 errors.append(round(Ea, 6))
 
+            recent_max_errors.append(max(errors))
+
             if debug :
                 for j in range(n):    
                     print(X[j]+"="+str(initial[j])+"   (error = "+str(errors[j])+"%)")
@@ -79,12 +83,17 @@ class GaussSeidelSolver :
                 if debug : print("Stopping early: all relative errors < margin.\n")
                 break
 
-        success = i < max_itrs
         if debug : print("Gauss-Sediel End")
+
+        reached_max_iterations = (i+1 == max_itrs)
+
+        status = convergence_status(recent_max_errors, tol, DD, reached_max_iterations)
+
+        if debug : print("\nFinal Status:", status)
 
         end =time.perf_counter()
         if debug :
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
 
-        return initial, newA, i, DD, success
+        return initial, newA, i, DD, status

@@ -1,3 +1,9 @@
+
+class ConvStatus :
+    CONVERGENT = 1,
+    UNDETERMINED = 0,
+    DIVERGENT = -1
+
 def check_diagonal_dominance(A, C):
     strict = 0
     DD = False
@@ -107,3 +113,33 @@ def check_diagonal_dominance(A, C):
         print("The matrix is diagonally dominant")
 
     return DD, newA, newC
+
+
+def convergence_status(error_history, margin, DD, reached_max_iterations):
+    if not error_history:
+        return ConvStatus.UNDETERMINED
+
+    if error_history[-1] < margin:
+        return ConvStatus.CONVERGENT
+
+    if not reached_max_iterations:
+        return ConvStatus.UNDETERMINED
+
+    if DD:
+        return ConvStatus.UNDETERMINED
+
+    if len(error_history) < 3:
+        return ConvStatus.UNDETERMINED
+
+    last  = error_history[-1]
+    prev  = error_history[-2]
+    prev2 = error_history[-3]
+
+    r1 = (last / prev) if prev != 0 else float('inf')
+    r2 = (prev / prev2) if prev2 != 0 else float('inf')
+    avg_r = (r1 + r2) / 2.0
+
+    if avg_r > 1.05:
+        return ConvStatus.DIVERGENT
+
+    return ConvStatus.UNDETERMINED
