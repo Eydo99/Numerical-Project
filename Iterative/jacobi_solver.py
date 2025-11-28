@@ -52,6 +52,7 @@ class JacobiSolver :
                     else:
                         computation-=A[row][col]*initial[col]
                 helper[row]=(b[row]+computation)*(1/A[row][row])
+            print(type(A))    
         
             helper = [float(f"{val:.{sig_figs}g}") for val in helper]
 
@@ -81,7 +82,7 @@ class JacobiSolver :
                     
             
             initial=helper.copy()
-            self.recorder.record(initial)
+            self.recorder.record(initial,True)
 
         success = i < max_itrs
         if debug : print("Jacobi End")

@@ -52,7 +52,7 @@ class IterativeStepRecorder :
         
         def record(self, answers : list, entire_row_change : bool = False):
             if self.enabled:
-                self.steps.append(IterativeStep(copy.deepcopy(answers)), StepType.ITR_ROW if entire_row_change else StepType.ITR_ELE)
+                self.steps.append(IterativeStep(copy.deepcopy(answers), StepType.ITR_ROW if entire_row_change else StepType.ITR_ELE))
     
     
 

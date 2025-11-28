@@ -215,11 +215,14 @@ def handle_jacobi():
     matrix : list[list] = data.get("coeff")
     answers : list = data.get("answers")
     
-    init_guess : list = data.get("initial") 
+    init_guess : list[float] = data.get("initial") 
     max_itrs : int = data.get("max_itrs")
     
     tol : float = data.get("tol")
     sig_figs : int = data.get("sig_figs")
+    
+    print(init_guess)
+    print(type(init_guess[0]))
 
     start = time.time()
     solver = JacobiSolver(LinearSystem(matrix, answers), False)
@@ -228,11 +231,12 @@ def handle_jacobi():
     
     
     exec_time : float = end - start
-
+    
     if single_step :
         solver = JacobiSolver(LinearSystem(matrix, answers), True)
         solver.solve( init_guess, sig_figs, tol, max_itrs)
 
+    
     steps : list[IterativeStep] = solver.recorder.steps
 
     stepList = []
@@ -283,13 +287,13 @@ def handle_gauss_seidel():
     for step in steps :
         stepList.append({"type" : step.stepType, "answers" : step.answers})
 
-        output = {
-            "result" : ans,
-            "steps" : stepList,
-            "matrix" : newA,
-            "itr_cnt" : itr_cnt,
-            "exec_time" : exec_time,
-            "flags" : {"dd" : DD, "conv" : not non_conv} }
+    output = {
+        "result" : ans,
+        "steps" : stepList,
+        "matrix" : newA,
+        "itr_cnt" : itr_cnt,
+        "exec_time" : exec_time,
+        "flags" : {"dd" : DD, "conv" : not non_conv} }
     return json.dumps(output)
 # if app.name == "__main__" :
 app.run(debug= True, port= 8080)

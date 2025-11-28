@@ -37,7 +37,7 @@ export class App {
   maxIterations = 100;
   tolerance = 0.0001;
   luAlgorithm = 'doolittle';
-  initialGuess: number[] = [0,0,0];
+  initialGuess: number[] = [];
   matrix: string[][] = [];
   solution: number[] | null = null;
   solutionError: string | null = null;
@@ -47,15 +47,15 @@ export class App {
   hasInvalidInput = false;
   invalidInputMessage = '';
   endpoints = {
-    "gauss":"/solve/gausselim",
-    "gauss-jordan":"/solve/gaussjordan",
-    "cholesky":"/solve/cholesky",
-    "dolittle":"/solve/dolittle",
-    "crout":"/solve/crout",
-    "jacobi":"/solve/jacobi",
-    "gauss-siedel":"/solve/gauss_seidel"
+    gauss: '/solve/gausselim',
+    'gauss-jordan': '/solve/gaussjordan',
+    cholesky: '/solve/cholesky',
+    dolittle: '/solve/dolittle',
+    crout: '/solve/crout',
+    jacobi: '/solve/jacobi',
+    'gauss-siedel': '/solve/gauss_seidel',
   };
-  currentEndpoint = this.endpoints["gauss"];
+  currentEndpoint = this.endpoints['gauss'];
 
   methods: Method[] = [
     {
@@ -122,14 +122,11 @@ export class App {
         if (!value) {
           continue;
         }
-
-        
       }
     }
   }
 
-    
-  constructor(private solverService: SolverService , private cdr: ChangeDetectorRef ) {
+  constructor(private solverService: SolverService, private cdr: ChangeDetectorRef) {
     this.initializeMatrix();
     this.initializeGuess();
   }
@@ -197,38 +194,55 @@ export class App {
   }
 
   solveSystem(): void {
-  
-  this.validateInput();
-  console.log(this.matrix);
+    this.validateInput();
+    console.log(this.matrix);
 
-  if (this.hasInvalidInput) {
-    return;
-  }
+    if (this.hasInvalidInput) {
+      return;
+    }
 
-  //reload
-  this.isLoading = true;
-  this.solution = null; 
-  this.solutionError = null;
-  this.executionTime = 0 ;
+    //reload
+    this.isLoading = true;
+    this.solution = null;
+    this.solutionError = null;
+    this.executionTime = 0;
 
-
-  switch(this.selectedMethod){
-    case "gauss": this.currentEndpoint = this.endpoints["gauss"];break;
-    case "gauss-jordan":this.currentEndpoint = this.endpoints["gauss-jordan"];break;
-    case "jacobi": this.currentEndpoint = this.endpoints["jacobi"];break;
-    case "gauss-siedel":this.currentEndpoint = this.endpoints["gauss-siedel"];break;
-    case "lu":{
-      switch(this.luAlgorithm){
-        case "dolittle" : this.currentEndpoint = this.endpoints["dolittle"];break;
-        case "cholesky" : this.currentEndpoint = this.endpoints["cholesky"];break;
-        case "crout" :  this.currentEndpoint = this.endpoints["crout"];break;
+    switch (this.selectedMethod) {
+      case 'gauss':
+        this.currentEndpoint = this.endpoints['gauss'];
+        break;
+      case 'gauss-jordan':
+        this.currentEndpoint = this.endpoints['gauss-jordan'];
+        break;
+      case 'jacobi':
+        this.currentEndpoint = this.endpoints['jacobi'];
+        break;
+      case 'gauss-siedel':
+        this.currentEndpoint = this.endpoints['gauss-siedel'];
+        break;
+      case 'lu': {
+        switch (this.luAlgorithm) {
+          case 'dolittle':
+            this.currentEndpoint = this.endpoints['dolittle'];
+            break;
+          case 'cholesky':
+            this.currentEndpoint = this.endpoints['cholesky'];
+            break;
+          case 'crout':
+            this.currentEndpoint = this.endpoints['crout'];
+            break;
+        }
+        break;
       }
-      break;
-      }  
-  }
-  console.log("initialGuess : " + this.initialGuess)  
-  console.log("SELECTED METHOD : " +this.selectedMethod + ' '+ (this.selectedMethod === "lu" ? this.luAlgorithm : ''));
-  
+    }
+    console.log('initialGuess : ' + this.initialGuess );
+    console.log(
+      'SELECTED METHOD : ' +
+        this.selectedMethod +
+        ' ' +
+        (this.selectedMethod === 'lu' ? this.luAlgorithm : '')
+    );
+
     this.solverService
       .getSolution(
         this.matrixSize,
@@ -241,21 +255,31 @@ export class App {
       )
       .subscribe({
         next: (res) => {
+
+          console.log('MATRIX A :' + this.solution);
+          console.log('STEPS:' + res.steps);
+
+          if(!res.result){
+            console.log(res.flags.singular);
+            if (res.flags.singular) this.solutionError = "MATRIX IS SINGULAR , NO UNIQUE SOLUTION";
+            else if (res.flags.asymmetric)this.solutionError = "MATRIX IS ASSYMETRIC , NO SOLUTION";
+            else if (res.flags.positive_indef)this.solutionError = "MATRIX ISN'T SPD , NO SOLUTION";
+            else this.solutionError = "NO SOLUTION";
+          }
+          else{
           this.solution = res.result;
           this.executionTime = res.exec_time || 0;
-          this.iterations = res.iterations || 0;
-          console.log("MATRIX A :"+this.solution);
-          console.log("STEPS:" + res.steps);
-          
+          this.iterations = res.itr_cnt || 0;
+           
+          }
           this.isLoading = false;
-          this.cdr.detectChanges(); // Manually trigger change detection
+          this.cdr.detectChanges();// Manually trigger change detection
         },
         error: (err) => {
           this.solutionError = 'Error solving system';
           this.isLoading = false;
           this.cdr.detectChanges();
-        }
+        },
       });
-  
-}
+  }
 }

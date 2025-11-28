@@ -31,6 +31,7 @@ export class SolverService {
       return row.map(Number);
     });
   }
+  
 
   private baseUrl = 'http://127.0.0.1:8080';
 
@@ -55,7 +56,7 @@ export class SolverService {
       sig_figs: sigFigures,
       max_itrs: maxIterations,
       tol: tolerance,
-      intital:initialGuess,
+      initial:initialGuess as Array<number>,
       single_step:true
     };
     console.log(this.coeffMatrix)
