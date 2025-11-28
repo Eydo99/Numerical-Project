@@ -45,7 +45,7 @@ export class App {
   maxIterations = 100;
   tolerance = 0.0001;
   luAlgorithm = 'doolittle';
-  initialGuess: number[] = [];
+  initialGuess: number[] = Array(this.matrixSize).fill(0);
   matrix: string[][] = [];
   solution: number[] | null = null;
   solutionError: string | null = null;
@@ -54,6 +54,7 @@ export class App {
   isLoading = false;
   hasInvalidInput = false;
   invalidInputMessage = '';
+  problemMessage = '';
   endpoints = {
     gauss: '/solve/gausselim',
     'gauss-jordan': '/solve/gaussjordan',
@@ -98,15 +99,13 @@ export class App {
     },
   ];
 
-
-
   // Step simulator properties
   steps: Step[] = [];
   showSimulator: boolean = false; // Controls visibility
   currentStepIndex$ = new BehaviorSubject<number>(0);
   isPlaying$ = new BehaviorSubject<boolean>(false);
   playbackSpeed: number = 1000; // ms between steps
-  
+
   private stopPlayback$ = new Subject<void>();
 
   validateInput(): void {
@@ -225,6 +224,8 @@ export class App {
     this.solution = null;
     this.solutionError = null;
     this.executionTime = 0;
+    this.problemMessage = '';
+    this.steps = [];
 
     switch (this.selectedMethod) {
       case 'gauss':
@@ -291,7 +292,17 @@ export class App {
             this.iterations = res.itr_cnt || 0;
             this.steps = res.steps || [];
           }
+          if (res.flags?.conv === false) {
+            console.log(res.flags.conv);
+            this.problemMessage =
+              "(THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION MAY NOT CONVERGE)";
+          }
           this.isLoading = false;
+
+          this.isLoading = false;
+
+          this.isLoading = false;
+
           this.cdr.detectChanges(); // Manually trigger change detection
         },
         error: (err) => {
@@ -307,7 +318,10 @@ export class App {
       console.warn('No steps available to simulate');
       return;
     }
-    
+
+    console.log('Opening simulator for method:', this.selectedMethod);
+    console.log('First step:', this.steps[0]);
+
     this.showSimulator = true;
     this.resetSimulation();
   }
@@ -321,10 +335,10 @@ export class App {
   // Step simulator controls
   playSimulation(): void {
     if (this.steps.length === 0) return;
-    
+
     this.isPlaying$.next(true);
     const startIndex = this.currentStepIndex$.value;
-    
+
     interval(this.playbackSpeed)
       .pipe(
         takeUntil(this.stopPlayback$),
@@ -339,7 +353,7 @@ export class App {
         complete: () => {
           this.isPlaying$.next(false);
           this.cdr.detectChanges();
-        }
+        },
       });
   }
 
@@ -386,19 +400,32 @@ export class App {
   setPlaybackSpeed(speed: number): void {
     this.playbackSpeed = speed;
     const wasPlaying = this.isPlaying$.value;
-    
+
     if (wasPlaying) {
       this.stopPlayback();
       this.playSimulation();
     }
   }
 
-  // Get current step data
+  // Add this method to your component class
+  shouldShowSimulator(): boolean {
+    // Don't show simulator for LU decomposition methods
+    if (this.selectedMethod === 'lu') {
+      return false;
+    }
+    return this.steps && this.steps.length > 0;
+  }
+
+  // Add this method to check if we should show matrix
+  shouldShowMatrix(): boolean {
+    return this.selectedMethod === 'gauss' || this.selectedMethod === 'gauss-jordan';
+  }
+
+  // Update getCurrentStep to handle matrix display
   getCurrentStep(): Step | null {
     const index = this.currentStepIndex$.value;
     return this.steps[index] || null;
   }
-
   ngOnDestroy(): void {
     this.stopPlayback();
     this.stopPlayback$.complete();

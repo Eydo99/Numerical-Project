@@ -47,9 +47,10 @@ def handle_gauss_jordan():
         solver.solve(sig_figs, tol,scaling=False)
     
     steps : list[GaussStep] = solver.step_recorder.steps
-
+    
     stepList = []
     for step in steps :
+        print(step.matrix)
         stepList.append({"type" : step.stepType, "matrix" : step.matrix, "answers" : step.answers})
 
     output = {"result" : ans, 
@@ -283,10 +284,10 @@ def handle_gauss_seidel():
     steps : list[IterativeStep] = solver.recorder.steps
 
     stepList = []
-
+    print("divergence : " ,bool(non_conv))
     for step in steps :
         stepList.append({"type" : step.stepType, "answers" : step.answers})
-
+    
     output = {
         "result" : ans,
         "steps" : stepList,
