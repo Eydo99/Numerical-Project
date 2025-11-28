@@ -4,11 +4,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SolverService } from './solve-service';
 import { ChangeDetectorRef } from '@angular/core';
+import { interval, Subject, BehaviorSubject } from 'rxjs';
+import { takeUntil, takeWhile, map } from 'rxjs/operators';
 interface Method {
   id: string;
   name: string;
   description: string;
   icon: string;
+}
+
+interface Step {
+  type: string;
+  answers: number[];
+  matrix?: number[][];
 }
 
 @Component({
@@ -89,6 +97,17 @@ export class App {
       icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>',
     },
   ];
+
+
+
+  // Step simulator properties
+  steps: Step[] = [];
+  showSimulator: boolean = false; // Controls visibility
+  currentStepIndex$ = new BehaviorSubject<number>(0);
+  isPlaying$ = new BehaviorSubject<boolean>(false);
+  playbackSpeed: number = 1000; // ms between steps
+  
+  private stopPlayback$ = new Subject<void>();
 
   validateInput(): void {
     const validNumberPattern = /^-?\d*\.?\d+(e[+-]?\d+)?$/i;
@@ -235,7 +254,7 @@ export class App {
         break;
       }
     }
-    console.log('initialGuess : ' + this.initialGuess );
+    console.log('initialGuess : ' + this.initialGuess);
     console.log(
       'SELECTED METHOD : ' +
         this.selectedMethod +
@@ -255,25 +274,25 @@ export class App {
       )
       .subscribe({
         next: (res) => {
-
           console.log('MATRIX A :' + this.solution);
-          console.log('STEPS:' + res.steps);
+          console.log(res.steps);
 
-          if(!res.result){
+          if (!res.result) {
             console.log(res.flags.singular);
-            if (res.flags.singular) this.solutionError = "MATRIX IS SINGULAR , NO UNIQUE SOLUTION";
-            else if (res.flags.asymmetric)this.solutionError = "MATRIX IS ASSYMETRIC , NO SOLUTION";
-            else if (res.flags.positive_indef)this.solutionError = "MATRIX ISN'T SPD , NO SOLUTION";
-            else this.solutionError = "NO SOLUTION";
-          }
-          else{
-          this.solution = res.result;
-          this.executionTime = res.exec_time || 0;
-          this.iterations = res.itr_cnt || 0;
-           
+            if (res.flags.singular) this.solutionError = 'MATRIX IS SINGULAR , NO UNIQUE SOLUTION';
+            else if (res.flags.asymmetric)
+              this.solutionError = 'MATRIX IS ASYMMETRIC , NO SOLUTION';
+            else if (res.flags.positive_indef)
+              this.solutionError = "MATRIX ISN'T SPD , NO SOLUTION";
+            else this.solutionError = 'NO SOLUTION';
+          } else {
+            this.solution = res.result;
+            this.executionTime = res.exec_time || 0;
+            this.iterations = res.itr_cnt || 0;
+            this.steps = res.steps || [];
           }
           this.isLoading = false;
-          this.cdr.detectChanges();// Manually trigger change detection
+          this.cdr.detectChanges(); // Manually trigger change detection
         },
         error: (err) => {
           this.solutionError = 'Error solving system';
@@ -281,5 +300,109 @@ export class App {
           this.cdr.detectChanges();
         },
       });
+  }
+
+  openSimulator(): void {
+    if (this.steps.length === 0) {
+      console.warn('No steps available to simulate');
+      return;
+    }
+    
+    this.showSimulator = true;
+    this.resetSimulation();
+  }
+
+  // Close the simulator
+  closeSimulator(): void {
+    this.stopPlayback();
+    this.showSimulator = false;
+  }
+
+  // Step simulator controls
+  playSimulation(): void {
+    if (this.steps.length === 0) return;
+    
+    this.isPlaying$.next(true);
+    const startIndex = this.currentStepIndex$.value;
+    
+    interval(this.playbackSpeed)
+      .pipe(
+        takeUntil(this.stopPlayback$),
+        map((count) => startIndex + count + 1),
+        takeWhile((index) => index < this.steps.length)
+      )
+      .subscribe({
+        next: (index) => {
+          this.currentStepIndex$.next(index);
+          this.cdr.detectChanges();
+        },
+        complete: () => {
+          this.isPlaying$.next(false);
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  pauseSimulation(): void {
+    this.stopPlayback();
+    this.isPlaying$.next(false);
+  }
+
+  stopPlayback(): void {
+    this.stopPlayback$.next();
+  }
+
+  nextStep(): void {
+    const current = this.currentStepIndex$.value;
+    if (current < this.steps.length - 1) {
+      this.currentStepIndex$.next(current + 1);
+    }
+  }
+
+  previousStep(): void {
+    const current = this.currentStepIndex$.value;
+    if (current > 0) {
+      this.currentStepIndex$.next(current - 1);
+    }
+  }
+
+  goToStep(index: number): void {
+    if (index >= 0 && index < this.steps.length) {
+      this.stopPlayback();
+      this.currentStepIndex$.next(index);
+    }
+  }
+
+  resetSimulation(): void {
+    this.stopPlayback();
+    this.currentStepIndex$.next(0);
+  }
+
+  goToEnd(): void {
+    this.stopPlayback();
+    this.currentStepIndex$.next(this.steps.length - 1);
+  }
+
+  setPlaybackSpeed(speed: number): void {
+    this.playbackSpeed = speed;
+    const wasPlaying = this.isPlaying$.value;
+    
+    if (wasPlaying) {
+      this.stopPlayback();
+      this.playSimulation();
+    }
+  }
+
+  // Get current step data
+  getCurrentStep(): Step | null {
+    const index = this.currentStepIndex$.value;
+    return this.steps[index] || null;
+  }
+
+  ngOnDestroy(): void {
+    this.stopPlayback();
+    this.stopPlayback$.complete();
+    this.currentStepIndex$.complete();
+    this.isPlaying$.complete();
   }
 }

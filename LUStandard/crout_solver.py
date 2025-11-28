@@ -35,7 +35,7 @@ class CroutSolver:
 
             # Forward Subst --> solving Ly=b
             #Algorithm using Formula: y_i = b_i - sum_{j=0}^{i-1} L[i][j] * y_j
-            if A[o[0]][0] < tol :
+            if abs(A[o[0]][0]) < tol :
                 raise SingularMatrixException()
             y[o[0]] = b[o[0]] / A[o[0]][0]
             
@@ -43,7 +43,7 @@ class CroutSolver:
                 s = b[o[i]]
                 for j in range(i):
                     s -= round_sig(A[o[i]][j] * y[o[j]], sig_figs)
-                if A[o[i]][i] < tol :
+                if abs(A[o[i]][i]) < tol :
                     raise SingularMatrixException()
                 y[o[i]] = round_sig(s / A[o[i]][i], sig_figs)
 
@@ -91,7 +91,7 @@ class CroutSolver:
                     for v in range(j):
                         total+=round_sig(l[j][v]*u[v][k],noOfSig)
                     temp=round_sig(A[j][k]-total,noOfSig)
-                    if l[j][j] < tol : 
+                    if abs(l[j][j]) < tol : 
                         raise SingularMatrixException()
                     u[j][k]=round_sig(temp/l[j][j],noOfSig)
             return l,u
@@ -107,7 +107,6 @@ class CroutSolver:
                 if(i>=j):
                     merged[i][j]=l[i][j]
         return merged
-
 
 
 

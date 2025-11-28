@@ -36,7 +36,7 @@ class CholeskySolver:
 
         # Forward Subst --> solving Ly=b
         #Algorithm using Formula: y_i = ( b_i - sum_{k=0}^{i-1} L[i][k] * y_k ) / L[i][i]
-        if A[o[0]][0] < tol :
+        if abs(A[o[0]][0]) < tol :
             raise SingularMatrixException()
         
         y[o[0]] = round_sig(b[o[0]] / A[o[0]][0], sig_figs)
@@ -45,7 +45,7 @@ class CholeskySolver:
             for j in range(i):
                 s -= round_sig(A[o[i]][j] * y[o[j]], sig_figs)
             
-            if A[o[i]][i] < tol :
+            if abs(A[o[i]][i]) < tol :
                 raise SingularMatrixException()
             y[o[i]] = round_sig(s / A[o[i]][i], sig_figs)
 
