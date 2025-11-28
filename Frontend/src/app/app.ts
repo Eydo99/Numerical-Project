@@ -309,16 +309,17 @@ export class App {
             this.iterations = res.itr_cnt || 0;
             this.steps = res.steps || [];
           }
-          if (res.flags?.conv === false) {
-            //console.log(res.flags.conv);
+          if (!res.flags?.dd && res.flags?.conv[0] === 0) {
             this.problemMessage =
               "(THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION MAY NOT CONVERGE)";
           }
-          this.isLoading = false;
+          else if( res.flags?.conv[0] === -1)this.problemMessage =
+              "( THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION WILL DIVERGE)";
+          else if(res.flags?.dd)this.problemMessage = "(THE MATRIX IS DIAGONALLY DOMINANT) ";
 
           this.isLoading = false;
 
-          this.isLoading = false;
+          
 
           this.cdr.detectChanges(); // Manually trigger change detection
         },
