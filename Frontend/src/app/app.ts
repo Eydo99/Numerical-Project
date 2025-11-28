@@ -17,6 +17,8 @@ interface Step {
   type: string;
   answers: number[];
   matrix?: number[][];
+  L?:number[][];
+  U?:number[][];
 }
 
 @Component({
@@ -292,6 +294,7 @@ export class App {
           console.log('MATRIX A :' + this.solution);
           console.log(res.steps);
           console.log(res.result);
+          console.log(res.scaling);
           if (!res.result) {
             console.log(res.flags.singular);
             if (res.flags.singular) this.solutionError = 'MATRIX IS SINGULAR , NO UNIQUE SOLUTION';
@@ -435,7 +438,7 @@ export class App {
   // Add this method to your component class
   shouldShowSimulator(): boolean {
     // Don't show simulator for LU decomposition methods
-    if (this.selectedMethod === 'lu') {
+    if (this.selectedMethod === 'lu' && this.luAlgorithm != "dolittle") {
       return false;
     }
     return this.steps && this.steps.length > 0;
@@ -445,12 +448,16 @@ export class App {
   shouldShowMatrix(): boolean {
     return this.selectedMethod === 'gauss' || this.selectedMethod === 'gauss-jordan';
   }
+  shouldShowLU():boolean{
+    return this.selectedMethod === 'lu' && this.luAlgorithm === "dolittle" ;
+  }
 
   // Update getCurrentStep to handle matrix display
   getCurrentStep(): Step | null {
     const index = this.currentStepIndex$.value;
     return this.steps[index] || null;
   }
+  
   ngOnDestroy(): void {
     this.stopPlayback();
     this.stopPlayback$.complete();
