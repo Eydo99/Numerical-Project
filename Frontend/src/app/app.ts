@@ -2,29 +2,29 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SolverService } from './solve-service';
+import { SolverService } from '../services/solve-service';
 import { ChangeDetectorRef } from '@angular/core';
 import { interval, Subject, BehaviorSubject } from 'rxjs';
 import { takeUntil, takeWhile, map } from 'rxjs/operators';
+import { Helpers } from '../services/helpers';
+import { init } from '../services/init';
+import { Simulator } from './components/simulator/simulator';
 interface Method {
   id: string;
   name: string;
-  description: string;
-  icon: string;
 }
-
 interface Step {
   type: string;
   answers: number[];
   matrix?: number[][];
-  L?:number[][];
-  U?:number[][];
+  L?: number[][];
+  U?: number[][];
 }
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,Simulator],
   templateUrl: 'app.html',
   styles: [
     `
@@ -44,7 +44,7 @@ export class App {
   matrixSize = 3;
   selectedMethod = 'gauss';
   sigFigures = 4;
-  maxIterations = 101;
+  maxIterations = 100;
   tolerance = 0.0001;
   luAlgorithm = 'doolittle';
   initialGuess: number[] = Array(this.matrixSize).fill(0);
@@ -58,47 +58,38 @@ export class App {
   invalidInputMessage = '';
   problemMessage = '';
   scaling = false;
-  endpoints = {
-    gauss: '/solve/gausselim',
-    'gauss-jordan': '/solve/gaussjordan',
-    cholesky: '/solve/cholesky',
-    dolittle: '/solve/dolittle',
-    crout: '/solve/crout',
-    jacobi: '/solve/jacobi',
-    'gauss-seidel': '/solve/gauss_seidel',
-  };
-  currentEndpoint = this.endpoints['gauss'];
+  currentEndpoint = '';
+
+  constructor(
+    private solverService: SolverService,
+    private cdr: ChangeDetectorRef,
+    private helpers: Helpers,
+    private init : init,
+  ) {
+    this.matrix = init.initializeMatrix(this.matrixSize);
+    this.initialGuess = init.initializeGuess(this.matrixSize);
+  }
 
   methods: Method[] = [
     {
       id: 'gauss',
       name: 'Gaussian Elimination',
-      description: 'Forward elimination only',
-      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"></path></svg>',
     },
     {
       id: 'gauss-jordan',
       name: 'Gauss-Jordan',
-      description: 'Reduced row echelon form',
-      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>',
     },
     {
       id: 'lu',
       name: 'LU Decomposition',
-      description: 'Lower-Upper factorization',
-      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>',
     },
     {
       id: 'jacobi',
       name: 'Jacobi Method',
-      description: 'Iterative diagonal method',
-      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>',
     },
     {
       id: 'gauss-seidel',
       name: 'Gauss-Seidel',
-      description: 'Improved iterative method',
-      icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>',
     },
   ];
 
@@ -147,25 +138,11 @@ export class App {
     }
   }
 
-  constructor(private solverService: SolverService, private cdr: ChangeDetectorRef) {
-    this.initializeMatrix();
-    this.initializeGuess();
-  }
-  //on opening app
-  initializeMatrix(): void {
-    this.matrix = Array(this.matrixSize)
-      .fill(null)
-      .map(() => Array(this.matrixSize + 1).fill(''));
-  }
-
-  initializeGuess(): void {
-    this.initialGuess = Array(this.matrixSize).fill('0');
-  }
 
   handleSizeChange(size: number): void {
     this.matrixSize = size;
-    this.initializeMatrix();
-    this.initializeGuess();
+    this.matrix = this.init.initializeMatrix(size);
+    this.initialGuess = this.init.initializeGuess(size);
     this.solution = null;
     this.solutionError = null;
     this.executionTime = 0;
@@ -173,53 +150,17 @@ export class App {
   }
 
   loadExample(): void {
-    if (this.matrixSize === 2) {
-      this.matrix = [
-        ['2', '1', '5'],
-        ['1', '3', '8'],
-      ];
-    } else if (this.matrixSize === 3) {
-      this.matrix = [
-        ['2', '1', '-1', '8'],
-        ['-3', '-1', '2', '-11'],
-        ['-2', '1', '2', '-3'],
-      ];
-    } else if (this.matrixSize === 4) {
-      this.matrix = [
-        ['2', '1', '-1', '1', '4'],
-        ['1', '2', '1', '-1', '1'],
-        ['3', '-1', '2', '1', '10'],
-        ['1', '1', '1', '2', '6'],
-      ];
-    } else if (this.matrixSize === 5) {
-      this.matrix = [
-        ['2', '1', '0', '0', '1', '5'],
-        ['1', '3', '1', '0', '0', '8'],
-        ['0', '1', '4', '1', '0', '12'],
-        ['0', '0', '1', '3', '1', '10'],
-        ['1', '0', '0', '1', '2', '7'],
-      ];
-    } else if (this.matrixSize === 8) {
-      this.matrix = [
-        ['2', '1', '0', '0', '1', '0', '0', '0', '10'],
-        ['1', '3', '1', '0', '0', '1', '0', '0', '15'],
-        ['0', '1', '4', '1', '0', '0', '1', '0', '20'],
-        ['0', '0', '1', '3', '1', '0', '0', '1', '18'],
-        ['1', '0', '0', '1', '2', '1', '0', '0', '12'],
-        ['0', '1', '0', '0', '1', '3', '1', '0', '17'],
-        ['0', '0', '1', '0', '0', '1', '4', '1', '22'],
-        ['0', '0', '0', '1', '0', '0', '1', '3', '19'],
-      ];
-    }
+    this.matrix = this.helpers.loadExample(this.matrixSize);
   }
 
   clearMatrix(): void {
-    this.initializeMatrix();
+    this.matrix = this.init.initializeMatrix(this.matrixSize);
     this.solution = null;
     this.solutionError = null;
     this.executionTime = 0;
     this.iterations = 0;
   }
+  
 
   trackByIndex(index: number): number {
     return index;
@@ -240,36 +181,10 @@ export class App {
     this.executionTime = 0;
     this.problemMessage = '';
     this.steps = [];
-    this.showSimulator = false
+    this.showSimulator = false;
 
-    switch (this.selectedMethod) {
-      case 'gauss':
-        this.currentEndpoint = this.endpoints['gauss'];
-        break;
-      case 'gauss-jordan':
-        this.currentEndpoint = this.endpoints['gauss-jordan'];
-        break;
-      case 'jacobi':
-        this.currentEndpoint = this.endpoints['jacobi'];
-        break;
-      case 'gauss-seidel':
-        this.currentEndpoint = this.endpoints['gauss-seidel'];
-        break;
-      case 'lu': {
-        switch (this.luAlgorithm) {
-          case 'dolittle':
-            this.currentEndpoint = this.endpoints['dolittle'];
-            break;
-          case 'cholesky':
-            this.currentEndpoint = this.endpoints['cholesky'];
-            break;
-          case 'crout':
-            this.currentEndpoint = this.endpoints['crout'];
-            break;
-        }
-        break;
-      }
-    }
+    this.currentEndpoint = this.helpers.getEndpoint(this.selectedMethod, this.luAlgorithm);
+
     console.log('initialGuess : ' + this.initialGuess);
     console.log(
       'SELECTED METHOD : ' +
@@ -291,10 +206,7 @@ export class App {
       )
       .subscribe({
         next: (res) => {
-          console.log('MATRIX A :' + this.solution);
-          console.log(res.steps);
-          console.log(res.result);
-          console.log(res.scaling);
+          console.log("itr_cnt : " , res.itr_cnt);
           if (!res.result) {
             console.log(res.flags.singular);
             if (res.flags.singular) this.solutionError = 'MATRIX IS SINGULAR , NO UNIQUE SOLUTION';
@@ -309,21 +221,20 @@ export class App {
             this.iterations = res.itr_cnt || 0;
             this.steps = res.steps || [];
           }
-          console.log("conv : ",res.flags?.conv[0]);
+          
           if (!res.flags?.dd && res.flags?.conv[0] === 0) {
             this.problemMessage =
               "(THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION MAY NOT CONVERGE)";
-          }
-          else if( res.flags?.conv[0] === -1)this.problemMessage =
+          } else if (res.flags?.conv[0] === -1)
+            this.problemMessage =
               "( THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION WILL DIVERGE)";
-          else if(!res.flags?.dd)this.problemMessage = "(THE MATRIX IS DIAGONALLY DOMINANT) ";
+          else if (!res.flags?.dd) this.problemMessage = '(THE MATRIX IS DIAGONALLY DOMINANT) ';
           //else this.problemMessage = "(THE SOLUTION WILL DIVERGE)";
 
           this.isLoading = false;
+          //console.log("no of steps : " ,res.steps.length)
 
-          
-
-          this.cdr.detectChanges(); // trigger change 
+          this.cdr.detectChanges(); // trigger change
         },
         error: (err) => {
           this.solutionError = 'Error solving system';
@@ -333,9 +244,6 @@ export class App {
       });
   }
 
-  
-
-  
   shouldShowScalingOption(): boolean {
     return (
       this.selectedMethod === 'gauss' ||
@@ -344,24 +252,7 @@ export class App {
     );
   }
 
-  openSimulator(): void {
-    if (this.steps.length === 0) {
-      console.warn('No steps available to simulate');
-      return;
-    }
-
-    console.log('Opening simulator for method:', this.selectedMethod);
-    console.log('First step:', this.steps[0]);
-
-    this.showSimulator = true;
-    this.resetSimulation();
-  }
-
-  // Close the simulator
-  closeSimulator(): void {
-    this.stopPlayback();
-    this.showSimulator = false;
-  }
+  
 
   // Step simulator controls
   playSimulation(): void {
@@ -388,83 +279,5 @@ export class App {
       });
   }
 
-  pauseSimulation(): void {
-    this.stopPlayback();
-    this.isPlaying$.next(false);
-  }
-
-  stopPlayback(): void {
-    this.stopPlayback$.next();
-  }
-
-  nextStep(): void {
-    const current = this.currentStepIndex$.value;
-    if (current < this.steps.length - 1) {
-      this.currentStepIndex$.next(current + 1);
-    }
-  }
-
-  previousStep(): void {
-    const current = this.currentStepIndex$.value;
-    if (current > 0) {
-      this.currentStepIndex$.next(current - 1);
-    }
-  }
-
-  goToStep(index: number): void {
-    if (index >= 0 && index < this.steps.length) {
-      this.stopPlayback();
-      this.currentStepIndex$.next(index);
-    }
-  }
-
-  resetSimulation(): void {
-    this.stopPlayback();
-    this.currentStepIndex$.next(0);
-  }
-
-  goToEnd(): void {
-    this.stopPlayback();
-    this.currentStepIndex$.next(this.steps.length - 1);
-  }
-
-  setPlaybackSpeed(speed: number): void {
-    this.playbackSpeed = speed;
-    const wasPlaying = this.isPlaying$.value;
-
-    if (wasPlaying) {
-      this.stopPlayback();
-      this.playSimulation();
-    }
-  }
-
-  // booleans
-  shouldShowSimulator(): boolean {
-    // Don't show simulator for LU decomposition methods
-    if (this.selectedMethod === 'lu' && this.luAlgorithm != "dolittle") {
-      return false;
-    }
-    return this.steps && this.steps.length > 0;
-  }
-
-  // Add this method to check if we should show matrix
-  shouldShowMatrix(): boolean {
-    return this.selectedMethod === 'gauss' || this.selectedMethod === 'gauss-jordan';
-  }
-  shouldShowLU():boolean{
-    return this.selectedMethod === 'lu' && this.luAlgorithm === "dolittle" ;
-  }
-
-  // matrix step
-  getCurrentStep(): Step | null {
-    const index = this.currentStepIndex$.value;
-    return this.steps[index] || null;
-  }
   
-  ngOnDestroy(): void {
-    this.stopPlayback();
-    this.stopPlayback$.complete();
-    this.currentStepIndex$.complete();
-    this.isPlaying$.complete();
-  }
 }
