@@ -78,14 +78,15 @@ class JacobiSolver :
                 if e >= tol:
                     stop = False
                     break
-                   
+            
+            self.recorder.record(initial,True)
             if stop and (i+1)!=max_itrs:
                 if debug : print("stopping early because all relative errors < margin\n")
                 break
                     
             
             initial=helper.copy()
-            self.recorder.record(initial,True)
+
 
         if debug : print("Jacobi End")
 
@@ -100,7 +101,7 @@ class JacobiSolver :
         if debug : 
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
-        return initial,newA,i, DD, status
+        return initial,newA,i + 1, DD, status
 
 
 

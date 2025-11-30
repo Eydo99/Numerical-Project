@@ -51,7 +51,7 @@ class GaussSeidelSolver :
                     else:
                         computation-=A[row][col]*initial[col]
                 initial[row]=(b[row]+computation)*(1/A[row][row])
-                self.recorder.record(initial)
+            
 
 
             initial = [float(f"{val:.{sig_figs}g}") for val in initial]
@@ -78,6 +78,7 @@ class GaussSeidelSolver :
                 if e >= tol:
                     stop = False
                     break
+            self.recorder.record(initial)
 
             if stop and (i+1)!=max_itrs:
                 if debug : print("Stopping early: all relative errors < margin.\n")
@@ -96,4 +97,4 @@ class GaussSeidelSolver :
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
 
-        return initial, newA, i, DD, status
+        return initial, newA, i + 1, DD, status
