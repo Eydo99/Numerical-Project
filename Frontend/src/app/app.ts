@@ -2,12 +2,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SolverService } from '../services/solve-service';
+import { SolverService } from './services/solve-service';
 import { ChangeDetectorRef } from '@angular/core';
 import { interval, Subject, BehaviorSubject } from 'rxjs';
 import { takeUntil, takeWhile, map } from 'rxjs/operators';
-import { Helpers } from '../services/helpers';
-import { init } from '../services/init';
+import { Helpers } from './services/helpers';
+import { init } from './services/init';
 import { Simulator } from './components/simulator/simulator';
 interface Method {
   id: string;
@@ -24,7 +24,7 @@ interface Step {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule,Simulator],
+  imports: [CommonModule, FormsModule, Simulator],
   templateUrl: 'app.html',
   styles: [
     `
@@ -64,7 +64,7 @@ export class App {
     private solverService: SolverService,
     private cdr: ChangeDetectorRef,
     private helpers: Helpers,
-    private init : init,
+    private init: init
   ) {
     this.matrix = init.initializeMatrix(this.matrixSize);
     this.initialGuess = init.initializeGuess(this.matrixSize);
@@ -138,7 +138,6 @@ export class App {
     }
   }
 
-
   handleSizeChange(size: number): void {
     this.matrixSize = size;
     this.matrix = this.init.initializeMatrix(size);
@@ -160,7 +159,6 @@ export class App {
     this.executionTime = 0;
     this.iterations = 0;
   }
-  
 
   trackByIndex(index: number): number {
     return index;
@@ -206,35 +204,61 @@ export class App {
       )
       .subscribe({
         next: (res) => {
-          console.log("itr_cnt : " , res.itr_cnt);
           if (!res.result) {
-            console.log(res.flags.singular);
-            if (res.flags.singular) this.solutionError = 'MATRIX IS SINGULAR , NO UNIQUE SOLUTION';
-            else if (res.flags.asymmetric)
-              this.solutionError = 'MATRIX IS ASYMMETRIC , NO SOLUTION';
-            else if (res.flags.positive_indef)
-              this.solutionError = "MATRIX ISN'T Positive Definite , NO SOLUTION";
-            else this.solutionError = 'NO SOLUTION';
+          
+            if (res.flags.singular) {
+              this.solutionError =
+                'MATRIX IS SINGULAR';
+            } else if (res.flags.asymmetric) {
+              
+              this.solutionError = 'MATRIX IS ASYMMETRIC, THE CHOSEN METHOD MAY NOT BE SUITABLE.';
+            } else if (res.flags.positive_indef) {
+              
+              this.solutionError =
+                "MATRIX ISN'T POSITIVE DEFINITE, THE CHOSEN METHOD MAY NOT BE SUITABLE.";
+            } 
+
+            this.problemMessage = '';
           } else {
+            
             this.solution = res.result;
             this.executionTime = res.exec_time * 1000 || 0;
             this.iterations = res.itr_cnt || 0;
             this.steps = res.steps || [];
+            this.solutionError = null; 
+
+            
+            const isDiagonallyDominant = res.flags?.dd;
+            const convergenceStatus = res.flags?.conv[0]; 
+
+            console.log(isDiagonallyDominant);
+            console.log(convergenceStatus);
+
+            if (isDiagonallyDominant) {
+              
+              this.problemMessage =
+                '(THE MATRIX IS STRICTLY DIAGONALLY DOMINANT, CONVERGENCE IS GUARANTEED.)';
+            } else if (convergenceStatus === -1) {
+              
+              this.problemMessage =
+                '(THE MATRIX IS NOT DIAGONALLY DOMINANT, THE SOLUTION MAY OR MAY NOT CONVERGE.)';
+            } else if (convergenceStatus === 0) {
+              
+              this.problemMessage =
+                '(THE MATRIX IS NOT DIAGONALLY DOMINANT. THE SOLUTION DID NOT CONVERGE WITHIN THE ITERATION LIMIT.)';
+            } else if (convergenceStatus === 1) {
+              
+              this.problemMessage =
+                '(THE MATRIX IS NOT DIAGONALLY DOMINANT, BUT THE SOLUTION CONVERGED.)';
+            } else {
+              
+              this.problemMessage = '';
+            }
           }
-          
-          if (!res.flags?.dd && res.flags?.conv[0] === 0) {
-            this.problemMessage =
-              "(THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION MAY NOT CONVERGE)";
-          } else if (res.flags?.conv[0] === -1)
-            this.problemMessage =
-              "( THE MATRIX ISN'T DIAGONALLY DOMINANT , THE SOLUTION WILL DIVERGE)";
-          else if (!res.flags?.dd) this.problemMessage = '(THE MATRIX IS DIAGONALLY DOMINANT) ';
-          //else this.problemMessage = "(THE SOLUTION WILL DIVERGE)";
 
           this.isLoading = false;
-          //console.log("no of steps : " ,res.steps.length)
 
-          this.cdr.detectChanges(); // trigger change
+          this.cdr.detectChanges(); // Manually trigger change detection
         },
         error: (err) => {
           this.solutionError = 'Error solving system';
@@ -251,8 +275,6 @@ export class App {
       (this.selectedMethod === 'lu' && this.luAlgorithm === 'dolittle')
     );
   }
-
-  
 
   // Step simulator controls
   playSimulation(): void {
@@ -278,6 +300,4 @@ export class App {
         },
       });
   }
-
-  
 }

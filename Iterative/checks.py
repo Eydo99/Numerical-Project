@@ -2,7 +2,7 @@
 class ConvStatus :
     CONVERGENT = 1,
     UNDETERMINED = 0,
-    DIVERGENT = -1
+    DIVERGENT = -1,
 
 def check_diagonal_dominance(A, C):
     strict = 0
