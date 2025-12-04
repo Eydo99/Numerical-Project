@@ -17,7 +17,7 @@ class DolittleSolver :
         n = self.system.n
         o = list(range(n))
         s = scaling_factors(A) if scaled else [1]*n
-
+        print(scaled)
         # k = i = 0
         for k in range(n-1):
 
@@ -37,7 +37,7 @@ class DolittleSolver :
                 A[o[i]][k] = factor
 
                 for j in range(k+1, n):
-                    A[o[i]][j] -= round_sig(factor * A[o[k]][j], sig_figs)
+                    A[o[i]][j] = round_sig(A[o[i]][j] - round_sig(factor * A[o[k]][j], sig_figs), sig_figs)
                 
                 self.recorder.record_dolittle(A,o,k,i,StepType.SWAP)
                 
@@ -67,7 +67,7 @@ class DolittleSolver :
         for i in range(1, n):
             s = b[o[i]]
             for j in range(i):
-                s -= round_sig(A[o[i]][j] * y[o[j]], sig_figs)
+                s = round_sig(s - round_sig(A[o[i]][j] * y[o[j]], sig_figs), sig_figs)
             y[o[i]] = s
 
         # Backward Subst --> solving Ux=y
@@ -75,7 +75,7 @@ class DolittleSolver :
         for i in range(n-2, -1, -1):
             s=0
             for j in range(i+1, n):
-                s += round_sig(A[o[i]][j] * x[j], sig_figs)
+                s = round_sig(s + round_sig(A[o[i]][j] * x[j], sig_figs), sig_figs)
             x[i] = round_sig((y[o[i]] - s) / A[o[i]][i], sig_figs)
 
         return x

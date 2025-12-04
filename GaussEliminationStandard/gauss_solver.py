@@ -25,11 +25,10 @@ class GaussSolver:
             for row in range(col+1, n):
                 factor = round_sig(A[row][col] / A[col][col],sig_figs)
                 for i in range(col+1, n):
-                    A[row][i] -= round_sig(factor * A[col][i], sig_figs)
+                    A[row][i] = round_sig(A[row][i] - round_sig(factor * A[col][i], sig_figs), sig_figs)
 
                 A[row][col] = 0
-                b[row] -= round_sig(factor*b[col], sig_figs)
-                print(f"{A}" + f"\n\n\n")
+                b[row] = round_sig(b[row] - round_sig(factor*b[col], sig_figs), sig_figs)
                 self.step_recorder.record(A, b, StepType.ELIM)
         
         x = back_sub(A,b,sig_figs)

@@ -34,7 +34,7 @@ class GaussSolver:
                 for i in range(col+1, n):
                     A[row][i] -= round_sig(factor * A[col][i], self.sig_figs)
                 A[row][col] = 0
-                b[row] -= round_sig(factor*b[col], self.sig_figs)
+                b[row] = round_sig(b[row] - round_sig(factor*b[col], self.sig_figs), self.sig_figs)
                 self.step_recorder.record(A, b, f"Eliminate row {row} using row {col}")
         
         x = back_substitution.solve(A,b,self.sig_figs)

@@ -1,121 +1,159 @@
+class ConvStatus:
+    CONVERGENT = 1
+    UNDETERMINED = 0
+    DIVERGENT = -1
 
-class ConvStatus :
-    CONVERGENT = 1,
-    UNDETERMINED = 0,
-    DIVERGENT = -1,
 
 def check_diagonal_dominance(A, C):
-    strict = 0
-    DD = False
-    newA = A
-    newC = C[:]  
-
-    print("==============================")
-    print("\nChecking Diagonal Dominance......\n\n")
-
-    failed_rows = []
-    dompivot = 0
-
-    for i in range(len(A)):
-        print("==============================")
-        summtion = 0
-        print("row", i+1, "=", A[i], "\n")
-
-        for j in range(len(A[i])):
-            if i == j:
-                continue
-            summtion += abs(A[i][j])
-
-        print("summtion of not-diagonal elements =", summtion, "\n")
-        print("diagonal element =", abs(A[i][i]), "\n")
-
-        if abs(A[i][i]) >= summtion:
-            print("row satisfies")
-            dompivot += 1
-            if abs(A[i][i]) > summtion:
-                strict += 1
-                print("row is strictly dominant\n")
-            else:
-                print("row is not strictly dominant\n")
-        else:
-            print(" row fail\n")
-            failed_rows.append(i)
-
-    print("==============================")
-
+    """
+    Check if matrix A is diagonally dominant, and if not, attempt to make it so by row swapping.
     
-    if not ((dompivot == len(A)) and (strict > 0)):
-        print("trying to find possible row exchanges...\n")
-        used_replacements = set()   
-        possible_swaps = {}         
-        fixable_failed_rows = 0
+    Returns:
+        DD (bool): True if matrix is or can be made diagonally dominant
+        newA (list): Possibly reordered matrix
+        newC (list): Possibly reordered vector C
+    """
+    n = len(A)
+    newA = [row[:] for row in A]
+    newC = C[:]
+    
+    print("==============================")
+    print("\nChecking Diagonal Dominance......\n")
+    
+    # Check initial diagonal dominance
+    DD, strict_count, failed_rows = check_dd_status(A)
+    
+    if DD:
+        print("The matrix is already diagonally dominant")
+        return DD, newA, newC
+    
+    print(f"\nMatrix is not diagonally dominant. Failed rows: {[r+1 for r in failed_rows]}")
+    print("\nAttempting to find row permutation...\n")
+    
+    # Try to find a valid permutation
+    permutation = find_valid_permutation(A)
+    
+    if permutation is None:
+        print("Matrix cannot be made diagonally dominant by row swapping.\n")
+        return False, A, C
+    
+    # Apply the permutation
+    print("Found valid permutation!")
+    newA = [A[permutation[i]][:] for i in range(n)]
+    newC = [C[permutation[i]] for i in range(n)]
+    
+    print("\nRow mapping:")
+    for i in range(n):
+        if permutation[i] != i:
+            print(f"  New row {i+1} <- Old row {permutation[i]+1}")
+    
+    print("\nNew matrix after permutation:")
+    for i, row in enumerate(newA):
+        print(f"  Row {i+1}: {row}")
+    print(f"\nNew vector C: {newC}")
+    
+    # Verify the result
+    DD_verify, strict_verify, _ = check_dd_status(newA)
+    if DD_verify:
+        print("\n✓ Matrix is now DIAGONALLY DOMINANT")
+    else:
+        print("\n✗ Warning: Permutation failed verification")
+    
+    return DD_verify, newA, newC
 
-        for f in failed_rows:
-            print("row", f+1, "trying to find swaps\n")
-            found_swap = False
 
-            for k in range(len(A)):
-                if k == f:
-                    continue
-                if k in used_replacements:
-                    continue
-
-                diag = abs(A[k][f])
-                others = sum(abs(A[k][j]) for j in range(len(A)) if j != f)
-
-                if diag >= others:
-                    print("row", k+1, "can replace row ", f+1)
-                    print("==============================")
-                    possible_swaps[f] = k
-                    used_replacements.add(k)
-                    found_swap = True
-                    break
-
-            if not found_swap:
-                print("this row can not be swapped")
-                print("This diagonal position cannot be dominated.\n")
-                print("==============================")
-            else:
-                fixable_failed_rows += 1
-
-            print()
-
-        if fixable_failed_rows == len(failed_rows):
-            DD = True
-            print("all failed rows CAN be fixed by swapping.")
-            print("Performing swaps...\n")
-
-            newA = [row[:] for row in A]
-            newC = C[:]
-
-            swapped = set()
-            for f, k in possible_swaps.items():
-                if f in swapped or k in swapped:
-                    continue
-                print("Swapping row", f+1, "with row", k+1)
-                newA[f], newA[k] = newA[k], newA[f]
-                newC[f], newC[k] = newC[k], newC[f]
-                swapped.add(f)
-                swapped.add(k)
-
-            print("\nnew matrix after swaps:")
-            for row in newA:
-                print(row)
-            print("new vector C after swaps:", newC)
-            print("\nnow the matrix is DIAGONALLY DOMINANT ")
-
+def check_dd_status(A):
+    """
+    Check if matrix A is diagonally dominant.
+    
+    Returns:
+        is_dd (bool): True if diagonally dominant
+        strict_count (int): Number of strictly dominant rows
+        failed_rows (list): Indices of rows that fail diagonal dominance
+    """
+    n = len(A)
+    strict_count = 0
+    failed_rows = []
+    
+    for i in range(n):
+        diagonal = abs(A[i][i])
+        off_diagonal_sum = sum(abs(A[i][j]) for j in range(n) if j != i)
+        
+        print(f"Row {i+1}: |a_{i+1}{i+1}| = {diagonal}, sum of off-diagonal = {off_diagonal_sum}")
+        
+        if diagonal > off_diagonal_sum:
+            print(f"  ✓ Strictly dominant")
+            strict_count += 1
+        elif diagonal == off_diagonal_sum:
+            print(f"  ~ Weakly dominant (not strict)")
         else:
-            print("at least one failed row can not be fixed by swapping.")
-            print("matrix can not be made diagonally dominant.\n")
+            print(f"  ✗ Not dominant")
+            failed_rows.append(i)
+    
+    print("==============================")
+    
+    is_dd = (len(failed_rows) == 0) and (strict_count > 0)
+    return is_dd, strict_count, failed_rows
 
-    if (dompivot == len(A)) and (strict > 0):
-        DD = True
-        print("The matrix is diagonally dominant")
 
-    return DD, newA, newC
+def find_valid_permutation(A):
+    """
+    Find a permutation of rows that makes the matrix diagonally dominant.
+    Uses backtracking to try all possible permutations.
+    
+    Returns:
+        permutation (list): Valid permutation, or None if not found
+    """
+    n = len(A)
+    
+    def is_dominant_at_position(row_idx, pos):
+        """Check if row row_idx would be dominant at position pos"""
+        diagonal = abs(A[row_idx][pos])
+        off_diagonal = sum(abs(A[row_idx][j]) for j in range(n) if j != pos)
+        return diagonal >= off_diagonal
+    
+    def is_strictly_dominant_at_position(row_idx, pos):
+        """Check if row row_idx would be strictly dominant at position pos"""
+        diagonal = abs(A[row_idx][pos])
+        off_diagonal = sum(abs(A[row_idx][j]) for j in range(n) if j != pos)
+        return diagonal > off_diagonal
+    
+    def backtrack(pos, used, permutation, has_strict):
+        """Backtracking function to find valid permutation"""
+        if pos == n:
+            # Check if at least one row is strictly dominant
+            return has_strict
+        
+        for row_idx in range(n):
+            if row_idx in used:
+                continue
+            
+            if not is_dominant_at_position(row_idx, pos):
+                continue
+            
+            # Try this assignment
+            permutation[pos] = row_idx
+            used.add(row_idx)
+            
+            is_strict = is_strictly_dominant_at_position(row_idx, pos)
+            
+            if backtrack(pos + 1, used, permutation, has_strict or is_strict):
+                return True
+            
+            # Backtrack
+            used.remove(row_idx)
+        
+        return False
+    
+    permutation = [0] * n
+    if backtrack(0, set(), permutation, False):
+        return permutation
+    
+    return None
 
 
 def convergence_status(error_history, margin, DD, reached_max_iterations):
+    """Determine convergence status of iterative method"""
     if not error_history:
         return ConvStatus.UNDETERMINED
 
@@ -131,8 +169,8 @@ def convergence_status(error_history, margin, DD, reached_max_iterations):
     if len(error_history) < 3:
         return ConvStatus.UNDETERMINED
 
-    last  = error_history[-1]
-    prev  = error_history[-2]
+    last = error_history[-1]
+    prev = error_history[-2]
     prev2 = error_history[-3]
 
     r1 = (last / prev) if prev != 0 else float('inf')

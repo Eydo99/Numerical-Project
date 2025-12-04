@@ -14,14 +14,16 @@ def back_sub(A, b, sig=6):
     for i in range(n-2, -1, -1):
         tot = 0
         for j in range(i+1,n):
-            tot +=  round_sig(A[i][j] * x[j], sig)
+            tot = round_sig(tot + round_sig(A[i][j] * x[j], sig), sig)
         x[i] =  round_sig((b[i]-tot)/A[i][i], sig)
 
     return x
 
 def pivot(A, b, col, scaling : bool = False, scales : list = None, tol=1e-12):
     n = len(b)
-    scales = scales if (scaling and scales != None and len(scales) == n) else [1]*n
+    print(scales)
+    print(scaling)
+    scales = scales if (scaling) else [1]*n
     max_row = max(range(col, n), key=lambda r: abs(A[r][col]/scales[r]))
     if abs(A[max_row][col]/ scales[max_row]) < tol:
         return -1

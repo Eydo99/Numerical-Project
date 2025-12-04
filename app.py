@@ -26,7 +26,7 @@ def handle_gauss_jordan():
     data = request.json
     dim : int = int(data.get("dim"))
     single_step : bool = data.get("single_step")
-    scaled : bool = data.get("scaled")
+    scaled : bool = data.get("scaling")
     
     matrix : list[list] = data.get("coeff")
     answers : list = data.get("answers")
@@ -64,7 +64,7 @@ def handle_gauss_elim():
     data = request.json
     dim : int = int(data.get("dim"))
     single_step : bool = data.get("single_step")
-    scaled : bool = data.get("scaled")
+    scaled : bool = data.get("scaling")
     
     matrix : list[list] = data.get("coeff")
     answers : list = data.get("answers")
@@ -174,7 +174,7 @@ def handle_dolittle():
     data = request.json
     dim : int = int(data.get("dim")) 
     single_step : bool = data.get("single_step")
-    scaled : bool = data.get("scaled")
+    scaled : bool = data.get("scaling")
 
     matrix : list[list] = data.get("coeff")
     answers : list = data.get("answers")
