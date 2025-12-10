@@ -1,6 +1,6 @@
 from flask import Flask
-from lse import lse
-from rootfinding import rootf
+from routes.lse import lse
+from routes.rootfinding import rootf
 
 app = Flask(__name__)
 
