@@ -1,47 +1,49 @@
 from .checks import check_diagonal_dominance, convergence_status
-from utils.models import LinearSystem
-from utils.auxilary import round_sig
-from utils.step_recorder import IterativeStepRecorder
+from LSE.utils.models import LinearSystem
+from LSE.utils.auxilary import round_sig
+from LSE.utils.step_recorder import IterativeStepRecorder
 import time
 
-class GaussSeidelSolver :
+class JacobiSolver :
 
     def __init__(self, system: LinearSystem, single_step : bool = False):
         self.system = system
         self.recorder = IterativeStepRecorder(single_step)
-    def solve(self,initial : list, sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, list[list], int, bool, int] :
+    
+    def solve(self,initial : list,  sig_figs=6, tol=1e-12, max_itrs : int = 50, debug : bool = False) -> tuple[list, list[list], int, bool, int] :
         A = self.system.A
         b = self.system.b
         n = self.system.n
-        start1=time.perf_counter()   
-
+        helper = initial.copy()
+        start1=time.perf_counter()
         DD, newA,newb = check_diagonal_dominance(A,b)
         if DD:
             if debug : print("matrix is diagonally dominant => Jacobi will to converge.")
             A = newA
-            b = newb
+            b=newb
         else:
             if debug : print("matrix is not diagonally dominant => Jacobi may not converge.")
 
 
         X= [ "X"+str(i+1) for i in range(n) ]
-        
-        recent_max_errors = []
+
 
         start2=time.perf_counter()
 
+        recent_max_errors = []
+
         if debug :
-            print("\n Gauss-Seidel start \n")
+            print("\n Jacobi start \n")
             print("Initial Matrix A:")
             for row in A:
                 print(row)
             print("\nVector B:", b)
             print("\nInitial Guess:", initial)
             print("\n---------------------------------------------\n")
+
         i = 0
         for i in range(max_itrs):
             if debug : print("Iteration no. ",i+1,"\n")
-            Old = initial.copy() 
 
             for row in range(len(A)):
                 computation=0
@@ -50,26 +52,24 @@ class GaussSeidelSolver :
                         continue
                     else:
                         computation-=A[row][col]*initial[col]
-                initial[row]=(b[row]+computation)*(1/A[row][row])
-            
-
-
-            initial = [float(f"{val:.{sig_figs}g}") for val in initial]
-
+                helper[row]=(b[row]+computation)*(1/A[row][row])
+            print(type(A))    
+        
+            helper = [float(f"{val:.{sig_figs}g}") for val in helper]
 
             errors = []
             for j in range(n):
-                if initial[j] != 0:
-                    Ea=abs((initial[j]-Old[j])/initial[j])*100
+                if helper[j] != 0:
+                    Ea=abs((helper[j]-initial[j])/helper[j])*100
                 else:
                     Ea = 0
-                errors.append(round(Ea, 6))
-
+                errors.append(round_sig(Ea, sig_figs))
+            
             recent_max_errors.append(max(errors))
 
             if debug :
                 for j in range(n):    
-                    print(X[j]+"="+str(initial[j])+"   (error = "+str(errors[j])+"%)")
+                    print(X[j]+"="+str(helper[j])+"   (error = "+str(errors[j])+"%)")
                     print()
 
 
@@ -78,13 +78,17 @@ class GaussSeidelSolver :
                 if e >= tol:
                     stop = False
                     break
-            self.recorder.record(initial)
-
+            
+            self.recorder.record(initial,True)
             if stop and (i+1)!=max_itrs:
-                if debug : print("Stopping early: all relative errors < margin.\n")
+                if debug : print("stopping early because all relative errors < margin\n")
                 break
+                    
+            
+            initial=helper.copy()
 
-        if debug : print("Gauss-Sediel End")
+
+        if debug : print("Jacobi End")
 
         reached_max_iterations = (i+1 == max_itrs)
 
@@ -93,8 +97,13 @@ class GaussSeidelSolver :
         if debug : print("\nFinal Status:", status)
 
         end =time.perf_counter()
-        if debug :
+
+        if debug : 
             print("execution time without diagoanlly dominant check:",round((end-start2)*1_000_000,3)," microsecond")
             print("execution time with diagoanlly dominant check:",round((end-start1)*1_000_000,3)," microsecond")
+        return initial,newA,i + 1, DD, status
 
-        return initial, newA, i + 1, DD, status
+
+
+
+

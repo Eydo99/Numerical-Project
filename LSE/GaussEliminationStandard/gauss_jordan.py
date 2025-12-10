@@ -1,9 +1,7 @@
-from typing import Optional
-from utils.models import GaussStep, StepType, LinearSystem
-from utils.step_recorder import GaussStepRecorder
-from utils.auxilary import round_sig, pivot, scaling_factors
-from exceptions.singular import SingularMatrixException
-
+from LSE.exceptions.singular import SingularMatrixException
+from LSE.utils.step_recorder import GaussStep, GaussStepRecorder
+from LSE.utils.models import LinearSystem, StepType
+from LSE.utils.auxilary import scaling_factors, pivot, round_sig
 
 class GaussJordanSolver :
     def __init__(self, system:LinearSystem, single_step : bool = False) :

@@ -1,9 +1,9 @@
 
-from utils.auxilary import scaling_factors, round_sig, pivot_lu
-from utils.models import LinearSystem
-from utils.step_recorder import LUStepRecorder
-from utils.models import StepType
-from exceptions.singular import SingularMatrixException
+from LSE.utils.auxilary import scaling_factors, round_sig, pivot_lu
+from LSE.utils.models import LinearSystem
+from LSE.utils.step_recorder import LUStepRecorder
+from LSE.utils.models import StepType
+from LSE.exceptions.singular import SingularMatrixException
 
 
 class DolittleSolver :

@@ -1,11 +1,11 @@
 import math
 
-from utils.models import LinearSystem
-from utils.auxilary import round_sig
-from utils.step_recorder import LUStepRecorder
-from exceptions.singular import SingularMatrixException
-from exceptions.asymmetric import AsymmetricMatrixException
-from exceptions.positive_indefinite import PositiveIndefiniteException
+from LSE.utils.models import LinearSystem
+from LSE.utils.auxilary import round_sig
+from LSE.utils.step_recorder import LUStepRecorder
+from LSE.exceptions.singular import SingularMatrixException
+from LSE.exceptions.asymmetric import AsymmetricMatrixException
+from LSE.exceptions.positive_indefinite import PositiveIndefiniteException
 
 
 class CholeskySolver:

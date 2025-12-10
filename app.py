@@ -1,23 +1,23 @@
 from flask import Flask, app, request
-from utils.models import *
-from utils.auxilary import *
-from GaussEliminationStandard.gauss_jordan import GaussJordanSolver
-from GaussEliminationStandard.gauss_solver import GaussSolver
-from LUStandard.cholesky_solver import CholeskySolver
-from LUStandard.dolittle_solver import DolittleSolver
-from LUStandard.crout_solver import CroutSolver
-from Iterative.gauss_seidel_solver import GaussSeidelSolver
-from Iterative.jacobi_solver import JacobiSolver
-from exceptions.singular import SingularMatrixException
-from exceptions.asymmetric import AsymmetricMatrixException
-from exceptions.positive_indefinite import PositiveIndefiniteException
+from LSE.utils.models import *
+from LSE.utils.auxilary import *
+from LSE.GaussEliminationStandard.gauss_jordan import GaussJordanSolver
+from LSE.GaussEliminationStandard.gauss_solver import GaussSolver
+from LSE.LUStandard.cholesky_solver import CholeskySolver
+from LSE.LUStandard.dolittle_solver import DolittleSolver
+from LSE.LUStandard.crout_solver import CroutSolver
+from LSE.Iterative.gauss_seidel_solver import GaussSeidelSolver
+from LSE.Iterative.jacobi_solver import JacobiSolver
+from LSE.exceptions.singular import SingularMatrixException
+from LSE.exceptions.asymmetric import AsymmetricMatrixException
+from LSE.exceptions.positive_indefinite import PositiveIndefiniteException
 import time
 import json
 
 app = Flask(__name__)
 
-from flask_cors import CORS
-CORS(app, resources={r"/*": {"origins": "*"}})  
+# from flask_cors import CORS
+# CORS(app, resources={r"/*": {"origins": "*"}})  
 
 
 @app.route('/solve/gaussjordan', methods = ['POST'])

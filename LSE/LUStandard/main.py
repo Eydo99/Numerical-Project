@@ -1,6 +1,6 @@
 import time
 
-from utils.models import LinearSystem
+from LSE.utils.models import LinearSystem
 from .cholesky_solver import cholesky_solver
 from .crout_solver import crout_solver
 from .dolittle_solver import doolittle

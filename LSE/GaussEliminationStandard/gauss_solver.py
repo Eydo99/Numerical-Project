@@ -1,7 +1,7 @@
-from utils.models import GaussStep, StepType, LinearSystem
-from utils.step_recorder import GaussStepRecorder
-from utils.auxilary import round_sig, pivot, back_sub, scaling_factors
-from exceptions.singular import SingularMatrixException
+from LSE.utils.models import GaussStep, StepType, LinearSystem
+from LSE.utils.step_recorder import GaussStepRecorder
+from LSE.utils.auxilary import round_sig, pivot, back_sub, scaling_factors
+from LSE.exceptions.singular import SingularMatrixException
 import time
 import math
 
