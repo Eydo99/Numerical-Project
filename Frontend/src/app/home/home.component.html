@@ -1,0 +1,104 @@
+<div class="container">
+  <header class="header">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+        <line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="2"/>
+        <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2"/>
+        <line x1="8" y1="16" x2="13" y2="16" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span class="logo-text">NUMERICAL.<span class="logo-highlight">OS</span></span>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      SYSTEM ONLINE
+    </div>
+
+    <h1 class="main-title">
+      NUMERICAL<span class="title-highlight">METHODS</span><br>
+      SOLVER
+    </h1>
+
+    <p class="subtitle">
+      Next-gen mathematical computation between your hands.<br>
+      Simulate, Solve, and Visualize complex equations.
+    </p>
+
+    <div class="cards-container">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">#</div>
+          <div>
+            <div class="phase-label">PHASE 1</div>
+            <h2 class="card-title">Linear Algebra Solver</h2>
+            <p class="card-description">Comprehensive matrix operations and system solving algorithms.</p>
+          </div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">Gaussian Elimination</span>
+          <span class="tag">Gauss-Jordan</span>
+          <span class="tag">LU Decomposition</span>
+          <span class="tag">Jacobi Method</span>
+          <span class="tag">Gauss-Seidel</span>
+          <span class="tag tag-dark">Matrix Scaling</span>
+          <span class="tag tag-dark">Simulation Mode</span>
+        </div>
+
+        <button class="btn btn-primary" (click)="openSolver()">
+          OPEN SOLVER
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">ƒx</div>
+          <div>
+            <div class="phase-label">PHASE 2</div>
+            <h2 class="card-title">Root Finding Program</h2>
+            <p class="card-description">Interactive step-by-step visualization of non-linear equations.</p>
+          </div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">Bisection Method</span>
+          <span class="tag">Newton-Raphson</span>
+          <span class="tag">Secant Method</span>
+          <span class="tag tag-dark">Error Analysis</span>
+          <span class="tag tag-dark">Graph Plotter</span>
+        </div>
+
+        <button class="btn btn-secondary" (click)="openVisualizer()">
+          OPEN VISUALIZER
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p class="copyright">© 2024 NumericalOS. All calculations processed locally.</p>
+    <div class="footer-links">
+      <a href="#" class="footer-link">Privacy</a>
+      <a href="#" class="footer-link">Terms</a>
+      <a href="#" class="footer-link">GitHub</a>
+    </div>
+  </footer>
+
+  <!-- Decorative mathematical symbols -->
+  <div class="math-symbol symbol-1">Δ</div>
+  <div class="math-symbol symbol-2">∫</div>
+  <div class="math-symbol symbol-3">√</div>
+  <div class="math-symbol symbol-4">π</div>
+  <div class="math-symbol symbol-5">Σ</div>
+  <div class="math-symbol symbol-6">θ</div>
+</div>
