@@ -12,6 +12,7 @@ class SecantSolver :
     def __init__ (self, func_lambda, single_step : bool) :
         self.func = func_lambda   
         self.recorder = SecantMethodStepRecorder(single_step) 
+    
 
     def solve(self, first : float, second : float,  max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int] :
         
@@ -27,3 +28,4 @@ class SecantSolver :
             second = third
         
         return third, i + 1
+

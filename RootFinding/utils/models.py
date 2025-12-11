@@ -10,3 +10,5 @@ class SecantStep :
         self.second = second
         self.result = result
         self.f_result = f_result
+
+
