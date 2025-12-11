@@ -16,3 +16,8 @@ def round_sig(x, sig=6):
     if x == 0:
         return 0.0
     return round(x, sig - int(math.floor(math.log10(abs(x)))) - 1)
+
+def get_lambda_gx(func_str : str) :
+    x = Symbol('x')
+    gx_simpified = sympify(func_str)
+    return lambdify(x, gx_simpified, "numpy")

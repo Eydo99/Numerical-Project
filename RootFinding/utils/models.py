@@ -32,3 +32,13 @@ class bisectionStep :
         self.xu = xu
         self.xr = xr
         self.f_xr = f_xr
+
+
+class fixedPointStep:
+    point:float
+    result:float
+    f_result:float
+    def __init__(self, point, result, f_result):
+        self.point = point
+        self.result = result
+        self.f_result = f_result
