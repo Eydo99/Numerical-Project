@@ -205,53 +205,53 @@ export class App {
       .subscribe({
         next: (res) => {
           if (!res.result) {
-          
+
             if (res.flags.singular) {
               this.solutionError =
                 'MATRIX IS SINGULAR';
             } else if (res.flags.asymmetric) {
-              
+
               this.solutionError = 'MATRIX IS ASYMMETRIC, THE CHOSEN METHOD MAY NOT BE SUITABLE.';
             } else if (res.flags.positive_indef) {
-              
+
               this.solutionError =
                 "MATRIX ISN'T POSITIVE DEFINITE, THE CHOSEN METHOD MAY NOT BE SUITABLE.";
-            } 
+            }
 
             this.problemMessage = '';
           } else {
-            
+
             this.solution = res.result;
             this.executionTime = res.exec_time * 1000 || 0;
             this.iterations = res.itr_cnt || 0;
             this.steps = res.steps || [];
-            this.solutionError = null; 
+            this.solutionError = null;
 
-            
+
             const isDiagonallyDominant = res.flags?.dd;
-            const convergenceStatus = res.flags?.conv[0]; 
+            const convergenceStatus = res.flags?.conv[0];
 
             console.log(isDiagonallyDominant);
             console.log(convergenceStatus);
-
+            //console.log(this.scaling);
             if (isDiagonallyDominant) {
-              
+
               this.problemMessage =
-                '(THE MATRIX IS STRICTLY DIAGONALLY DOMINANT, CONVERGENCE IS GUARANTEED.)';
+                '(THE MATRIX HAS  DIAGONALLY DOMINANT PERMUTATION, CONVERGENCE IS GUARANTEED.)';
             } else if (convergenceStatus === -1) {
-              
+
               this.problemMessage =
                 '(THE MATRIX IS NOT DIAGONALLY DOMINANT, THE SOLUTION MAY OR MAY NOT CONVERGE.)';
             } else if (convergenceStatus === 0) {
-              
+
               this.problemMessage =
                 '(THE MATRIX IS NOT DIAGONALLY DOMINANT. THE SOLUTION DID NOT CONVERGE WITHIN THE ITERATION LIMIT.)';
             } else if (convergenceStatus === 1) {
-              
+
               this.problemMessage =
                 '(THE MATRIX IS NOT DIAGONALLY DOMINANT, BUT THE SOLUTION CONVERGED.)';
             } else {
-              
+
               this.problemMessage = '';
             }
           }

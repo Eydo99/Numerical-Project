@@ -1,0 +1,31 @@
+from sympy import *
+from RootFinding.utils.step_recorder import SecantMethodStepRecorder
+from RootFinding.utils.models import SecantStep
+from RootFinding.utils.auxilary import round_sig, get_lambda_func
+import math
+
+
+
+
+class SecantSolver :
+    
+    def __init__ (self, func_lambda, single_step : bool) :
+        self.func = func_lambda   
+        self.recorder = SecantMethodStepRecorder(single_step) 
+    
+
+    def solve(self, first : float, second : float,  max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int] :
+        
+        for i in range(max_itrs) :
+            diff = round_sig(self.func(second) * round_sig((second - first) / round_sig(self.func(second) - self.func(first), sig_figs), sig_figs), sig_figs)
+            third = round_sig(second - diff, sig_figs)
+
+            self.recorder.record(SecantStep(first, second, third, self.func(third)))
+
+            if(abs(diff) < tol) :
+                break
+            first = second
+            second = third
+        
+        return third, i + 1
+
