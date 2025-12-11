@@ -3,7 +3,6 @@ import math
 
 def get_lambda_func ( func_str : str) :
     x = Symbol('x')
-    
     func_simpified = sympify(func_str)
     return lambdify(x, func_simpified, "numpy")
 

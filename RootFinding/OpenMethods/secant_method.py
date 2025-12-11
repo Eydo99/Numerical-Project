@@ -1,5 +1,5 @@
 from sympy import *
-from RootFinding.utils.step_recorder import SecantMethodStepRecorder
+from RootFinding.utils.step_recorder import openMethodStepRecorder
 from RootFinding.utils.models import SecantStep
 from RootFinding.utils.auxilary import round_sig, get_lambda_func
 import math
@@ -11,7 +11,7 @@ class SecantSolver :
     
     def __init__ (self, func_lambda, single_step : bool) :
         self.func = func_lambda   
-        self.recorder = SecantMethodStepRecorder(single_step) 
+        self.recorder =openMethodStepRecorder(single_step)
     
 
     def solve(self, first : float, second : float,  max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int] :
