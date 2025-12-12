@@ -21,6 +21,7 @@ class fixedPointSolver:
             newGuess=round_sig(self.gx(oldGuess),sig_figs)
 
             #record current loop
+            print(newGuess)
             self.recorder.record(fixedPointStep(oldGuess,newGuess,self.func(newGuess)))
 
             # ea cannot be determined in first loop
