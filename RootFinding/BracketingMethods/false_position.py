@@ -1,5 +1,5 @@
 from RootFinding.Exceptions.InvalidInterval import InvalidIntervalException
-from RootFinding.Exceptions.ZeroDivsion import ZeroDivisionException
+from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.models import  falsePositionStep
 from RootFinding.utils.step_recorder import openMethodStepRecorder
@@ -39,7 +39,7 @@ class falsePositionSolver:
             # zero division
             denominator = round_sig(f_xl - f_xu, sig_figs)
             if denominator == 0:
-                raise ZeroDivisionException(f"Error: Division by zero (f(xl)=f(xu)) at iteration {i}. ")
+                raise ZeroDivision(f"Error: Division by zero (f(xl)=f(xu)) at iteration {i}. ")
                 return xl, i
 
             numerator = round_sig(f_xu * (xl - xu), sig_figs)
@@ -80,7 +80,11 @@ class falsePositionSolver:
     #     f = lambda x: x**3 - 4*x - 10  # Root between 2 and 3
 
     #     solver = falsePositionSolver(f, single_step=False)
-    #     root, iterations = solver.solve(2, 3, 100, 1e-6, 6)
+    #     root, iterations = solver.solve(1, 2, 100, 1e-6, 6)
 
     #     print(f"Test:, root={root}, iterations={iterations}")
+        
+        
+       
+        
         

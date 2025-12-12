@@ -1,4 +1,5 @@
 from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
+from RootFinding.OpenMethods.checks import convergence_status
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.step_recorder import openMethodStepRecorder
 from RootFinding.utils.models import modifiedNewtonStep
@@ -23,13 +24,14 @@ class modifiedNewtonSolver:
         tol: float,
         sig_figs: int,
         multiplicity: Optional[float] = None
-    ) -> Tuple[float, int]:
+    ) -> Tuple[float, int, int]:
        
         
         oldGuess = round_sig(oldGuess, sig_figs)
         newGuess = oldGuess  
         absoluteDiff = float('inf')
         i = 0  
+        error_history = []
 
         for i in range(max_iter):
             #  f(x) , f'(x)
@@ -62,6 +64,7 @@ class modifiedNewtonSolver:
             # ea
             if i != 0:
                 absoluteDiff = round_sig(abs(newGuess - oldGuess), sig_figs)
+                error_history.append(absoluteDiff)
 
             # step recorder
             f_newGuess = round_sig(self.func(newGuess), sig_figs)
@@ -75,18 +78,26 @@ class modifiedNewtonSolver:
                 break
 
             oldGuess = newGuess
+        
+        # Determine convergence status
+        final_error = absoluteDiff if i != 0 else float('inf')
+        f_at_root = round_sig(self.func(newGuess), sig_figs)
+                
+        status = convergence_status(error_history=error_history,iterations=i + 1,max_iterations=max_iter)    
 
-        return newGuess, i + 1
+        return newGuess, i + 1 , status
         
-    # @staticmethod
-    # def test():
+    @staticmethod
+    def test():
         
-    #     f = lambda x: 3*x**2+5*x-10
-    #     df = lambda x: 6*x+5
-    #     d2f = lambda x: 6
+        f = lambda x: 5*x**2+5*x-10
+        df = lambda x: 10*x+5
+        d2f = lambda x: 10
             
-    #     solver = modifiedNewtonSolver(f, df, d2f, single_step=False)
-    #     root, iterations = solver.solve(1, 100, 1e-6, 6  )
+        solver = modifiedNewtonSolver(f, df, d2f, single_step=False)
+        root, iterations,status = solver.solve(-4, 100, 1e-6, 6  )
             
-    #     print(f"Test:, root={root}, iterations={iterations}")
-                      
+        print(f"Test:, root={root}, iterations={iterations} , status = {status}")
+        
+        
+modifiedNewtonSolver.test()                      

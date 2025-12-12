@@ -1,4 +1,4 @@
-class ZeroDivisionException(Exception):
+class ZeroDivision(Exception):
     
     def __init__(self,message):
         
