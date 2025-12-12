@@ -1,5 +1,7 @@
+from RootFinding.Exceptions.InvalidInterval import InvalidIntervalException
+from RootFinding.Exceptions.ZeroDivsion import ZeroDivisionException
 from RootFinding.utils.auxilary import round_sig
-from RootFinding.utils.models import bisectionStep
+from RootFinding.utils.models import  falsePositionStep
 from RootFinding.utils.step_recorder import openMethodStepRecorder
 
 
@@ -17,7 +19,11 @@ class falsePositionSolver:
         tol: float,
         sig_figs: int
     ) -> tuple[float, int] :
-
+        
+         # If f(xl)*f(xu) > 0 -> no root exists in this interval
+        if self.func(xl) * self.func(xu) > 0:
+            raise InvalidIntervalException()
+                    
         absoluteDiff = float('inf')
         temp = 0
         xl = round_sig(xl, sig_figs)
@@ -33,7 +39,7 @@ class falsePositionSolver:
             # zero division
             denominator = round_sig(f_xl - f_xu, sig_figs)
             if denominator == 0:
-                print(f"Error: Division by zero (f(xl)=f(xu)) at iteration {i}. Stopping.")
+                raise ZeroDivisionException(f"Error: Division by zero (f(xl)=f(xu)) at iteration {i}. ")
                 return xl, i
 
             numerator = round_sig(f_xu * (xl - xu), sig_figs)
@@ -41,7 +47,7 @@ class falsePositionSolver:
             f_xr = round_sig(self.func(xr), sig_figs)
 
             # current step
-            self.recorder.record(bisectionStep(xl, xu, xr, f_xr))
+            self.recorder.record(falsePositionStep(xl, xu, xr, f_xr))
 
             
             if i != 0:

@@ -1,3 +1,4 @@
+from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.step_recorder import openMethodStepRecorder
 from RootFinding.utils.models import modifiedNewtonStep
@@ -39,8 +40,7 @@ class modifiedNewtonSolver:
             if multiplicity is not None:
                 #Modified 1
                 if dydx == 0:
-                    print(f"Error: Division by zero (f'(x)=0) at iteration {i}. Stopping.")
-                    return oldGuess, i
+                    raise ZeroDivision(f"Error: Division by zero (f'(x)=0) at iteration {i}")
                 term = round_sig(f_x / dydx, sig_figs)
                 newGuess = round_sig(oldGuess - (multiplicity * term), sig_figs)
 
@@ -53,7 +53,7 @@ class modifiedNewtonSolver:
 
                 # zero division
                 if denominator == 0:
-                    print(f"Error: Division by zero in denominator at iteration {i}. Stopping.")
+                    raise ZeroDivision(f"Error: Division by zero in denominator at iteration {i}. Stopping.")
                     return oldGuess, i
 
                 term = round_sig(numerator / denominator, sig_figs)
