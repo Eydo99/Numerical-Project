@@ -38,3 +38,7 @@ class originalNewtonSolver:
 
         #return the approximate root and no. of iterations
         return newGuess, i+1
+
+
+print()        
+        

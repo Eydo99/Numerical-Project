@@ -13,4 +13,3 @@ app.register_blueprint(rootf)
 
 # if app.name == "__main__" :
 app.run(debug= True, port= 8080)
-
