@@ -1,16 +1,29 @@
+<app-topbar (methodSelected)="selectMethod($event)"></app-topbar>
+
 <div class="phase-wrapper">
 
-    <div class="floating-symbol symbol-a">√</div>
-    <div class="floating-symbol symbol-b">π</div>
-    <div class="floating-symbol symbol-c">ƒ(x)</div>
+  <!-- TITLE AREA -->
+  <div class="title-area">
+    <h1 class="title">Root Finding <span class="glow-text">Program</span></h1>
+    <p class="subtitle">Interactive step-by-step nonlinear equation solving methods.</p>
+  </div>
 
-    <h1 class="title">
-        Root Finding <span class="glow-text">Program</span>
-    </h1>
+  <!-- PANELS -->
+  <div class="panels-container">
 
-    <p class="subtitle">
-        Interactive step-by-step of nonlinear equation solving methods.
-    </p>
+      <div class="left-panel">
+        <app-input [selectedMethod]="selectedMethod"></app-input>
+      </div>
 
-    
+      <div class="right-panel">
+        <p class="placeholder">Results will appear here...</p>
+      </div>
+
+  </div>
+
+  <!-- FLOATING SYMBOLS -->
+  <div class="floating-symbol symbol-a">√</div>
+  <div class="floating-symbol symbol-b">π</div>
+  <div class="floating-symbol symbol-c">ƒ(x)</div>
+
 </div>
