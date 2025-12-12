@@ -4,26 +4,37 @@ from RootFinding.utils.models import originalNewtonStep
 
 class originalNewtonSolver:
 
+    #initialize f(x),f'(x),and step recorder
     def __init__(self,func_lambda,diff_lambda,single_step:bool):
         self.func=func_lambda
         self.dydyx=diff_lambda
         self.recorder=openMethodStepRecorder(single_step)
 
     def solve(self, oldGuess: float, max_iter: int, tol: float, sig_figs: int)-> tuple[float, int] :
+        #rounding the x0 and making ea=infinity at first
+        oldGuess = round_sig(oldGuess, sig_figs)
+        absoluteDiff=float('inf')
 
         for i in range(max_iter):
-            oldGuess = round_sig(oldGuess,sig_figs)
-            f_x = self.func(oldGuess)
-            dydx = self.dydyx(oldGuess)
-            newGuess =round_sig(oldGuess-(round_sig(f_x/dydx,sig_figs)),sig_figs)
-            newGuess = round_sig(newGuess,sig_figs)
-            diff=round_sig((round_sig(newGuess-oldGuess,sig_figs))/newGuess,sig_figs)
+            #calculate f(x) and f'(x)
+            f_x = round_sig(self.func(oldGuess))
+            dydx = round_sig(self.dydyx(oldGuess))
 
+            # x(i+1)=x(i)-f(xi)/f'(xi)
+            newGuess =round_sig(oldGuess-(round_sig(f_x/dydx,sig_figs)),sig_figs)
+
+            #ea cannot be determined in first loop
+            if i!=0:
+                absoluteDiff=round_sig(abs(newGuess-oldGuess),sig_figs)
+
+            #record the current loop
             self.recorder.record(originalNewtonStep(oldGuess,newGuess,self.func(newGuess)))
 
-            if abs(diff) < tol:
+            #if ea<es break
+            if absoluteDiff < tol:
                 break
 
             oldGuess=newGuess
 
+        #return the approximate root and no. of iterations
         return newGuess, i+1
