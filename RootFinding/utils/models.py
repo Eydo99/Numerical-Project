@@ -57,6 +57,17 @@ class bisectionStep :
         self.xr = xr
         self.f_xr = f_xr
 
+class falsePositionStep:
+    xl: float
+    xu: float
+    xr : float
+    f_xr: float
+
+    def __init__(self, xl, xu, xr, f_xr):
+        self.xl = xl
+        self.xu = xu
+        self.xr = xr
+        self.f_xr = f_xr
 
 class fixedPointStep:
     point:float
