@@ -18,12 +18,12 @@ def handle_secant():
     first = data.get("first")
     second = data.get("second")
 
-    tol = data.get("tol")
-    max_itrs = data.get("max_itrs")
+    tol = data.get("tol", 1e-6)
+    max_itrs = data.get("max_itrs", 50)
 
-    sig_figs = data.get("sig_figs")
+    sig_figs = data.get("sig_figs", 6)
 
-    single_step = data.get("single_step")
+    single_step = data.get("single_step", False)
 
     lambda_func = get_lambda_func(func_str)
     solver = SecantSolver(lambda_func, single_step)
@@ -53,12 +53,12 @@ def handle_og_newton():
 
     first = data.get("first")
 
-    tol = data.get("tol")
-    max_itrs = data.get("max_itrs")
+    tol = data.get("tol", 1e-6)
+    max_itrs = data.get("max_itrs", 50)
 
-    sig_figs = data.get("sig_figs")
+    sig_figs = data.get("sig_figs", 6)
 
-    single_step = data.get("single_step")
+    single_step = data.get("single_step", False)
 
     lambda_func = get_lambda_func(func_str)
     diff_func = get_lambda_diff(func_str)
@@ -90,12 +90,12 @@ def handle_fixed_point():
 
     first = data.get("first")
 
-    tol = data.get("tol")
-    max_itrs = data.get("max_itrs")
+    tol = data.get("tol", 1e-6)
+    max_itrs = data.get("max_itrs", 50)
 
-    sig_figs = data.get("sig_figs")
+    sig_figs = data.get("sig_figs", 6)
 
-    single_step = data.get("single_step")
+    single_step = data.get("single_step", False)
 
     func_lambda = get_lambda_func(func_str)
     g_x_lambda = get_lambda_gx(func_str)
@@ -129,12 +129,12 @@ def handle_biseection():
     high = data.get("second")
 
 
-    tol = data.get("tol")
-    max_itrs = data.get("max_itrs")
+    tol = data.get("tol", 1e-6)
+    max_itrs = data.get("max_itrs", 50)
 
-    sig_figs = data.get("sig_figs")
+    sig_figs = data.get("sig_figs", 6)
 
-    single_step = data.get("single_step")
+    single_step = data.get("single_step", False)
 
     func_lambda = get_lambda_func(func_str)
 
