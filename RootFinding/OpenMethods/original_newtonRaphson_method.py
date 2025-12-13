@@ -1,7 +1,7 @@
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.step_recorder import openMethodStepRecorder
 from RootFinding.utils.models import originalNewtonStep
-from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
+from RootFinding.Exceptions.zero_division import ZeroDivision
 class originalNewtonSolver:
 
     #initialize f(x),f'(x),and step recorder

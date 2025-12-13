@@ -1,5 +1,5 @@
-from RootFinding.Exceptions.InvalidInterval import InvalidIntervalException
-from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
+from RootFinding.Exceptions.invalid_interval import InvalidIntervalException
+from RootFinding.Exceptions.zero_division import ZeroDivision
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.models import  falsePositionStep
 from RootFinding.utils.step_recorder import openMethodStepRecorder

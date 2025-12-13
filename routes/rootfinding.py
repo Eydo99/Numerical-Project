@@ -7,8 +7,8 @@ from RootFinding.BracketingMethods.false_position import falsePositionSolver
 from RootFinding.OpenMethods.modified_newtonRaphson import modifiedNewtonSolver
 from RootFinding.utils.auxilary import *
 from RootFinding.plotter import FunctionPlotter
-from RootFinding.Exceptions.InvalidInterval import InvalidIntervalException
-from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
+from RootFinding.Exceptions.invalid_interval import InvalidIntervalException
+from RootFinding.Exceptions.zero_division import ZeroDivision
 import json
 import io
 import time

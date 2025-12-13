@@ -1,4 +1,4 @@
-from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
+from RootFinding.Exceptions.zero_division import ZeroDivision
 from RootFinding.OpenMethods.checks import convergence_status
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.step_recorder import openMethodStepRecorder
