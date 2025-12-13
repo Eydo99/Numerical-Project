@@ -7,6 +7,8 @@ from RootFinding.BracketingMethods.false_position import falsePositionSolver
 from RootFinding.OpenMethods.modified_newtonRaphson import modifiedNewtonSolver
 from RootFinding.utils.auxilary import *
 from RootFinding.plotter import FunctionPlotter
+from RootFinding.Exceptions.InvalidInterval import InvalidIntervalException
+from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
 import json
 import io
 import time
@@ -15,241 +17,273 @@ rootf = Blueprint("rootfinding", __name__)
 
 @rootf.route("/secant", methods= ["POST"])
 def handle_secant():
-    data = request.json
-    func_str = data.get("func")
+    try:
+        data = request.json
+        func_str = data.get("func")
+        first = data.get("first")
+        second = data.get("second")
+        tol = data.get("tol", 1e-6)
+        max_itrs = data.get("max_itrs", 50)
+        sig_figs = data.get("sig_figs", 6)
+        single_step = data.get("single_step", False)
 
-    first = data.get("first")
-    second = data.get("second")
+        lambda_func = get_lambda_func(func_str)
+        solver = SecantSolver(lambda_func, single_step)
 
-    tol = data.get("tol", 1e-6)
-    max_itrs = data.get("max_itrs", 50)
+        start_time = time.perf_counter()
+        res, itrs = solver.solve(first, second, max_itrs, tol, sig_figs)
+        end_time = time.perf_counter()
 
-    sig_figs = data.get("sig_figs", 6)
+        steps = []
+        for step in solver.recorder.steps:
+            steps.append({
+                "first": step.first,
+                "second": step.second,
+                "result": step.result,
+                "f_result": step.f_result
+            })
 
-    single_step = data.get("single_step", False)
+        response = {
+            "sol": res,
+            "itrs": itrs,
+            "steps": steps,
+            "exec_time": end_time - start_time
+        }
 
-    lambda_func = get_lambda_func(func_str)
-    solver = SecantSolver(lambda_func, single_step)
-
-    start_time = time.perf_counter()
-    res, itrs = solver.solve(first, second, max_itrs, tol, sig_figs)
-    end_time = time.perf_counter()
-
-    steps  = []
-    for step in solver.recorder.steps :
-        steps.append({
-            "first" : step.first,
-            "second" : step.second,
-            "result" : step.result,
-            "f_result" : step.f_result
-        })
-        
-    response = {
-        "sol" : res,
-        "itrs" : itrs,
-        "steps" : steps,
-        "exec_time": end_time - start_time
-    }
-
-
-    return json.dumps(response)
+        return json.dumps(response)
+    
+    except ZeroDivision as e:
+        return json.dumps({"error": str(e)}), 400
+    except Exception as e:
+        return json.dumps({"error": f"Unexpected error: {str(e)}"}), 500
 
 @rootf.route("/classic_newton", methods = ["POST"])
 def handle_og_newton():
-    data = request.json
-    func_str = data.get("func")
+    try:
+        data = request.json
+        func_str = data.get("func")
+        first = data.get("first")
+        tol = data.get("tol", 1e-6)
+        max_itrs = data.get("max_itrs", 50)
+        sig_figs = data.get("sig_figs", 6)
+        single_step = data.get("single_step", False)
 
-    first = data.get("first")
+        lambda_func = get_lambda_func(func_str)
+        diff_func = get_lambda_diff(func_str)
 
-    tol = data.get("tol", 1e-6)
-    max_itrs = data.get("max_itrs", 50)
+        solver = originalNewtonSolver(lambda_func, diff_func, single_step)
 
-    sig_figs = data.get("sig_figs", 6)
+        start_time = time.perf_counter()
+        res, itrs = solver.solve(first, max_itrs, tol, sig_figs)
+        end_time = time.perf_counter()
 
-    single_step = data.get("single_step", False)
+        steps = []
+        for step in solver.recorder.steps:
+            steps.append({
+                "point": step.point,
+                "result": step.result,
+                "f_result": step.f_result
+            })
 
-    lambda_func = get_lambda_func(func_str)
-    diff_func = get_lambda_diff(func_str)
+        response = {
+            "sol": res,
+            "itrs": itrs,
+            "steps": steps,
+            "exec_time": end_time - start_time
+        }
 
-    solver = originalNewtonSolver(lambda_func, diff_func, single_step)
+        return json.dumps(response)
     
-    start_time = time.perf_counter()
-    res,itrs = solver.solve(first, max_itrs, tol, sig_figs)
-    end_time = time.perf_counter()
+    except ZeroDivision as e:
+        return json.dumps({"error": str(e)}), 400
+    except Exception as e:
+        return json.dumps({"error": f"Unexpected error: {str(e)}"}), 500
     
-    steps  = []
-    for step in solver.recorder.steps :
-        steps.append({
-            "point" : step.point,
-            "result" : step.result,
-            "f_result" : step.f_result
-        })
-        
-    response = {
-        "sol" : res,
-        "itrs" : itrs,
-        "steps" : steps,
-        "exec_time": end_time - start_time
-    }
 
-
-    return json.dumps(response)
 
 @rootf.route("/fixed_point", methods= ["POST"])
 def handle_fixed_point():
-    data = request.json
-    func_str = data.get("func")
+    try:
+        data = request.json
+        func_str = data.get("func")
+        first = data.get("first")
+        tol = data.get("tol", 1e-6)
+        max_itrs = data.get("max_itrs", 50)
+        sig_figs = data.get("sig_figs", 6)
+        single_step = data.get("single_step", False)
 
-    first = data.get("first")
+        func_lambda = get_lambda_func(func_str)
+        g_x_lambda = get_lambda_gx(func_str)
 
-    tol = data.get("tol", 1e-6)
-    max_itrs = data.get("max_itrs", 50)
-
-    sig_figs = data.get("sig_figs", 6)
-
-    single_step = data.get("single_step", False)
-
-    func_lambda = get_lambda_func(func_str)
-    g_x_lambda = get_lambda_gx(func_str)
-
-    solver = fixedPointSolver(func_lambda, g_x_lambda, single_step)
-    start_time = time.perf_counter()
-    res,itrs = solver.solve(first, max_itrs, tol, sig_figs)
-    end_time = time.perf_counter()
-    steps  = []
-    for step in solver.recorder.steps :
-        steps.append({
-            "point" : step.point,
-            "result" : step.result,
-            "f_result" : step.f_result
-        })
+        solver = fixedPointSolver(func_lambda, g_x_lambda, single_step)
         
-    response = {
-        "sol" : res,
-        "itrs" : itrs,
-        "steps" : steps,
-        "exec_time": end_time - start_time
-    }
+        start_time = time.perf_counter()
+        res, itrs = solver.solve(first, max_itrs, tol, sig_figs)
+        end_time = time.perf_counter()
+        
+        steps = []
+        for step in solver.recorder.steps:
+            steps.append({
+                "point": step.point,
+                "result": step.result,
+                "f_result": step.f_result
+            })
 
+        response = {
+            "sol": res,
+            "itrs": itrs,
+            "steps": steps,
+            "exec_time": end_time - start_time
+        }
 
-    return json.dumps(response)
+        return json.dumps(response)
+    
+    except Exception as e:
+        return json.dumps({"error": f"Unexpected error: {str(e)}"}), 500
+    
+
 
 @rootf.route("/bisection", methods= ["POST"])
-def handle_biseection():
-    data = request.json
-    func_str = data.get("func")
+def handle_bisection():
+    try:
+        data = request.json
+        func_str = data.get("func")
+        low = data.get("first")
+        high = data.get("second")
+        tol = data.get("tol", 1e-6)
+        max_itrs = data.get("max_itrs", 50)
+        sig_figs = data.get("sig_figs", 6)
+        single_step = data.get("single_step", False)
 
-    low = data.get("first")
-    high = data.get("second")
+        func_lambda = get_lambda_func(func_str)
 
-
-    tol = data.get("tol", 1e-6)
-    max_itrs = data.get("max_itrs", 50)
-
-    sig_figs = data.get("sig_figs", 6)
-
-    single_step = data.get("single_step", False)
-
-    func_lambda = get_lambda_func(func_str)
-
-    solver = bisectionSolver(func_lambda, single_step)
-    start_time = time.perf_counter()
-    res,itrs = solver.solve(low,high, max_itrs, tol, sig_figs)
-    end_time = time.perf_counter()
-    steps  = []
-    for step in solver.recorder.steps :
-        steps.append({
-            "first" : step.xl,
-            "second" : step.xu,
-            "result" : step.xr,
-            "f_result" : step.f_xr
-        })
+        solver = bisectionSolver(func_lambda, single_step)
         
-    response = {
-        "sol" : res,
-        "itrs" : itrs,
-        "steps" : steps,
-        "exec_time": end_time - start_time
-    }
+        start_time = time.perf_counter()
+        result = solver.solve(low, high, max_itrs, tol, sig_figs)
+        end_time = time.perf_counter()
 
+        # Check if result is None (no root in interval)
+        if result is None:
+            return json.dumps({
+                "error": "No root found in the given interval. f(a) and f(b) must have opposite signs."
+            }), 400
 
-    return json.dumps(response)
+        res, itrs = result
+
+        steps = []
+        for step in solver.recorder.steps:
+            steps.append({
+                "first": step.xl,
+                "second": step.xu,
+                "result": step.xr,
+                "f_result": step.f_xr
+            })
+
+        response = {
+            "sol": res,
+            "itrs": itrs,
+            "steps": steps,
+            "exec_time": end_time - start_time
+        }
+
+        return json.dumps(response)
+    
+    except Exception as e:
+        return json.dumps({"error": f"Unexpected error: {str(e)}"}), 500
 
 
 
 
 @rootf.route("/false_position", methods=["POST"])
 def handle_false_position():
-    data = request.json
-    func_str = data.get("func")
-    low = data.get("first")
-    high = data.get("second")
-    tol = data.get("tol", 1e-6)
-    max_itrs = data.get("max_itrs", 50)
-    sig_figs = data.get("sig_figs", 6)
-    single_step = data.get("single_step", False)
+    try:
+        data = request.json
+        func_str = data.get("func")
+        low = data.get("first")
+        high = data.get("second")
+        tol = data.get("tol", 1e-6)
+        max_itrs = data.get("max_itrs", 50)
+        sig_figs = data.get("sig_figs", 6)
+        single_step = data.get("single_step", False)
 
-    func_lambda = get_lambda_func(func_str)
-    solver = falsePositionSolver(func_lambda, single_step)
+        func_lambda = get_lambda_func(func_str)
+        solver = falsePositionSolver(func_lambda, single_step)
+
+        start_time = time.perf_counter()
+        res, itrs = solver.solve(low, high, max_itrs, tol, sig_figs)
+        end_time = time.perf_counter()
+
+        steps = []
+        for step in solver.recorder.steps:
+            steps.append({
+                "first": step.xl,
+                "second": step.xu,
+                "result": step.xr,
+                "f_result": step.f_xr
+            })
+
+        response = {
+            "sol": res,
+            "itrs": itrs,
+            "steps": steps,
+            "exec_time": end_time - start_time
+        }
+
+        return json.dumps(response)
     
-    start_time = time.perf_counter()
-    res, itrs = solver.solve(low, high, max_itrs, tol, sig_figs)
-    end_time = time.perf_counter()
-    steps = []
-    for step in solver.recorder.steps:
-        steps.append({
-            "first": step.xl,
-            "second": step.xu,
-            "result": step.xr,
-            "f_result": step.f_xr
-        })
-
-    response = {
-        "sol": res,
-        "itrs": itrs,
-        "steps": steps,
-        "exec_time": end_time - start_time
-    }
-    return json.dumps(response)
+    except InvalidIntervalException as e:
+        return json.dumps({"error": str(e)}), 400
+    except ZeroDivision as e:
+        return json.dumps({"error": str(e)}), 400
+    except Exception as e:
+        return json.dumps({"error": f"Unexpected error: {str(e)}"}), 500
 
 
 @rootf.route("/modified_newton", methods=["POST"])
 def handle_modified_newton():
-    data = request.json
-    func_str = data.get("func")
-    first = data.get("first")
-    tol = data.get("tol", 1e-6)
-    max_itrs = data.get("max_itrs", 50)
-    sig_figs = data.get("sig_figs", 6)
-    single_step = data.get("single_step", False)
-    multiplicity = data.get("multiplicity", None)
+    try:
+        data = request.json
+        func_str = data.get("func")
+        first = data.get("first")
+        tol = data.get("tol", 1e-6)
+        max_itrs = data.get("max_itrs", 50)
+        sig_figs = data.get("sig_figs", 6)
+        single_step = data.get("single_step", False)
+        multiplicity = data.get("multiplicity", None)
 
-    func_lambda = get_lambda_func(func_str)
-    diff_lambda = get_lambda_diff(func_str)
-    d2_lambda = get_lambda_second_diff(func_str) 
+        func_lambda = get_lambda_func(func_str)
+        diff_lambda = get_lambda_diff(func_str)
+        d2_lambda = get_lambda_second_diff(func_str)
 
-    solver = modifiedNewtonSolver(func_lambda, diff_lambda, d2_lambda, single_step)
+        solver = modifiedNewtonSolver(func_lambda, diff_lambda, d2_lambda, single_step)
+
+        start_time = time.perf_counter()
+        res, itrs, status = solver.solve(first, max_itrs, tol, sig_figs, multiplicity)
+        end_time = time.perf_counter()
+
+        steps = []
+        for step in solver.recorder.steps:
+            steps.append({
+                "point": step.point,
+                "result": step.result,
+                "f_result": step.f_result
+            })
+
+        response = {
+            "sol": res,
+            "itrs": itrs,
+            "steps": steps,
+            "status": status,
+            "exec_time": end_time - start_time
+        }
+
+        return json.dumps(response)
     
-    start_time = time.perf_counter()
-    res, itrs, status = solver.solve(first, max_itrs, tol, sig_figs, multiplicity)
-    end_time = time.perf_counter()
-
-    steps = []
-    for step in solver.recorder.steps:
-        steps.append({
-            "point": step.point,
-            "result": step.result,
-            "f_result": step.f_result
-        })
-
-    response = {
-        "sol": res,
-        "itrs": itrs,
-        "steps": steps,
-        "status": status,
-        "exec_time": end_time - start_time
-    }
-    return json.dumps(response)
+    except ZeroDivision as e:
+        return json.dumps({"error": str(e)}), 400
+    except Exception as e:
+        return json.dumps({"error": f"Unexpected error: {str(e)}"}), 500
 
 
 

@@ -21,6 +21,7 @@ export interface RootFindingResponse {
   exec_time: number;
   status?: number;
   error?: string;
+  problem?: string;
 }
 
 @Injectable({

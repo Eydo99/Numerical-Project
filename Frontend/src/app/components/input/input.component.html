@@ -14,7 +14,7 @@
     Edit f(x)
   </button>
 
-  <div class="display-box" (click)="$event.stopPropagation()">
+  <div class="display-box" (click)="setCaretFromClick($event)">
     <span class="fx-label">{{ editingTarget === 'fx' ? 'f(x) =' : 'g(x) =' }}</span>
     <div class="fx-value-wrapper">
       <span class="fx-value" [innerText]="editingTarget === 'fx' ? displayFx : displayGx || ' '"></span>
@@ -96,6 +96,15 @@
 
   <!-- GENERAL SETTINGS -->
   <h3 class="section-title">General Settings</h3>
+  <div class="settings-header">
+    <button class="clear-all-btn" (click)="clearAllSettings()">
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+      </svg>
+      Clear All
+    </button>
+  </div>
   <div class="settings-grid">
     <label>Max Iterations
       <input type="number" [(ngModel)]="maxIterations" min="1" />

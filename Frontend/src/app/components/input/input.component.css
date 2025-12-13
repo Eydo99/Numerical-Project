@@ -154,6 +154,32 @@ button.small.danger{
   font-weight:700;
   font-size: 14px;
 }
+.clear-all-btn {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #fca5a5;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.clear-all-btn:hover {
+  background: rgba(220, 38, 38, 0.25);
+  border-color: rgba(220, 38, 38, 0.5);
+  transform: translateY(-1px);
+}
+
+.clear-all-btn .icon {
+  width: 14px;
+  height: 14px;
+}
+
 .settings-grid{ display:flex; gap:18px; margin-top:8px; flex-wrap:wrap;}
 .settings-grid label{
   display:flex;
@@ -236,19 +262,25 @@ button.small.danger{
 }
 .plot-btn {
   width: 100%;
-  padding: 14px 12px;
-  border-radius: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
   background: linear-gradient(90deg, #10b981, #059669);
   color: white;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 14px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.3s ease;
+}
+
+.plot-btn .btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .plot-btn:hover:not(:disabled) {
@@ -273,3 +305,4 @@ button.small.danger{
     transform: rotate(360deg);
   }
 }
+

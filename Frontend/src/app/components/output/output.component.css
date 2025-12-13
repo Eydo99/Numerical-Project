@@ -43,7 +43,7 @@
   border-radius: 12px;
   padding: 16px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   color: #fca5a5;
 }
@@ -52,6 +52,23 @@
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.error-content {
+  flex: 1;
+}
+
+.error-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #fecaca;
+}
+
+.error-text {
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 /* SOLUTION SECTION */

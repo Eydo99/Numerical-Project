@@ -1,7 +1,7 @@
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.step_recorder import openMethodStepRecorder
 from RootFinding.utils.models import originalNewtonStep
-
+from RootFinding.Exceptions.ZeroDivsion import ZeroDivision
 class originalNewtonSolver:
 
     #initialize f(x),f'(x),and step recorder
@@ -19,7 +19,8 @@ class originalNewtonSolver:
             #calculate f(x) and f'(x)
             f_x = round_sig(self.func(oldGuess), sig_figs)
             dydx = round_sig(self.dydyx(oldGuess), sig_figs)
-
+            if dydx == 0:
+                raise ZeroDivision(f"Error: Division by zero (f'(x)=0) at iteration {i+1}")
             # x(i+1)=x(i)-f(xi)/f'(xi)
             newGuess =round_sig(oldGuess-(round_sig(f_x/dydx,sig_figs)),sig_figs)
 

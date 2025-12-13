@@ -28,13 +28,13 @@ export class FunctionParser {
 
     // Handle implicit multiplication (e.g., 2x -> 2*x, xsin -> x*sin)
     // Number followed by variable or function
-    result = result.replace(/(\d)([a-z])/gi, '$1*$2');
+    result = result.replace(/(\d)([y-z])/gi, '$1*$2');
     // Variable followed by function
-    result = result.replace(/([a-z])([a-z]+\()/gi, '$1*$2');
+    result = result.replace(/([a-z])([y-z]+\()/gi, '$1*$2');
     // Closing paren followed by number or variable
-    result = result.replace(/\)(\d|[a-z])/gi, ')*$1');
+    result = result.replace(/\)(\d|[y-z])/gi, ')*$1');
     // Variable/number followed by opening paren
-    result = result.replace(/([a-z\d])\(/gi, '$1*(');
+    result = result.replace(/([y-z\d])\(/gi, '$1*(');
 
     // Convert trigonometric functions to sympy/numpy format
     const trig_functions = [

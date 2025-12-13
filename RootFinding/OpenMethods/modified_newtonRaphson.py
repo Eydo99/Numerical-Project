@@ -42,7 +42,7 @@ class modifiedNewtonSolver:
             if multiplicity is not None:
                 #Modified 1
                 if dydx == 0:
-                    raise ZeroDivision(f"Error: Division by zero (f'(x)=0) at iteration {i}")
+                    raise ZeroDivision(f"Error: Division by zero (f'(x)=0) at iteration {i+1}")
                 term = round_sig(f_x / dydx, sig_figs)
                 newGuess = round_sig(oldGuess - (multiplicity * term), sig_figs)
 
@@ -55,7 +55,7 @@ class modifiedNewtonSolver:
 
                 # zero division
                 if denominator == 0:
-                    raise ZeroDivision(f"Error: Division by zero in denominator at iteration {i}. Stopping.")
+                    raise ZeroDivision(f"Error: Division by zero in denominator at iteration {i+1}. Stopping.")
                     return oldGuess, i
 
                 term = round_sig(numerator / denominator, sig_figs)

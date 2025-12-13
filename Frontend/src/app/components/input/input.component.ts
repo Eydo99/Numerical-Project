@@ -30,6 +30,28 @@ export class InputComponent {
   @Input() selectedMethod: string = '';
   @Output() solveComplete = new EventEmitter<SolveResult>();
   @Output() plotComplete = new EventEmitter<string>();
+
+  clearAllSettings() {
+    this.maxIterations = 100;
+    this.tolerance = '0.00001';
+    this.significantFigures = 5;
+    this.startA = null;
+    this.endB = null;
+    this.initialX = null;
+    this.newtonX = null;
+    this.modifiedX = null;
+    this.modifiedY = null;
+    this.secantX0 = null;
+    this.secantX1 = null;
+    this.plotStart = -10;
+    this.plotEnd = 10;
+    this.fx = '';
+    this.gx = '';
+    this.caretFx = 0;
+    this.caretGx = 0;
+  }
+
+
   /* ----------------------------------------------------------- */
   /* ACTIVE EDIT FIELD (f(x) or g(x))                            */
   /* ----------------------------------------------------------- */
@@ -172,6 +194,36 @@ export class InputComponent {
     const length = this.editingTarget === 'fx' ? this.fx.length : this.gx.length;
     if (this.caretPos < length) this.caretPos++;
   }
+
+  setCaretFromClick(event: MouseEvent) {
+    const target = event.currentTarget as HTMLElement;
+    const displaySpan = target.querySelector('.fx-value') as HTMLElement;
+
+    if (!displaySpan) return;
+
+    const text = this.editingTarget === 'fx' ? this.fx : this.gx;
+    const displayText = this.editingTarget === 'fx' ? this.displayFx : this.displayGx;
+
+    if (!text) {
+      this.caretPos = 0;
+      return;
+    }
+
+    const rect = displaySpan.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const totalWidth = rect.width;
+
+    const clickRatio = clickX / totalWidth;
+    const estimatedPos = Math.round(clickRatio * text.length);
+
+    this.caretPos = Math.max(0, Math.min(estimatedPos, text.length));
+  }
+
+
+
+
+
+
 
   /* ----------------------------------------------------------- */
   /* SWITCH BETWEEN f(x) AND g(x)                                */
@@ -358,19 +410,74 @@ export class InputComponent {
     this.rootFindingService.solve(this.selectedMethod, payload).subscribe({
       next: (response) => {
         console.log('Backend response:', response);
+
+        // Check if response has sol property - if not, it's likely an error
+        if (response.sol === undefined || response.sol === null) {
+          // Try to extract error message from response
+          let errorMsg = 'Method failed to find a solution';
+
+          if (response.error) {
+            errorMsg = response.error;
+          } else if (response.problem) {
+            errorMsg = response.problem;
+          }
+
+          const result: SolveResult = {
+            solution: null,
+            iterations: response.itrs || 0,
+            executionTime: response.exec_time || 0,
+            steps: response.steps || [],
+            error: errorMsg,
+            convergenceStatus: response.status !== undefined ? response.status : null
+          };
+          this.solveComplete.emit(result);
+          return;
+        }
+
+        // Success case
         const result: SolveResult = {
           solution: response.sol,
-          iterations: response.itrs,
-          executionTime: response.exec_time,
+          iterations: response.itrs || 0,
+          executionTime: response.exec_time || 0,
           steps: response.steps || [],
-          error: response.error || null,
+          error: null,
           convergenceStatus: response.status !== undefined ? response.status : null
         };
         this.solveComplete.emit(result);
       },
       error: (err) => {
-        console.error('Solving error:', err);
-        const errorMessage = err.error?.error || err.message || 'Unknown error occurred';
+        console.error('HTTP Error from backend:', err);
+
+        // Extract error message from different possible locations
+        let errorMessage = 'An error occurred while solving';
+
+        if (err.error) {
+          try {
+            // If error is already an object with error field
+            if (typeof err.error === 'object' && err.error.error) {
+              errorMessage = err.error.error;
+            }
+            // If error is a JSON string
+            else if (typeof err.error === 'string') {
+              try {
+                const parsed = JSON.parse(err.error);
+                errorMessage = parsed.error || err.error;
+              } catch {
+                errorMessage = err.error;
+              }
+            }
+          } catch {
+            errorMessage = 'Failed to parse error response';
+          }
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+
+        // Clean up error message
+        if (errorMessage.includes('Error:')) {
+          errorMessage = errorMessage.replace('Error:', '').trim();
+        }
+
         const result: SolveResult = {
           solution: null,
           iterations: 0,

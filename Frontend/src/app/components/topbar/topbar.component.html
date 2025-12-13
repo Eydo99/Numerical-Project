@@ -8,16 +8,13 @@
       <span class="subtitle"> FINDER</span>
     </div>
   </div>
-
   <nav class="nav-links">
-   <nav class="nav-links">
-  <a (click)="chooseMethod('bisection')">Bisection</a>
-  <a (click)="chooseMethod('false-position')">False-Position</a>
-  <a (click)="chooseMethod('fixed-point')">Fixed Point</a>
-  <a (click)="chooseMethod('newton-orig')">Newton (Orig)</a>
-  <a (click)="chooseMethod('newton-mod')">Newton (Mod)</a>
-  <a (click)="chooseMethod('secant')">Secant</a>
-</nav>
-
+    <a (click)="chooseMethod('bisection')" [class.active]="activeMethod === 'bisection'">Bisection</a>
+    <a (click)="chooseMethod('false-position')" [class.active]="activeMethod === 'false-position'">False-Position</a>
+    <a (click)="chooseMethod('fixed-point')" [class.active]="activeMethod === 'fixed-point'">Fixed Point</a>
+    <a (click)="chooseMethod('newton-orig')" [class.active]="activeMethod === 'newton-orig'">Newton (Orig)</a>
+    <a (click)="chooseMethod('newton-mod')" [class.active]="activeMethod === 'newton-mod'">Newton (Mod)</a>
+    <a (click)="chooseMethod('secant')" [class.active]="activeMethod === 'secant'">Secant</a>
   </nav>
+
 </div>
