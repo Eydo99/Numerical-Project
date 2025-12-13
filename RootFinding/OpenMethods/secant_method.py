@@ -20,7 +20,7 @@ class SecantSolver :
             diff = round_sig(self.func(second) * round_sig((second - first) / round_sig(self.func(second) - self.func(first), sig_figs), sig_figs), sig_figs)
             third = round_sig(second - diff, sig_figs)
 
-            self.recorder.record(SecantStep(first, second, third, self.func(third)))
+            self.recorder.record(SecantStep(first, second, third, round_sig(self.func(third), sig_figs)))
 
             if(abs(diff) < tol) :
                 break

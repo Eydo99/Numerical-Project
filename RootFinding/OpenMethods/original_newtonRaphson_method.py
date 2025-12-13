@@ -17,8 +17,8 @@ class originalNewtonSolver:
 
         for i in range(max_iter):
             #calculate f(x) and f'(x)
-            f_x = round_sig(self.func(oldGuess))
-            dydx = round_sig(self.dydyx(oldGuess))
+            f_x = round_sig(self.func(oldGuess), sig_figs)
+            dydx = round_sig(self.dydyx(oldGuess), sig_figs)
 
             # x(i+1)=x(i)-f(xi)/f'(xi)
             newGuess =round_sig(oldGuess-(round_sig(f_x/dydx,sig_figs)),sig_figs)
@@ -28,7 +28,7 @@ class originalNewtonSolver:
                 absoluteDiff=round_sig(abs(newGuess-oldGuess),sig_figs)
 
             #record the current loop
-            self.recorder.record(originalNewtonStep(oldGuess,newGuess,self.func(newGuess)))
+            self.recorder.record(originalNewtonStep(oldGuess,newGuess,round_sig(self.func(newGuess),sig_figs)))
 
             #if ea<es break
             if absoluteDiff < tol:
@@ -41,4 +41,4 @@ class originalNewtonSolver:
 
 
 print()        
-        
+print(round_sig(122, 2))

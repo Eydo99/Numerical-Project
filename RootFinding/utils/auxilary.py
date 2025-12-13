@@ -11,6 +11,10 @@ def get_lambda_diff(func_str : str) :
     dydx = diff(func_str)
     return lambdify(x, dydx, "numpy")
 
+def get_lambda_second_diff(func_str: str):
+    x = Symbol('x')
+    d2ydx2 = diff(diff(func_str))
+    return lambdify(x, d2ydx2, "numpy")
 
 def round_sig(x, sig=6):
     if x == 0:

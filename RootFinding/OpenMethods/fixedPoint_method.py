@@ -22,7 +22,7 @@ class fixedPointSolver:
 
             #record current loop
             print(newGuess)
-            self.recorder.record(fixedPointStep(oldGuess,newGuess,self.func(newGuess)))
+            self.recorder.record(fixedPointStep(oldGuess,newGuess,round_sig(self.func(newGuess), sig_figs)))
 
             # ea cannot be determined in first loop
             if i!=0:
