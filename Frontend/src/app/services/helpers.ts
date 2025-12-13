@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 export class Helpers {
   private baseUrl = 'http://127.0.0.1:8080';
   currentEndpoint = 'http://127.0.0.1:8080/solve/gauss';
-  matrix : string[][] = []; 
+  matrix : string[][] = [];
   endpoints = {
     gauss: '/solve/gausselim',
     'gauss-jordan': '/solve/gaussjordan',
@@ -63,9 +63,9 @@ export class Helpers {
 
       case 3:
         this.matrix = [
-          ['2', '1', '-1', '8'],
-          ['-3', '-1', '2', '-11'],
-          ['-2', '1', '2', '-3'],
+          ['3', '-0.1', '-0.2', '7.85'],
+          ['0.1', '7', '-0.3', '-19.3'],
+          ['0.3', '-0.2', '10', '71.4'],
         ];
         break;
 

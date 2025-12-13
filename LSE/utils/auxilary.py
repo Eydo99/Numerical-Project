@@ -19,6 +19,27 @@ def back_sub(A, b, sig=6):
 
     return x
 
+
+# def back_sub(A, b, sig=6):
+#     n = len(b)
+#     x = [0]*n
+    
+#     # First x is calculated and rounded
+#     x[n-1] = round_sig(b[n-1] / A[n-1][n-1], sig)
+    
+#     for i in range(n-2, -1, -1):
+#         tot = 0
+#         for j in range(i+1, n):
+#             # Do NOT round inside this summation loop. 
+#             # Keep full precision to avoid error accumulation.
+#             tot += A[i][j] * x[j]
+            
+#         # Only round the final result for x[i]
+#         x[i] = round_sig((b[i] - tot) / A[i][i], sig)
+
+#     return x
+
+
 def pivot(A, b, col, scaling : bool = False, scales : list = None, tol=1e-12):
     n = len(b)
     print(scales)
