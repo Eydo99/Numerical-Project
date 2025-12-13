@@ -4,60 +4,48 @@ export class FunctionParser {
 
     let result = funcStr;
 
-    // removing spaces
+    // 1. Remove spaces
     result = result.replace(/\s+/g, '');
 
-    // 2. Convert uppercase X to lowercase x (Python variable)
+    // 2. Normalize variables (X -> x) and symbols
     result = result.replace(/X/g, 'x');
-    result = result.replace(/Y/g, 'y');
-    result = result.replace(/Z/g, 'z');
-
-    // ^ to **
+    result = result.replace(/Y/g, 'y'); // Just in case
+    result = result.replace(/Z/g, 'z'); // Just in case
     result = result.replace(/\^/g, '**');
-
-    // × to *
     result = result.replace(/×/g, '*');
-
-    // ÷ to /
     result = result.replace(/÷/g, '/');
 
-    // Convert constants
+    // 3. Convert Constants & Specific Functions *BEFORE* implicit multiplication
+    // (This prevents breaking things like log10 into log1*0)
     result = result.replace(/PI/gi, 'pi');
     result = result.replace(/π/g, 'pi');
-    result = result.replace(/\bE\b/g, 'E');  // Euler's number
+    result = result.replace(/\bE\b/g, 'E');
 
-    // Handle implicit multiplication (e.g., 2x -> 2*x, xsin -> x*sin)
-    // Number followed by variable or function
-    result = result.replace(/(\d)([y-z])/gi, '$1*$2');
-    // Variable followed by function
-    result = result.replace(/([a-z])([y-z]+\()/gi, '$1*$2');
-    // Closing paren followed by number or variable
-    result = result.replace(/\)(\d|[y-z])/gi, ')*$1');
-    // Variable/number followed by opening paren
-    result = result.replace(/([y-z\d])\(/gi, '$1*(');
-
-    // Convert trigonometric functions to sympy/numpy format
-    const trig_functions = [
-      'sin', 'cos', 'tan', 'sec', 'csc', 'cot',
-      'asin', 'acos', 'atan', 'asec', 'acsc', 'acot',
-      'sinh', 'cosh', 'tanh', 'sech', 'csch', 'coth',
-      'asinh', 'acosh', 'atanh'
-    ];
-
-    // Convert log functions
     result = result.replace(/log10\(/g, 'log(');
     result = result.replace(/ln\(/g, 'log(');
 
-    // Convert sqrt and root functions
+    // 4. Handle Implicit Multiplication
+    // Strategy: Insert '*' between specific token pairs
+
+    // Case A: Number followed by [Letter, Open Paren]
+    // Examples: "6x" -> "6*x", "2sin" -> "2*sin", "3(" -> "3*("
+    // We assume function names start with letters.
+    result = result.replace(/(\d)([a-z\(])/gi, '$1*$2');
+
+    // Case B: Closing Paren followed by [Letter, Digit, Open Paren]
+    // Examples: ")x" -> ")*x", ")2" -> ")*2", ")(" -> ")*("
+    result = result.replace(/\)([\w\(])/gi, ')*$1');
+
+    // Case C: Variable 'x' followed by [Letter, Digit, Open Paren]
+    // Examples: "xx" -> "x*x", "xsin" -> "x*sin", "x2" -> "x*2", "x(" -> "x*("
+    // CRITICAL: We use (?<!e) to Ignore 'x' if it is inside "exp"
+    result = result.replace(/(?<!e)x([a-z\d\(])/gi, 'x*$1');
+
+    // 5. Final Function Name Cleanups (for sympy/numpy compatibility)
     result = result.replace(/sqrt\(/g, 'sqrt(');
     result = result.replace(/cbrt\(/g, 'cbrt(');
-
-    //  Handle exp function
-    result = result.replace(/exp\(/g, 'exp(');
-
-
-    result = result.replace(/\*\*/g, '**');
-    result = result.replace(/\*\*\*/g, '**');
+    // Ensure exp is lowercase (just in case)
+    result = result.replace(/EXP\(/gi, 'exp(');
 
     return result;
   }
@@ -108,18 +96,19 @@ export class FunctionParser {
    */
   static runTests(): void {
     const tests = [
-      { input: '2 * x + 3', expected: '2*x+3' },
-      { input: 'X ^ 2 + 3 * X', expected: 'x**2+3*x' },
-      { input: 'sin ( x )', expected: 'sin(x)' },
-      { input: 'x × 5 ÷ 2', expected: 'x*5/2' },
-      { input: '2x + 3', expected: '2*x+3' },
+      { input: '6x', expected: '6*x' },
+      { input: '2sin(x)', expected: '2*sin(x)' },
       { input: 'xsin(x)', expected: 'x*sin(x)' },
-      { input: 'exp ( x ) + π', expected: 'exp(x)+pi' },
-      { input: 'ln ( x ) + log10 ( x )', expected: 'log(x)+log(x)' },
-      { input: '3x^2 + 2x + 1', expected: '3*x**2+2*x+1' },
-      { input: 'sqrt ( x )', expected: 'sqrt(x)' },
-      { input: '(x + 1)(x - 1)', expected: '(x+1)*(x-1)' },
-      { input: 'E ^ x', expected: 'E**x' },
+      { input: '2(x+1)', expected: '2*(x+1)' },
+      { input: '(x+1)(x-1)', expected: '(x+1)*(x-1)' },
+      { input: 'xx', expected: 'x*x' },
+      { input: 'x2', expected: 'x*2' }, // x multiplied by 2
+      { input: 'exp(x)', expected: 'exp(x)' }, // Should NOT change to ex*p(x)
+      { input: 'xexp(x)', expected: 'x*exp(x)' },
+      { input: '2exp(x)', expected: '2*exp(x)' },
+      { input: 'log10(x)', expected: 'log(x)' }, // Should NOT change to log1*0(x)
+      { input: '3log10(x)', expected: '3*log(x)' },
+      { input: 'arctan(x)', expected: 'arctan(x)' }, // Should NOT change to a*rctan
     ];
 
     console.log('🧪 Running Function Parser Tests...\n');

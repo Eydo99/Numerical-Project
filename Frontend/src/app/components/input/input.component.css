@@ -305,4 +305,39 @@ button.small.danger{
     transform: rotate(360deg);
   }
 }
+.fx-value {
+  white-space: pre;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* Monospace aligns better */
+  font-size: 18px;
+  letter-spacing: 0px;
+}
+
+.cursor-blink {
+  display: inline-block;
+  color: #ff9d00;
+  font-weight: bold;
+  animation: blink 1s step-end infinite;
+  margin: 0;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.wide-input {
+  width: 100% !important;
+  min-width: 250px;
+  box-sizing: border-box;
+  margin-top: 5px;
+  display: block;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
 

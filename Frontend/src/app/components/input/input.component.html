@@ -17,9 +17,9 @@
   <div class="display-box" (click)="setCaretFromClick($event)">
     <span class="fx-label">{{ editingTarget === 'fx' ? 'f(x) =' : 'g(x) =' }}</span>
     <div class="fx-value-wrapper">
-      <span class="fx-value" [innerText]="editingTarget === 'fx' ? displayFx : displayGx || ' '"></span>
-      <!-- small caret visual (optional) -->
-      <div class="caret-help">⟨ position: {{ caretPos }} ⟩</div>
+      <span class="fx-value">
+        {{ getBeforeCursor() }}<span class="cursor-blink">|</span>{{ getAfterCursor() }}
+      </span>
     </div>
   </div>
 
@@ -178,9 +178,17 @@
     </div>
 
     <!-- Modified Newton -->
-    <div *ngIf="selectedMethod === 'newton-mod'">
-      <label>Initial X<input type="number" [(ngModel)]="modifiedX" /></label>
-      <label>Multiplicity (optional)<input type="number" [(ngModel)]="modifiedY" placeholder="Leave empty for Mod 2" /></label>
+    <div *ngIf="selectedMethod === 'newton-mod'" class="input-group">
+      <label>Initial X
+        <input type="number" [(ngModel)]="modifiedX" />
+      </label>
+
+      <label>Multiplicity (optional)
+        <input type="number"
+               class="wide-input"
+               [(ngModel)]="modifiedY"
+               placeholder="Empty for modified 2 newton" />
+      </label>
     </div>
 
     <!-- Secant -->

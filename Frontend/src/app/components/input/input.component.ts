@@ -138,23 +138,33 @@ export class InputComponent {
   /* INSERT TOKEN                                                */
   /* ----------------------------------------------------------- */
 
+  // insert(token: string) {
+  //   let content = this.editingTarget === 'fx' ? this.fx : this.gx;
+  //   let caret = this.caretPos;
+  //
+  //   const before = content.slice(0, caret);
+  //   const after  = content.slice(caret);
+  //
+  //   content = before + token + after;
+  //
+  //   caret = before.length + token.length;
+  //
+  //   if (this.editingTarget === 'fx') this.fx = content;
+  //   else this.gx = content;
+  //
+  //   this.caretPos = caret;
+  // }
+
   insert(token: string) {
-    let content = this.editingTarget === 'fx' ? this.fx : this.gx;
-    let caret = this.caretPos;
+    const targetProp = this.editingTarget === 'fx' ? 'fx' : 'gx';
+    const content = this[targetProp] || '';
+    const safeCaret = Math.min(this.caretPos, content.length);
 
-    const before = content.slice(0, caret);
-    const after  = content.slice(caret);
-
-    content = before + token + after;
-
-    caret = before.length + token.length;
-
-    if (this.editingTarget === 'fx') this.fx = content;
-    else this.gx = content;
-
-    this.caretPos = caret;
+    const before = content.slice(0, safeCaret);
+    const after  = content.slice(safeCaret);
+    this[targetProp] = before + token + after;
+    this.caretPos = safeCaret + token.length;
   }
-
   /* ----------------------------------------------------------- */
   /* CLEAR & DELETE                                              */
   /* ----------------------------------------------------------- */
@@ -166,7 +176,8 @@ export class InputComponent {
   }
 
   deleteBefore() {
-    let content = this.editingTarget === 'fx' ? this.fx : this.gx;
+    const targetProp = this.editingTarget === 'fx' ? 'fx' : 'gx';
+    const content = this[targetProp] || '';
 
     if (this.caretPos === 0) return;
 
@@ -175,35 +186,32 @@ export class InputComponent {
 
     const newBefore = before.slice(0, -1);
 
-    content = newBefore + after;
+    this[targetProp] = newBefore + after;
     this.caretPos = newBefore.length;
-
-    if (this.editingTarget === 'fx') this.fx = content;
-    else this.gx = content;
   }
 
   /* ----------------------------------------------------------- */
   /* CARET NAVIGATION                                            */
   /* ----------------------------------------------------------- */
 
+
+
+
   moveLeft() {
     if (this.caretPos > 0) this.caretPos--;
   }
 
   moveRight() {
-    const length = this.editingTarget === 'fx' ? this.fx.length : this.gx.length;
-    if (this.caretPos < length) this.caretPos++;
+    const text = this.editingTarget === 'fx' ? this.fx : this.gx;
+    if (this.caretPos < (text || '').length) this.caretPos++;
   }
 
   setCaretFromClick(event: MouseEvent) {
     const target = event.currentTarget as HTMLElement;
     const displaySpan = target.querySelector('.fx-value') as HTMLElement;
-
     if (!displaySpan) return;
 
     const text = this.editingTarget === 'fx' ? this.fx : this.gx;
-    const displayText = this.editingTarget === 'fx' ? this.displayFx : this.displayGx;
-
     if (!text) {
       this.caretPos = 0;
       return;
@@ -211,12 +219,16 @@ export class InputComponent {
 
     const rect = displaySpan.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
-    const totalWidth = rect.width;
 
-    const clickRatio = clickX / totalWidth;
-    const estimatedPos = Math.round(clickRatio * text.length);
+    const charWidth = rect.width / text.length;
+    const estimatedPos = Math.round(clickX / charWidth);
 
     this.caretPos = Math.max(0, Math.min(estimatedPos, text.length));
+  }
+
+  toggleEditing() {
+    this.editingTarget = this.editingTarget === 'fx' ? 'gx' : 'fx';
+    this.caretPos = 0;
   }
 
 
@@ -229,10 +241,10 @@ export class InputComponent {
   /* SWITCH BETWEEN f(x) AND g(x)                                */
   /* ----------------------------------------------------------- */
 
-  toggleEditing() {
-    this.editingTarget = this.editingTarget === 'fx' ? 'gx' : 'fx';
-    this.caretPos = 0; // reset caret when switching field
-  }
+  // toggleEditing() {
+  //   this.editingTarget = this.editingTarget === 'fx' ? 'gx' : 'fx';
+  //   this.caretPos = 0; // reset caret when switching field
+  // }
 
   /* ----------------------------------------------------------- */
   /* BEAUTIFIER (for DISPLAY ONLY)                               */
@@ -271,6 +283,15 @@ export class InputComponent {
   plotEnd: number = 10;
   isPlotting: boolean = false;
 
+  getBeforeCursor(): string {
+    const text = this.editingTarget === 'fx' ? this.fx : this.gx;
+    return text ? text.substring(0, this.caretPos) : '';
+  }
+
+  getAfterCursor(): string {
+    const text = this.editingTarget === 'fx' ? this.fx : this.gx;
+    return text ? text.substring(this.caretPos) : '';
+  }
 
   //Plotting
 
