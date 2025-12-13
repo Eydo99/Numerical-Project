@@ -1,0 +1,167 @@
+<div class="input-panel">
+
+  <!-- HEADER -->
+  <div class="panel-header">
+    <h2 class="title">Target Function</h2>
+  </div>
+
+  <!-- DISPLAY -->
+
+  <button *ngIf="selectedMethod === 'fixed-point'"
+        class="toggle-edit-main"
+        [class.active]="editingTarget === 'fx'"
+        (click)="editingTarget = 'fx'">
+  Edit f(x)
+</button>
+
+  <div class="display-box" (click)="$event.stopPropagation()">
+    <span class="fx-label">f(x) =</span>
+    <div class="fx-value-wrapper">
+      <span class="fx-value" [innerText]="displayFx || ' '"></span>
+      <!-- small caret visual (optional) -->
+      <div class="caret-help">⟨ position: {{ caretPos }} ⟩</div>
+    </div>
+  </div>
+
+  <!-- NAV ROW: left/right, AC, DEL -->
+  <div class="nav-row">
+  <button class="small" (click)="moveLeft()">◀</button>
+  <button class="small" (click)="moveRight()">▶</button>
+
+  <!-- parentheses here -->
+  <button class="small" (click)="insert('(')">(</button>
+  <button class="small" (click)="insert(')')">)</button>
+
+  <button class="small danger" (click)="clearAll()">AC</button>
+  <button class="small danger" (click)="deleteBefore()">DEL</button>
+</div>
+
+
+  <!-- NUMPAD grid -->
+<div class="numpad">
+  <button *ngFor="let b of numpad" (click)="insert(b.token)">
+    {{ b.label }}
+  </button>
+</div>
+
+
+  <!-- Category tabs -->
+  <div class="categories">
+    <button *ngFor="let c of categories"
+            (click)="activeCategory = c"
+            [class.active]="activeCategory === c">
+      {{ c }}
+    </button>
+  </div>
+
+  <!-- Category panels -->
+  <div class="category-panel">
+
+    <!-- TRIG -->
+    <div *ngIf="activeCategory === 'Trig'" class="button-grid">
+      <button *ngFor="let b of trigButtons" (click)="insert(b.token)">{{ b.label }}</button>
+    </div>
+
+    <!-- HYP -->
+    <div *ngIf="activeCategory === 'Hyp'" class="button-grid">
+      <button *ngFor="let b of hypButtons" (click)="insert(b.token)">{{ b.label }}</button>
+    </div>
+
+    <!-- POWERS -->
+    <div *ngIf="activeCategory === 'Powers'" class="button-grid">
+      <button *ngFor="let b of powerButtons" (click)="insert(b.token)">{{ b.label }}</button>
+    </div>
+
+    <!-- LOG -->
+    <div *ngIf="activeCategory === 'Log'" class="button-grid">
+      <button *ngFor="let b of logButtons" (click)="insert(b.token)">{{ b.label }}</button>
+    </div>
+
+    <!-- FRACTIONS -->
+    <div *ngIf="activeCategory === 'Fractions'" class="button-grid">
+      <button *ngFor="let b of fractionButtons" (click)="insert(b.token)">{{ b.label }}</button>
+    </div>
+
+    <!-- ROOTS -->
+    <div *ngIf="activeCategory === 'Roots'" class="button-grid">
+      <button *ngFor="let b of rootsButtons" (click)="insert(b.token)">{{ b.label }}</button>
+    </div>
+
+    <!-- VAR -->
+    <div *ngIf="activeCategory === 'Var'" class="button-grid">
+      <button *ngFor="let b of varButtons" (click)="insert(b.token)">{{ b.label }}</button>
+    </div>
+
+    <!-- CONST -->
+    <div *ngIf="activeCategory === 'Const'" class="button-grid">
+      <button *ngFor="let b of constButtons" (click)="insert(b.token)">{{ b.label }}</button>
+    </div>
+
+  </div>
+
+  <!-- GENERAL SETTINGS -->
+  <h3 class="section-title">General Settings</h3>
+  <div class="settings-grid">
+    <label>Max Iterations
+      <input type="number" [(ngModel)]="maxIterations" min="1" />
+    </label>
+
+    <label>Tolerance (ε)
+      <input type="text" [(ngModel)]="tolerance" />
+    </label>
+
+    <label>Sig. Figures
+      <input type="number" [(ngModel)]="significantFigures" min="0" />
+    </label>
+  </div>
+
+  <!-- METHOD PARAMETERS (conditional) -->
+  <h3 class="section-title">Method Parameters</h3>
+  <div class="method-params">
+
+    <!-- Bisection & False-Position -->
+    <div *ngIf="selectedMethod === 'bisection' || selectedMethod === 'false-position'">
+      <label>Start (a)<input type="number" [(ngModel)]="startA" /></label>
+      <label>End (b)<input type="number" [(ngModel)]="endB" /></label>
+    </div>
+
+    <!-- Fixed Point -->
+    <div *ngIf="selectedMethod === 'fixed-point'">
+      <label>Initial x₀<input type="number" [(ngModel)]="initialX" /></label>
+
+      
+<div class="gx-row">
+  <label>g(x)
+    <input type="text" [(ngModel)]="gx" placeholder="Use keypad to input g(x)" />
+  </label>
+
+  <button class="toggle-edit"
+          [class.active]="editingTarget === 'gx'"
+          (click)="toggleEditing()">
+    Edit g(x)
+  </button>
+</div>
+    </div>
+
+    <!-- Newton Original -->
+    <div *ngIf="selectedMethod === 'newton'">
+      <label>Initial x₀<input type="number" [(ngModel)]="newtonX" /></label>
+    </div>
+
+    <!-- Modified Newton -->
+    <div *ngIf="selectedMethod === 'modified-newton'">
+      <label>X<input type="number" [(ngModel)]="modifiedX" /></label>
+      <label>Y<input type="number" [(ngModel)]="modifiedY" /></label>
+    </div>
+
+    <!-- Secant -->
+    <div *ngIf="selectedMethod === 'secant'">
+      <label>x₀<input type="number" [(ngModel)]="secantX0" /></label>
+      <label>x₁<input type="number" [(ngModel)]="secantX1" /></label>
+    </div>
+  </div>
+
+  <div class="run-row">
+    <button class="run-btn" (click)="runMethod()">RUN METHOD</button>
+  </div>
+</div>

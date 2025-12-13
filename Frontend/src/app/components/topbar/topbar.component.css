@@ -1,0 +1,116 @@
+:root {
+  --blue-main: #6a8bff;
+  --blue-hover: #8fa3ff;
+  --blue-soft-bg: rgba(106, 139, 255, 0.15);
+  --blue-glow: rgba(106, 139, 255, 0.45);
+}
+
+/* TOPBAR CONTAINER */
+.topbar-container {
+  position: fixed;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 1300px;
+  height: 68px;
+
+  background: rgba(12, 19, 40, 0.88);   /* ← Soft navy, not too dark */
+  border-radius: 42px;
+  padding: 0 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  backdrop-filter: blur(14px);
+  box-shadow: 0 0 35px rgba(106, 139, 255, 0.25);  /* blue glow */
+  z-index: 9999;
+}
+
+/* LOGO */
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-circle {
+  width: 42px;
+  height: 42px;
+  background: rgba(106, 138, 255, 0.525);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fx-icon {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--blue-main);
+}
+
+.logo-text .title {
+  font-size: 19px;
+  font-weight: 700;
+  color: white;
+}
+
+.logo-text .subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  color:#6a8bff;
+}
+
+/* NAVIGATION */
+.nav-links {
+  display: flex;
+  gap: 32px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #e5e8ff;               /* ← soft visible white-blue */
+  font-size: 17px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  transition: 0.25s ease;
+  position: relative;
+}
+
+/* HOVER EFFECT */
+.nav-links a:hover {
+  color:#a586e1e1;
+  text-shadow: 0 0 8px var(--blue-glow);
+}
+
+.nav-links a:hover::after {
+  content: "";
+  position: absolute;
+  width: 55%;
+  height: 3px;
+  left: 22%;
+  bottom: -6px;
+  background: var(--blue-main);
+  border-radius: 2px;
+  opacity: 0.9;
+}
+
+/* ACTIVE TAB */
+.nav-links a.active {
+  background: rgba(106, 139, 255, 0.2);
+  color: var(--blue-main);
+  box-shadow: 0 0 25px var(--blue-glow);
+}
+
+.nav-links a.active::after {
+  content: "";
+  position: absolute;
+  width: 55%;
+  height: 3px;
+  left: 22%;
+  bottom: -6px;
+  background: var(--blue-main);
+  border-radius: 2px;
+}
