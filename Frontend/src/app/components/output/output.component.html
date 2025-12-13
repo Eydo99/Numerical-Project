@@ -1,0 +1,204 @@
+<div class="output-container">
+
+  <!-- PLOT DISPLAY -->
+  <div *ngIf="plotImageUrl" class="plot-section">
+    <h3 class="section-title">Function Plot</h3>
+    <div class="plot-wrapper">
+      <img [src]="plotImageUrl" alt="Function Plot" class="plot-image" />
+    </div>
+  </div>
+
+  <!-- ERROR MESSAGE -->
+  <div *ngIf="error" class="error-message">
+    <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- SOLUTION DISPLAY -->
+  <div *ngIf="solution !== null && !error" class="solution-section">
+    <div class="solution-header">
+      <svg class="success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3>Solution Found</h3>
+    </div>
+
+    <div class="method-name">{{ getMethodDisplayName() }}</div>
+
+    <!-- ROOT VALUE -->
+    <div class="root-display">
+      <div class="root-label">Approximate Root:</div>
+      <div class="root-value">x ≈ {{ solution }}</div>
+    </div>
+
+    <!-- STATISTICS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Iterations</div>
+        <div class="stat-value">{{ iterations }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Execution Time</div>
+        <div class="stat-value">{{ (executionTime * 1000).toFixed(4) }} ms</div>
+      </div>
+      <div *ngIf="convergenceStatus !== null" class="stat-card">
+        <div class="stat-label">Convergence</div>
+        <div class="stat-value" [ngClass]="getConvergenceStatusClass()">
+          {{ getConvergenceStatusText() }}
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULATOR BUTTON -->
+    <button
+      *ngIf="steps && steps.length > 0"
+      (click)="openSimulator()"
+      class="simulator-btn">
+      <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      View Step-by-Step Solution
+    </button>
+  </div>
+
+  <!-- STEP SIMULATOR -->
+  <div *ngIf="showSimulator && steps && steps.length > 0" class="simulator-container">
+    <div class="simulator-header">
+      <h3 class="simulator-title">
+        <svg class="title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        Iteration Steps
+      </h3>
+      <div class="simulator-controls">
+        <div class="step-counter">
+          Step <span class="current-step">{{ currentStepIndex + 1 }}</span> of
+          <span class="total-steps">{{ steps.length }}</span>
+        </div>
+        <button (click)="closeSimulator()" class="close-btn">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CURRENT STEP DISPLAY -->
+    <div *ngIf="getCurrentStep()" class="step-display">
+      <div class="step-number">Iteration {{ currentStepIndex + 1 }}</div>
+
+      <!-- INTERVAL METHODS (Bisection, False Position) -->
+      <div *ngIf="shouldShowIntervalInfo()" class="step-values">
+        <div class="value-row">
+          <span class="value-label">x<sub>l</sub> =</span>
+          <span class="value-data">{{ getCurrentStep()!.first }}</span>
+        </div>
+        <div class="value-row">
+          <span class="value-label">x<sub>u</sub> =</span>
+          <span class="value-data">{{ getCurrentStep()!.second }}</span>
+        </div>
+        <div class="value-row highlight">
+          <span class="value-label">x<sub>r</sub> =</span>
+          <span class="value-data">{{ getCurrentStep()!.result }}</span>
+        </div>
+        <div class="value-row">
+          <span class="value-label">f(x<sub>r</sub>) =</span>
+          <span class="value-data">{{ getCurrentStep()!.f_result }}</span>
+        </div>
+      </div>
+
+      <!-- SINGLE POINT METHODS (Fixed Point, Newton) -->
+      <div *ngIf="shouldShowPointInfo()" class="step-values">
+        <div class="value-row">
+          <span class="value-label">x<sub>i</sub> =</span>
+          <span class="value-data">{{ getCurrentStep()!.point }}</span>
+        </div>
+        <div class="value-row highlight">
+          <span class="value-label">x<sub>i+1</sub> =</span>
+          <span class="value-data">{{ getCurrentStep()!.result }}</span>
+        </div>
+        <div class="value-row">
+          <span class="value-label">f(x<sub>i+1</sub>) =</span>
+          <span class="value-data">{{ getCurrentStep()!.f_result }}</span>
+        </div>
+      </div>
+
+      <!-- SECANT METHOD (Two Points) -->
+      <div *ngIf="shouldShowTwoPoints()" class="step-values">
+        <div class="value-row">
+          <span class="value-label">x<sub>i-1</sub> =</span>
+          <span class="value-data">{{ getCurrentStep()!.first }}</span>
+        </div>
+        <div class="value-row">
+          <span class="value-label">x<sub>i</sub> =</span>
+          <span class="value-data">{{ getCurrentStep()!.second }}</span>
+        </div>
+        <div class="value-row highlight">
+          <span class="value-label">x<sub>i+1</sub> =</span>
+          <span class="value-data">{{ getCurrentStep()!.result }}</span>
+        </div>
+        <div class="value-row">
+          <span class="value-label">f(x<sub>i+1</sub>) =</span>
+          <span class="value-data">{{ getCurrentStep()!.f_result }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYBACK CONTROLS -->
+    <div class="playback-controls">
+      <button (click)="goToStep(0)" [disabled]="currentStepIndex === 0" class="control-btn">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+        </svg>
+      </button>
+
+      <button (click)="previousStep()" [disabled]="currentStepIndex === 0" class="control-btn">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+
+      <button (click)="nextStep()" [disabled]="currentStepIndex === steps.length - 1" class="control-btn">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+
+      <button (click)="goToStep(steps.length - 1)" [disabled]="currentStepIndex === steps.length - 1" class="control-btn">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-bar">
+      <div class="progress-fill"
+           [style.width.%]="((currentStepIndex + 1) / steps.length) * 100">
+      </div>
+    </div>
+  </div>
+
+  <!-- PLACEHOLDER when no results -->
+  <div *ngIf="!solution && !error && !plotImageUrl" class="placeholder">
+    <svg class="placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+    </svg>
+    <p>Results will appear here after solving...</p>
+  </div>
+
+</div>

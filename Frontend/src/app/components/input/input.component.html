@@ -8,16 +8,16 @@
   <!-- DISPLAY -->
 
   <button *ngIf="selectedMethod === 'fixed-point'"
-        class="toggle-edit-main"
-        [class.active]="editingTarget === 'fx'"
-        (click)="editingTarget = 'fx'">
-  Edit f(x)
-</button>
+          class="toggle-edit-main"
+          [class.active]="editingTarget === 'fx'"
+          (click)="editingTarget = 'fx'">
+    Edit f(x)
+  </button>
 
   <div class="display-box" (click)="$event.stopPropagation()">
-    <span class="fx-label">f(x) =</span>
+    <span class="fx-label">{{ editingTarget === 'fx' ? 'f(x) =' : 'g(x) =' }}</span>
     <div class="fx-value-wrapper">
-      <span class="fx-value" [innerText]="displayFx || ' '"></span>
+      <span class="fx-value" [innerText]="editingTarget === 'fx' ? displayFx : displayGx || ' '"></span>
       <!-- small caret visual (optional) -->
       <div class="caret-help">⟨ position: {{ caretPos }} ⟩</div>
     </div>
@@ -25,27 +25,27 @@
 
   <!-- NAV ROW: left/right, AC, DEL -->
   <div class="nav-row">
-  <button class="small" (click)="moveLeft()">◀</button>
-  <button class="small" (click)="moveRight()">▶</button>
+    <button class="small" (click)="moveLeft()">◀</button>
+    <button class="small" (click)="moveRight()">▶</button>
 
-  <!-- parentheses here -->
-  <button class="small" (click)="insert('(')">(</button>
-  <button class="small" (click)="insert(')')">)</button>
+    <!-- parentheses here -->
+    <button class="small" (click)="insert('(')">(</button>
+    <button class="small" (click)="insert(')')">)</button>
 
-  <button class="small danger" (click)="clearAll()">AC</button>
-  <button class="small danger" (click)="deleteBefore()">DEL</button>
-</div>
-
-
-  <!-- NUMPAD grid -->
-<div class="numpad">
-  <button *ngFor="let b of numpad" (click)="insert(b.token)">
-    {{ b.label }}
-  </button>
-</div>
+    <button class="small danger" (click)="clearAll()">AC</button>
+    <button class="small danger" (click)="deleteBefore()">DEL</button>
+  </div>
 
 
-  <!-- Category tabs -->
+  <!-- NUMPAD grid - x is at position 15 (where = was) -->
+  <div class="numpad">
+    <button *ngFor="let b of numpad" (click)="insert(b.token)">
+      {{ b.label }}
+    </button>
+  </div>
+
+
+  <!-- Category tabs - NO 'Var' here -->
   <div class="categories">
     <button *ngFor="let c of categories"
             (click)="activeCategory = c"
@@ -87,11 +87,6 @@
       <button *ngFor="let b of rootsButtons" (click)="insert(b.token)">{{ b.label }}</button>
     </div>
 
-    <!-- VAR -->
-    <div *ngIf="activeCategory === 'Var'" class="button-grid">
-      <button *ngFor="let b of varButtons" (click)="insert(b.token)">{{ b.label }}</button>
-    </div>
-
     <!-- CONST -->
     <div *ngIf="activeCategory === 'Const'" class="button-grid">
       <button *ngFor="let b of constButtons" (click)="insert(b.token)">{{ b.label }}</button>
@@ -115,6 +110,35 @@
     </label>
   </div>
 
+  <!-- PLOT SETTINGS -->
+  <h3 class="section-title">Plot Settings</h3>
+  <div class="settings-grid">
+    <label>Plot Start
+      <input type="number" [(ngModel)]="plotStart" />
+    </label>
+
+    <label>Plot End
+      <input type="number" [(ngModel)]="plotEnd" />
+    </label>
+  </div>
+
+  <div class="run-row" style="margin-top: 12px;">
+    <button
+      class="plot-btn"
+      (click)="plotFunction()"
+      [disabled]="isPlotting || !fx">
+      <svg *ngIf="!isPlotting" class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+      </svg>
+      <svg *ngIf="isPlotting" class="btn-icon animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+      </svg>
+      {{ isPlotting ? 'PLOTTING...' : 'PLOT FUNCTION' }}
+    </button>
+  </div>
+
   <!-- METHOD PARAMETERS (conditional) -->
   <h3 class="section-title">Method Parameters</h3>
   <div class="method-params">
@@ -126,32 +150,28 @@
     </div>
 
     <!-- Fixed Point -->
-    <div *ngIf="selectedMethod === 'fixed-point'">
+    <div *ngIf="selectedMethod === 'fixed-point'" style="width: 100%;">
       <label>Initial x₀<input type="number" [(ngModel)]="initialX" /></label>
 
-      
-<div class="gx-row">
-  <label>g(x)
-    <input type="text" [(ngModel)]="gx" placeholder="Use keypad to input g(x)" />
-  </label>
 
-  <button class="toggle-edit"
-          [class.active]="editingTarget === 'gx'"
-          (click)="toggleEditing()">
-    Edit g(x)
-  </button>
-</div>
+      <div class="gx-row">
+        <button class="toggle-edit"
+                [class.active]="editingTarget === 'gx'"
+                (click)="toggleEditing()">
+          {{ editingTarget === 'gx' ? 'Editing g(x)' : 'Edit g(x)' }}
+        </button>
+      </div>
     </div>
 
     <!-- Newton Original -->
-    <div *ngIf="selectedMethod === 'newton'">
+    <div *ngIf="selectedMethod === 'newton-orig'">
       <label>Initial x₀<input type="number" [(ngModel)]="newtonX" /></label>
     </div>
 
     <!-- Modified Newton -->
-    <div *ngIf="selectedMethod === 'modified-newton'">
-      <label>X<input type="number" [(ngModel)]="modifiedX" /></label>
-      <label>Y<input type="number" [(ngModel)]="modifiedY" /></label>
+    <div *ngIf="selectedMethod === 'newton-mod'">
+      <label>Initial X<input type="number" [(ngModel)]="modifiedX" /></label>
+      <label>Multiplicity (optional)<input type="number" [(ngModel)]="modifiedY" placeholder="Leave empty for Mod 2" /></label>
     </div>
 
     <!-- Secant -->

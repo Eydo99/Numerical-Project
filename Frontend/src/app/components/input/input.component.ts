@@ -1,6 +1,23 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RootFindingService, RootFindingRequest } from '../../services/rootfinding.service';
+import { FunctionParser } from '../../utils/function-parser';
+
+interface PlotRequest {
+  func: string;
+  start: number;
+  end: number;
+}
+
+interface SolveResult {
+  solution: number | null;
+  iterations: number;
+  executionTime: number;
+  steps: any[];
+  error: string | null;
+  convergenceStatus: number | null;
+}
 
 @Component({
   selector: 'app-input',
@@ -11,7 +28,8 @@ import { FormsModule } from '@angular/forms';
 })
 export class InputComponent {
   @Input() selectedMethod: string = '';
-
+  @Output() solveComplete = new EventEmitter<SolveResult>();
+  @Output() plotComplete = new EventEmitter<string>();
   /* ----------------------------------------------------------- */
   /* ACTIVE EDIT FIELD (f(x) or g(x))                            */
   /* ----------------------------------------------------------- */
@@ -50,13 +68,13 @@ export class InputComponent {
   /* ----------------------------------------------------------- */
 
   activeCategory: string = 'Trig';
-  categories = ['Trig','Hyp','Powers','Log','Fractions','Roots','Var','Const'];
+  categories = ['Trig','Hyp','Powers','Log','Fractions','Roots','Const'];
 
   numpad = [
     {label: '7', token: '7'}, {label: '8', token: '8'}, {label: '9', token: '9'}, {label: '÷', token: ' / '},
     {label: '4', token: '4'}, {label: '5', token: '5'}, {label: '6', token: '6'}, {label: '×', token: ' * '},
     {label: '1', token: '1'}, {label: '2', token: '2'}, {label: '3', token: '3'}, {label: '-', token: ' - '},
-    {label: '0', token: '0'}, {label: '.', token: '.'}, {label: '=', token: '='}, {label: '+', token: ' + '}
+    {label: '0', token: '0'}, {label: '.', token: '.'}, {label: 'x', token: 'x'}, {label: '+', token: ' + '}
   ];
 
   trigButtons = [
@@ -89,12 +107,9 @@ export class InputComponent {
     {label:'√', token:'sqrt('}, {label:'∛', token:'cbrt('}, {label:'ⁿ√', token:'root_('}
   ];
 
-  varButtons = [
-    {label:'X', token:'X'}, {label:'Y', token:'Y'}, {label:'Z', token:'Z'}
-  ];
 
   constButtons = [
-    {label:'π', token:'PI'}, {label:'e', token:'E'}
+    {label:'π', token:'pi'}, {label:'e', token:'E'}
   ];
 
   /* ----------------------------------------------------------- */
@@ -176,7 +191,8 @@ export class InputComponent {
     let s = raw;
     s = s.replace(/\^2/g, '²').replace(/\^3/g, '³');
     s = s.replace(/\*/g, ' × ').replace(/\//g, ' ÷ ');
-    s = s.replace(/PI/g, 'π').replace(/\bE\b/g, 'e');
+    s = s.replace(/pi/gi, 'π');
+    s = s.replace(/\bE\b/g, 'e');
     s = s.replace(/exp\(/g, 'e^(');
     return s.trim();
   }
@@ -185,9 +201,9 @@ export class InputComponent {
   /* GENERAL SETTINGS + METHOD PARAMS                             */
   /* ----------------------------------------------------------- */
 
-  maxIterations: number = 100;
-  tolerance: string = '0.0001';
-  significantFigures: number = 5;
+  maxIterations: number = 50;
+  tolerance: string = '0.00001';
+  significantFigures: number = 6;
 
   startA: number | null = null;
   endB: number | null = null;
@@ -199,34 +215,172 @@ export class InputComponent {
 
   secantX0: number | null = null;
   secantX1: number | null = null;
+  plotStart: number = -10;
+  plotEnd: number = 10;
+  isPlotting: boolean = false;
+
+
+  //Plotting
+
+  constructor(private rootFindingService: RootFindingService) {}
+
+  plotFunction() {
+    if (!this.fx) {
+      alert('Please enter a function first!');
+      return;
+    }
+
+    const validation = FunctionParser.isValidFunction(this.fx);
+    if (!validation.valid) {
+      alert(`Invalid function: ${validation.error}`);
+      return;
+    }
+
+    this.isPlotting = true;
+    const parsedFunc = FunctionParser.toPythonSyntax(this.fx);
+    console.log('Plotting function:', parsedFunc);
+
+    this.rootFindingService.plot(parsedFunc, this.plotStart, this.plotEnd).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        this.plotComplete.emit(url);
+        this.isPlotting = false;
+      },
+      error: (err) => {
+        console.error('Plotting error:', err);
+        alert('Error plotting function. Check your function syntax.');
+        this.isPlotting = false;
+      }
+    });
+  }
+
+
+
 
   /* ----------------------------------------------------------- */
   /* RUN METHOD CALL                                             */
   /* ----------------------------------------------------------- */
 
   runMethod() {
-    const payload = {
-      fx: this.fx,
-      gx: this.gx,
-      settings: {
-        maxIterations: this.maxIterations,
-        tolerance: this.tolerance,
-        significantFigures: this.significantFigures
-      },
-      method: this.selectedMethod,
-      params: {
-        a: this.startA,
-        b: this.endB,
-        x0: this.initialX,
-        newtonX: this.newtonX,
-        modX: this.modifiedX,
-        modY: this.modifiedY,
-        secantX0: this.secantX0,
-        secantX1: this.secantX1
-      }
+    if (!this.fx) {
+      alert('Please enter a function f(x)!');
+      return;
+    }
+
+    if (!this.selectedMethod) {
+      alert('Please select a method from the top bar!');
+      return;
+    }
+    const validation = FunctionParser.isValidFunction(this.fx);
+    if (!validation.valid) {
+      alert(`Invalid function: ${validation.error}`);
+      return;
+    }
+
+    const parsedFunc = FunctionParser.toPythonSyntax(this.fx);
+    console.log('Original function:', this.fx);
+    console.log('Parsed function:', parsedFunc);
+
+    // Build the payload based on the selected method
+    const payload: RootFindingRequest = {
+      func: parsedFunc,
+      tol: parseFloat(this.tolerance),
+      max_itrs: this.maxIterations,
+      sig_figs: this.significantFigures,
+      single_step: true
     };
 
-    console.log('RUN METHOD payload:', payload);
-    alert('Run method triggered — check console.');
+    // Add method-specific parameters
+    switch (this.selectedMethod) {
+      case 'bisection':
+      case 'false-position':
+        if (this.startA === null || this.endB === null) {
+          alert('Please enter both interval boundaries (a and b)!');
+          return;
+        }
+        payload.first = this.startA;
+        payload.second = this.endB;
+        break;
+
+      case 'fixed-point':
+        if (this.initialX === null) {
+          alert('Please enter initial guess x₀!');
+          return;
+        }
+        if (!this.gx) {
+          alert('Please enter g(x) function!');
+          return;
+        }
+        const gxValidation = FunctionParser.isValidFunction(this.gx);
+        if (!gxValidation.valid) {
+          alert(`Invalid g(x) function: ${gxValidation.error}`);
+          return;
+        }
+
+
+        payload.first = this.initialX;
+        const parsedGx = FunctionParser.toPythonSyntax(this.gx);
+        console.log('Original g(x):', this.gx);
+        console.log('Parsed g(x):', parsedGx);
+        payload.func = parsedGx; ////////////////////////////////////
+        break;
+
+      case 'newton-orig':
+        if (this.newtonX === null) {
+          alert('Please enter initial guess x₀!');
+          return;
+        }
+        payload.first = this.newtonX;
+        break;
+
+      case 'newton-mod':
+        if (this.modifiedX === null) {
+          alert('Please enter initial guess X!');
+          return;
+        }
+        payload.first = this.modifiedX;
+        // If modifiedY is provided, use it as multiplicity, otherwise send null for Modified 2
+        payload.multiplicity = this.modifiedY !== null ? this.modifiedY : null;
+        break;
+
+      case 'secant':
+        if (this.secantX0 === null || this.secantX1 === null) {
+          alert('Please enter both initial guesses (x₀ and x₁)!');
+          return;
+        }
+        payload.first = this.secantX0;
+        payload.second = this.secantX1;
+        break;
+    }
+    console.log('Sending payload:', payload);
+
+    // Call the service
+    this.rootFindingService.solve(this.selectedMethod, payload).subscribe({
+      next: (response) => {
+        console.log('Backend response:', response);
+        const result: SolveResult = {
+          solution: response.sol,
+          iterations: response.itrs,
+          executionTime: response.exec_time,
+          steps: response.steps || [],
+          error: response.error || null,
+          convergenceStatus: response.status !== undefined ? response.status : null
+        };
+        this.solveComplete.emit(result);
+      },
+      error: (err) => {
+        console.error('Solving error:', err);
+        const errorMessage = err.error?.error || err.message || 'Unknown error occurred';
+        const result: SolveResult = {
+          solution: null,
+          iterations: 0,
+          executionTime: 0,
+          steps: [],
+          error: errorMessage,
+          convergenceStatus: null
+        };
+        this.solveComplete.emit(result);
+      }
+    });
   }
 }

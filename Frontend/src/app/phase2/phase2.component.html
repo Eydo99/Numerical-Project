@@ -11,13 +11,28 @@
   <!-- PANELS -->
   <div class="panels-container">
 
-      <div class="left-panel">
-        <app-input [selectedMethod]="selectedMethod"></app-input>
-      </div>
+    <!-- LEFT PANEL: INPUT -->
+    <div class="left-panel">
+      <app-input
+        [selectedMethod]="selectedMethod"
+        (solveComplete)="handleSolveComplete($event)"
+        (plotComplete)="handlePlotComplete($event)">
+      </app-input>
+    </div>
 
-      <div class="right-panel">
-        <p class="placeholder">Results will appear here...</p>
-      </div>
+    <!-- RIGHT PANEL: OUTPUT -->
+    <div class="right-panel">
+      <app-output
+        [solution]="solution"
+        [iterations]="iterations"
+        [executionTime]="executionTime"
+        [steps]="steps"
+        [error]="error"
+        [selectedMethod]="selectedMethod"
+        [convergenceStatus]="convergenceStatus"
+        [plotImageUrl]="plotImageUrl">
+      </app-output>
+    </div>
 
   </div>
 

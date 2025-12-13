@@ -259,7 +259,7 @@ def handle_modified_newton():
 def plot_func():
     data = request.json
     func_str = data.get("func")
-
+    
     start = data.get("start")
     end = data.get("end")
 
