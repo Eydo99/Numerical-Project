@@ -1,6 +1,7 @@
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.models import fixedPointStep
 from RootFinding.utils.step_recorder import openMethodStepRecorder
+from .checks import convergence_status
 
 
 class fixedPointSolver:
@@ -11,10 +12,11 @@ class fixedPointSolver:
         self.recorder=openMethodStepRecorder(single_step)
         self.gx=gx_lambda
 
-    def solve(self, oldGuess : float, max_itrs : int, tol : float, sig_figs : int) ->tuple[float,int]:
+    def solve(self, oldGuess : float, max_itrs : int, tol : float, sig_figs : int) ->tuple[float,int, int]:
         # rounding the x0 and making ea=infinity at first
         oldGuess = round_sig(oldGuess, sig_figs)
         absoluteDiff=float('inf')
+        errors = []
 
         for i in range(max_itrs):
             #x(i+1)=g(xi)
@@ -28,11 +30,16 @@ class fixedPointSolver:
             if i!=0:
                 absoluteDiff=round_sig(abs(newGuess-oldGuess),sig_figs)
 
+            
             # if ea<es break
             if absoluteDiff<tol:
                 break
-
+            
+            errors.append(absoluteDiff)
             oldGuess=newGuess
 
+        
+        status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_itrs)    
+        
         # return the approximate root and no. of iterations
-        return newGuess, i+1
+        return newGuess, i+1, status

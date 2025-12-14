@@ -31,7 +31,7 @@ def handle_secant():
         solver = SecantSolver(lambda_func, single_step)
 
         start_time = time.perf_counter()
-        res, itrs = solver.solve(first, second, max_itrs, tol, sig_figs)
+        res, itrs, status = solver.solve(first, second, max_itrs, tol, sig_figs)
         end_time = time.perf_counter()
 
         steps = []
@@ -47,6 +47,7 @@ def handle_secant():
             "sol": res,
             "itrs": itrs,
             "steps": steps,
+            "status": status,
             "exec_time": end_time - start_time
         }
 
@@ -74,7 +75,7 @@ def handle_og_newton():
         solver = originalNewtonSolver(lambda_func, diff_func, single_step)
 
         start_time = time.perf_counter()
-        res, itrs = solver.solve(first, max_itrs, tol, sig_figs)
+        res, itrs, status = solver.solve(first, max_itrs, tol, sig_figs)
         end_time = time.perf_counter()
 
         steps = []
@@ -89,6 +90,7 @@ def handle_og_newton():
             "sol": res,
             "itrs": itrs,
             "steps": steps,
+            "status": status,           
             "exec_time": end_time - start_time
         }
 
@@ -118,7 +120,7 @@ def handle_fixed_point():
         solver = fixedPointSolver(func_lambda, g_x_lambda, single_step)
         
         start_time = time.perf_counter()
-        res, itrs = solver.solve(first, max_itrs, tol, sig_figs)
+        res, itrs, status = solver.solve(first, max_itrs, tol, sig_figs)
         end_time = time.perf_counter()
         
         steps = []
@@ -133,6 +135,7 @@ def handle_fixed_point():
             "sol": res,
             "itrs": itrs,
             "steps": steps,
+            "status": status,
             "exec_time": end_time - start_time
         }
 

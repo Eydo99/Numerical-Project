@@ -2,6 +2,7 @@ from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.step_recorder import openMethodStepRecorder
 from RootFinding.utils.models import originalNewtonStep
 from RootFinding.Exceptions.zero_division import ZeroDivision
+from .checks import convergence_status
 class originalNewtonSolver:
 
     #initialize f(x),f'(x),and step recorder
@@ -10,10 +11,12 @@ class originalNewtonSolver:
         self.dydyx=diff_lambda
         self.recorder=openMethodStepRecorder(single_step)
 
-    def solve(self, oldGuess: float, max_iter: int, tol: float, sig_figs: int)-> tuple[float, int] :
+    def solve(self, oldGuess: float, max_iter: int, tol: float, sig_figs: int)-> tuple[float, int, int] :
         #rounding the x0 and making ea=infinity at first
         oldGuess = round_sig(oldGuess, sig_figs)
         absoluteDiff=float('inf')
+
+        errors = []
 
         for i in range(max_iter):
             #calculate f(x) and f'(x)
@@ -28,6 +31,7 @@ class originalNewtonSolver:
             if i!=0:
                 absoluteDiff=round_sig(abs(newGuess-oldGuess),sig_figs)
 
+            errors.append(absoluteDiff)
             #record the current loop
             self.recorder.record(originalNewtonStep(oldGuess,newGuess,round_sig(self.func(newGuess),sig_figs)))
 
@@ -36,9 +40,11 @@ class originalNewtonSolver:
                 break
 
             oldGuess=newGuess
+        
+        status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_iter)    
 
         #return the approximate root and no. of iterations
-        return newGuess, i+1
+        return newGuess, i+1, status
 
 
 print()        
