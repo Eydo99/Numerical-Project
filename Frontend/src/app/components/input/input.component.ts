@@ -17,6 +17,8 @@ interface SolveResult {
   steps: any[];
   error: string | null;
   convergenceStatus: number | null;
+  relativeError?: number | null;
+  significantFigures?: number | null;
 }
 
 @Component({
@@ -475,7 +477,9 @@ export class InputComponent {
             executionTime: response.exec_time || 0,
             steps: response.steps || [],
             error: errorMsg,
-            convergenceStatus: response.status !== undefined ? response.status : null
+            convergenceStatus: response.status !== undefined ? response.status : null,
+            relativeError: response.rel_err,
+            significantFigures: response.corr_sig_figs
           };
           this.solveComplete.emit(result);
           return;

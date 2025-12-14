@@ -26,6 +26,8 @@ export class OutputComponent {
   @Input() selectedMethod: string = '';
   @Input() convergenceStatus: number | null = null;
   @Input() plotImageUrl: string | null = null;
+  @Input() relativeError: number | null = null;
+  @Input() significantFigures: number | null = null;
 
   showSimulator: boolean = false;
   currentStepIndex: number = 0;

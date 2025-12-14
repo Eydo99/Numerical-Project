@@ -1,6 +1,5 @@
 <div class="output-container">
 
-  <!-- PLOT DISPLAY -->
   <div *ngIf="plotImageUrl" class="plot-section">
     <h3 class="section-title">Function Plot</h3>
     <div class="plot-wrapper">
@@ -8,7 +7,6 @@
     </div>
   </div>
 
-  <!-- ERROR MESSAGE -->
   <div *ngIf="error" class="error-message">
     <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" [innerHTML]="getErrorIconSVG()">
     </svg>
@@ -18,7 +16,6 @@
     </div>
   </div>
 
-  <!-- SOLUTION DISPLAY -->
   <div *ngIf="solution !== null && !error" class="solution-section">
     <div class="solution-header">
       <svg class="success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,31 +27,43 @@
 
     <div class="method-name">{{ getMethodDisplayName() }}</div>
 
-    <!-- ROOT VALUE -->
     <div class="root-display">
       <div class="root-label">Approximate Root:</div>
       <div class="root-value">x ≈ {{ solution }}</div>
     </div>
 
-    <!-- STATISTICS -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Iterations</div>
-        <div class="stat-value">{{ iterations }}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Execution Time</div>
-        <div class="stat-value">{{ (executionTime * 1000).toFixed(4) }} ms</div>
-      </div>
-      <div *ngIf="convergenceStatus !== null" class="stat-card">
-        <div class="stat-label">Convergence</div>
-        <div class="stat-value" [ngClass]="getConvergenceStatusClass()">
-          {{ getConvergenceStatusText() }}
+    <div class="grid grid-cols-2 gap-4" style="margin-top: 20px; margin-bottom: 20px;">
+
+      <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+        <div class="text-sm text-blue-700 font-medium mb-1">Execution Time</div>
+        <div class="text-2xl font-bold text-blue-900">
+          {{ executionTime.toFixed(6) }} s
         </div>
       </div>
+
+      <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
+        <div class="text-sm text-purple-700 font-medium mb-1">Iterations</div>
+        <div class="text-2xl font-bold text-purple-900">{{ iterations }}</div>
+      </div>
+
+      <div *ngIf="relativeError !== null && relativeError !== undefined"
+           class="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
+        <div class="text-sm text-orange-700 font-medium mb-1">Relative Error</div>
+        <div class="text-xl font-bold text-orange-900 truncate" title="{{ relativeError }}">
+          {{ relativeError.toExponential(4) }}
+        </div>
+      </div>
+
+      <div *ngIf="significantFigures !== null && significantFigures !== undefined"
+           class="bg-teal-50 border-2 border-teal-200 rounded-xl p-4">
+        <div class="text-sm text-teal-700 font-medium mb-1">Correct Sig. Figs</div>
+        <div class="text-2xl font-bold text-teal-900">
+          {{ significantFigures }}
+        </div>
+      </div>
+
     </div>
 
-    <!-- SIMULATOR BUTTON -->
     <button
       *ngIf="steps && steps.length > 0"
       (click)="openSimulator()"
@@ -69,7 +78,6 @@
     </button>
   </div>
 
-  <!-- STEP SIMULATOR -->
   <div *ngIf="showSimulator && steps && steps.length > 0" class="simulator-container">
     <div class="simulator-header">
       <h3 class="simulator-title">
@@ -93,11 +101,9 @@
       </div>
     </div>
 
-    <!-- CURRENT STEP DISPLAY -->
     <div *ngIf="getCurrentStep()" class="step-display">
       <div class="step-number">Iteration {{ currentStepIndex + 1 }}</div>
 
-      <!-- INTERVAL METHODS (Bisection, False Position) -->
       <div *ngIf="shouldShowIntervalInfo()" class="step-values">
         <div class="value-row">
           <span class="value-label">x<sub>l</sub> =</span>
@@ -117,7 +123,6 @@
         </div>
       </div>
 
-      <!-- SINGLE POINT METHODS (Fixed Point, Newton) -->
       <div *ngIf="shouldShowPointInfo()" class="step-values">
         <div class="value-row">
           <span class="value-label">x<sub>i</sub> =</span>
@@ -133,7 +138,6 @@
         </div>
       </div>
 
-      <!-- SECANT METHOD (Two Points) -->
       <div *ngIf="shouldShowTwoPoints()" class="step-values">
         <div class="value-row">
           <span class="value-label">x<sub>i-1</sub> =</span>
@@ -154,7 +158,6 @@
       </div>
     </div>
 
-    <!-- PLAYBACK CONTROLS -->
     <div class="playback-controls">
       <button (click)="goToStep(0)" [disabled]="currentStepIndex === 0" class="control-btn">
         <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +188,6 @@
       </button>
     </div>
 
-    <!-- PROGRESS BAR -->
     <div class="progress-bar">
       <div class="progress-fill"
            [style.width.%]="((currentStepIndex + 1) / steps.length) * 100">
@@ -193,7 +195,6 @@
     </div>
   </div>
 
-  <!-- PLACEHOLDER when no results -->
   <div *ngIf="!solution && !error && !plotImageUrl" class="placeholder">
     <svg class="placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

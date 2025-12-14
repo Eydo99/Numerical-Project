@@ -22,6 +22,8 @@ export interface RootFindingResponse {
   status?: number;
   error?: string;
   problem?: string;
+  rel_err?: number;
+  corr_sig_figs?: number;
 }
 
 @Injectable({
