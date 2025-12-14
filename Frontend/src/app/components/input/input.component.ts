@@ -206,6 +206,7 @@ export class InputComponent {
     if (this.caretPos < (text || '').length) this.caretPos++;
   }
 
+
   setCaretFromClick(event: MouseEvent) {
     const target = event.currentTarget as HTMLElement;
     const displaySpan = target.querySelector('.fx-value') as HTMLElement;

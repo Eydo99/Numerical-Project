@@ -154,6 +154,11 @@ button.small.danger{
   font-weight:700;
   font-size: 14px;
 }
+.settings-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
 .clear-all-btn {
   background: rgba(220, 38, 38, 0.15);
   border: 1px solid rgba(220, 38, 38, 0.3);

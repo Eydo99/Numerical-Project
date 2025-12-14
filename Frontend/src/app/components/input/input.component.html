@@ -5,20 +5,37 @@
     <h2 class="title">Target Function</h2>
   </div>
 
-  <!-- DISPLAY -->
-
-  <button *ngIf="selectedMethod === 'fixed-point'"
-          class="toggle-edit-main"
-          [class.active]="editingTarget === 'fx'"
-          (click)="editingTarget = 'fx'">
-    Edit f(x)
-  </button>
-
-  <div class="display-box" (click)="setCaretFromClick($event)">
-    <span class="fx-label">{{ editingTarget === 'fx' ? 'f(x) =' : 'g(x) =' }}</span>
+  <!-- f(x) DISPLAY -->
+  <div class="display-box"
+       (click)="editingTarget = 'fx'; setCaretFromClick($event)"
+       [class.active-input]="editingTarget === 'fx'">
+    <span class="fx-label">f(x) =</span>
     <div class="fx-value-wrapper">
       <span class="fx-value">
-        {{ getBeforeCursor() }}<span class="cursor-blink">|</span>{{ getAfterCursor() }}
+        <ng-container *ngIf="editingTarget === 'fx'">
+          {{ getBeforeCursor() }}<span class="cursor-blink">|</span>{{ getAfterCursor() }}
+        </ng-container>
+        <ng-container *ngIf="editingTarget !== 'fx'">
+          {{ beautify(fx) || ' ' }}
+        </ng-container>
+      </span>
+    </div>
+  </div>
+
+  <!-- g(x) DISPLAY - Only shown for Fixed Point method -->
+  <div *ngIf="selectedMethod === 'fixed-point'"
+       class="display-box gx-display"
+       (click)="editingTarget = 'gx'; setCaretFromClick($event)"
+       [class.active-input]="editingTarget === 'gx'">
+    <span class="fx-label">g(x) =</span>
+    <div class="fx-value-wrapper">
+      <span class="fx-value">
+        <ng-container *ngIf="editingTarget === 'gx'">
+          {{ getBeforeCursor() }}<span class="cursor-blink">|</span>{{ getAfterCursor() }}
+        </ng-container>
+        <ng-container *ngIf="editingTarget !== 'gx'">
+          {{ beautify(gx) || ' ' }}
+        </ng-container>
       </span>
     </div>
   </div>
@@ -161,15 +178,6 @@
     <!-- Fixed Point -->
     <div *ngIf="selectedMethod === 'fixed-point'" style="width: 100%;">
       <label>Initial x₀<input type="number" [(ngModel)]="initialX" /></label>
-
-
-      <div class="gx-row">
-        <button class="toggle-edit"
-                [class.active]="editingTarget === 'gx'"
-                (click)="toggleEditing()">
-          {{ editingTarget === 'gx' ? 'Editing g(x)' : 'Edit g(x)' }}
-        </button>
-      </div>
     </div>
 
     <!-- Newton Original -->
