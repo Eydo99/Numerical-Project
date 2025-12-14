@@ -12,7 +12,7 @@ class originalNewtonSolver:
         self.dydyx=diff_lambda
         self.recorder=openMethodStepRecorder(single_step)
 
-    def solve(self, oldGuess: float, max_iter: int, tol: float, sig_figs: int)-> tuple[float, int, int, float, float] :
+    def solve(self, oldGuess: float, max_iter: int, tol: float, sig_figs: int)-> tuple[float, int, int, float, int] :
         #rounding the x0 and making ea=infinity at first
         oldGuess = round_sig(oldGuess, sig_figs)
         absoluteDiff=float('inf')
@@ -49,6 +49,3 @@ class originalNewtonSolver:
         #return the approximate root and no. of iterations
         return newGuess, i+1, status, rel_err, corr_sig_figs
 
-
-print()        
-print(round_sig(122, 2))

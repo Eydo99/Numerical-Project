@@ -18,7 +18,7 @@ class SecantSolver :
 
     def solve(self,
               first : float, second : float,  
-              max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int, int, float, float] :
+              max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int, int, float, int] :
         
         errors = []
         for i in range(max_itrs) :
