@@ -16,7 +16,11 @@ class FunctionPlotter :
         plt.show()
     
     @staticmethod
-    def get_plot_buffer(lambda_funcs : list, startx, endx, starty = None, endy = None, steps = None, labels : list = []):
+    def get_plot_buffer(lambda_funcs : list, 
+                        startx = None, endx = None, 
+                        starty = None, endy = None,
+                        steps = None, labels : list = []):
+        
         fig = plt.figure()
         plt.axhline(0, linestyle= "dashed", color= "black")
         plt.axvline(0, linestyle= "dashed", color= "black")
