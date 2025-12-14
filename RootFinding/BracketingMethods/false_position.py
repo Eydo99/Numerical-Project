@@ -3,7 +3,7 @@ from RootFinding.Exceptions.zero_division import ZeroDivision
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.models import  falsePositionStep
 from RootFinding.utils.step_recorder import openMethodStepRecorder
-
+import math
 
 class falsePositionSolver:
 
@@ -18,7 +18,7 @@ class falsePositionSolver:
         max_itrs: int,
         tol: float,
         sig_figs: int
-    ) -> tuple[float, int] :
+    ) -> tuple[float, int ,float , int] :
         
          # If f(xl)*f(xu) > 0 -> no root exists in this interval
         if self.func(xl) * self.func(xu) > 0:
@@ -30,7 +30,7 @@ class falsePositionSolver:
         xu = round_sig(xu, sig_figs)
         xr = 0
         i = 0
-        
+        old = 0
         for i in range(max_itrs):
             
             f_xl = round_sig(self.func(xl), sig_figs)
@@ -61,15 +61,18 @@ class falsePositionSolver:
                 xl = xr
             else:
                 absoluteDiff = 0
+                
 
             # stopping condition
             if absoluteDiff < tol:
                 break
+            
+            old = xr    
         
-        # rel_err = abs((newGuess - oldGuess)/newGuess) * 100
-        # corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))        
+        rel_err = abs((xr - old)/xr) * 100
+        corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))        
         
-        return xr, i + 1
+        return xr, i + 1 , rel_err , corr_sig_figs
 
 
 

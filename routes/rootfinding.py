@@ -120,7 +120,7 @@ def handle_fixed_point():
         solver = fixedPointSolver(func_lambda, g_x_lambda, single_step)
         
         start_time = time.perf_counter()
-        res, itrs, status = solver.solve(first, max_itrs, tol, sig_figs)
+        res, itrs, status , rel_err, corr_sig_figs = solver.solve(first, max_itrs, tol, sig_figs)
         end_time = time.perf_counter()
         
         steps = []
@@ -136,7 +136,9 @@ def handle_fixed_point():
             "itrs": itrs,
             "steps": steps,
             "status": status,
-            "exec_time": end_time - start_time
+            "exec_time": end_time - start_time,
+            "rel_err" : rel_err ,
+            "corr_sig_figs" : corr_sig_figs
         }
 
         return json.dumps(response)
@@ -172,7 +174,7 @@ def handle_bisection():
                 "error": "No root found in the given interval. f(a) and f(b) must have opposite signs."
             }), 400
 
-        res, itrs = result
+        res, itrs , rel_err , corr_sig_figs = result
 
         steps = []
         for step in solver.recorder.steps:
@@ -187,7 +189,9 @@ def handle_bisection():
             "sol": res,
             "itrs": itrs,
             "steps": steps,
-            "exec_time": end_time - start_time
+            "exec_time": end_time - start_time,
+            "rel_err" : rel_err ,
+            "corr_sig_figs" : corr_sig_figs
         }
 
         return json.dumps(response)

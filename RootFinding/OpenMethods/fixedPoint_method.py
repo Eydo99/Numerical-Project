@@ -17,7 +17,8 @@ class fixedPointSolver:
         oldGuess = round_sig(oldGuess, sig_figs)
         absoluteDiff=float('inf')
         errors = []
-
+        newGuess = 0
+        i = 0
         for i in range(max_itrs):
             #x(i+1)=g(xi)
             newGuess=round_sig(self.gx(oldGuess),sig_figs)
