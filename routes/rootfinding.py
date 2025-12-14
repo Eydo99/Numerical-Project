@@ -292,13 +292,29 @@ def handle_modified_newton():
 @rootf.route("/plot", methods = ["POST"])
 def plot_func():
     data = request.json
-    func_str = data.get("func")
+    funcs_str = data.get("funcs")
+    labels = data.get("labels",[])
     
-    start = data.get("start")
-    end = data.get("end")
+    startx = data.get("start")
+    endx = data.get("end")
 
-    lambda_func = get_lambda_func(func_str)
+    starty= data.get("starty", None)
+    endy= data.get("endy", None)
 
-    buffer = FunctionPlotter.get_plot_buffer(lambda_func, start, end)
+    lambda_funcs = []
+    if isinstance(funcs_str, str) :
+        lambda_func = get_lambda_func(funcs_str)
+        lambda_funcs.append(lambda_func)
+
+    elif isinstance(funcs_str, list) :
+        for func in funcs_str :
+            lambda_func = get_lambda_func(func)
+            lambda_funcs.append(lambda_func)
+
+
+    buffer = FunctionPlotter.get_plot_buffer(lambda_funcs=lambda_funcs, 
+                                             startx=startx, endx=endx,
+                                             starty=starty, endy= endy,
+                                             labels=labels)
     
     return Response(buffer.getvalue(), mimetype="image/png")
