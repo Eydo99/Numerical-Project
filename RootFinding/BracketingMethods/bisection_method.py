@@ -55,7 +55,10 @@ class bisectionSolver :
                 old = xr    
                 
             rel_err = abs((xr - old)/xr) * 100
-            corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10)) 
+            if(rel_err == 0):
+                corr_sig_figs = 6
+            else :
+                corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10)) 
             #             
             # return the approximate root and no. of iterations
             return xr, i+1 , rel_err,corr_sig_figs
