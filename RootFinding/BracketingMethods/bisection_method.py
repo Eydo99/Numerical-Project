@@ -2,7 +2,7 @@
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.models import bisectionStep
 from RootFinding.utils.step_recorder import openMethodStepRecorder
-
+import math
 
 class bisectionSolver :
 
@@ -11,7 +11,7 @@ class bisectionSolver :
         self.func = func_lambda
         self.recorder=openMethodStepRecorder(single_step)
 
-    def solve(self, xl : float, xu :float, max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int] | None :
+    def solve(self, xl : float, xu :float, max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int, float, float] | None :
 
             #if f(xl)*f(xu)>0 -> no root exists in this interval
             if self.func(xl)*self.func(xu) > 0:
@@ -22,6 +22,8 @@ class bisectionSolver :
             temp=None
             xl = round_sig(xl, sig_figs)
             xu = round_sig(xu, sig_figs)
+
+            
 
             for i in range(max_itrs):
 
@@ -46,7 +48,9 @@ class bisectionSolver :
                 #if ea<es:break
                 if absoluteDiff<tol:
                     break
-
+                
+            # rel_err = abs((newGuess - oldGuess)/newGuess) * 100
+            # corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))             
             # return the approximate root and no. of iterations
             return xr, i+1
 

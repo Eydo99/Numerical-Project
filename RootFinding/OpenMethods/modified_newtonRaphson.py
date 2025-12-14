@@ -4,7 +4,7 @@ from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.step_recorder import openMethodStepRecorder
 from RootFinding.utils.models import modifiedNewtonStep
 from typing import Tuple, Optional
-
+import math
 
 class modifiedNewtonSolver:
     
@@ -24,7 +24,7 @@ class modifiedNewtonSolver:
         tol: float,
         sig_figs: int,
         multiplicity: Optional[float] = None
-    ) -> Tuple[float, int, int]:
+    ) -> Tuple[float, int, int, float, float]:
        
         
         oldGuess = round_sig(oldGuess, sig_figs)
@@ -83,9 +83,12 @@ class modifiedNewtonSolver:
         final_error = absoluteDiff if i != 0 else float('inf')
         f_at_root = round_sig(self.func(newGuess), sig_figs)
                 
+        rel_err = abs((newGuess - oldGuess)/newGuess) * 100
+        corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))
+
         status = convergence_status(error_history=error_history,iterations=i + 1,max_iterations=max_iter)    
 
-        return newGuess, i + 1 , status
+        return newGuess, i + 1 , status, rel_err, corr_sig_figs
         
     @staticmethod
     def test():

@@ -18,7 +18,7 @@ class SecantSolver :
 
     def solve(self,
               first : float, second : float,  
-              max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int, int] :
+              max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int, int, float, float] :
         
         errors = []
         for i in range(max_itrs) :
@@ -43,7 +43,10 @@ class SecantSolver :
             first = second
             second = third
         
+        rel_err = abs((third - second)/third) * 100
+        corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))
+
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_itrs)    
 
-        return third, i + 1, status
+        return third, i + 1, status, rel_err, corr_sig_figs
 
