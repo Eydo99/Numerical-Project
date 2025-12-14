@@ -20,7 +20,7 @@ class SecantSolver :
               max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int] :
         
         for i in range(max_itrs) :
-            if(self.func(second) - self.func(first) < tol):
+            if(abs(round_sig(self.func(second) - self.func(first), sig_figs)) == 0):
                 raise ZeroDivision("division by zero encountered at itr " + str(i + 1) + " f(xi) - f(xi-1) = 0")
 
             diff = round_sig(
