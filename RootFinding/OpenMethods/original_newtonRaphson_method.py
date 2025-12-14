@@ -44,7 +44,7 @@ class originalNewtonSolver:
         
         rel_err = abs((newGuess - oldGuess)/newGuess) * 100
         if(rel_err == 0):
-            corr_sig_figs = 6
+            corr_sig_figs = 5
         else :
             corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10)) 
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_iter)    

@@ -491,9 +491,12 @@ export class InputComponent {
           iterations: response.itrs || 0,
           executionTime: response.exec_time || 0,
           steps: response.steps || [],
-          error: null,
-          convergenceStatus: response.status !== undefined ? response.status : null
+          error: response.error || response.problem || null,
+          convergenceStatus: response.status !== undefined ? response.status : null,
+          relativeError: response.rel_err,
+          significantFigures: response.corr_sig_figs
         };
+        console.log('Emitting Result:', result);
         this.solveComplete.emit(result);
       },
       error: (err) => {

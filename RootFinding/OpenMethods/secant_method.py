@@ -51,7 +51,7 @@ class SecantSolver:
 
         rel_err = abs((third - second) / third) * 100
         if rel_err == 0:
-            corr_sig_figs = 6
+            corr_sig_figs = 5
         else:
             corr_sig_figs = math.floor(2 - math.log(rel_err / 0.5, 10))
 
