@@ -282,6 +282,8 @@ export class InputComponent {
   secantX1: number | null = null;
   plotStart: number = -10;
   plotEnd: number = 10;
+  plotStartY: number = -10;
+  plotEndY: number = 10;
   isPlotting: boolean = false;
 
   getBeforeCursor(): string {
@@ -298,23 +300,47 @@ export class InputComponent {
 
   constructor(private rootFindingService: RootFindingService) {}
 
-  plotFunction() {
-    if (!this.fx) {
-      alert('Please enter a function first!');
-      return;
-    }
+  plotFunction(mode: 'standard' | 'fg' | 'xg' = 'standard') {
+    const funcsToSend: string[] = [];
 
-    const validation = FunctionParser.isValidFunction(this.fx);
-    if (!validation.valid) {
-      alert(`Invalid function: ${validation.error}`);
-      return;
+    // ... (Validation logic stays the same) ...
+    // Mode 1: Standard
+    if (mode === 'standard') {
+      if (!this.fx || this.fx.trim() === '') {
+        alert('Please enter a function f(x) to plot!');
+        return;
+      }
+      const validation = FunctionParser.isValidFunction(this.fx);
+      if (!validation.valid) {
+        alert(`Invalid f(x): ${validation.error}`);
+        return;
+      }
+      funcsToSend.push(FunctionParser.toPythonSyntax(this.fx));
+    }
+    // Mode 2: f(x) and g(x)
+    else if (mode === 'fg') {
+      if (!this.fx || !this.gx) { alert('Enter both functions!'); return; }
+      funcsToSend.push(FunctionParser.toPythonSyntax(this.fx));
+      funcsToSend.push(FunctionParser.toPythonSyntax(this.gx));
+    }
+    // Mode 3: x and g(x)
+    else if (mode === 'xg') {
+      if (!this.gx) { alert('Enter g(x)!'); return; }
+      funcsToSend.push('x');
+      funcsToSend.push(FunctionParser.toPythonSyntax(this.gx));
     }
 
     this.isPlotting = true;
-    const parsedFunc = FunctionParser.toPythonSyntax(this.fx);
-    console.log('Plotting function:', parsedFunc);
+    console.log(`Sending plot request [Mode: ${mode}]:`, funcsToSend);
 
-    this.rootFindingService.plot(parsedFunc, this.plotStart, this.plotEnd).subscribe({
+    // Call service with NEW Y-axis parameters
+    this.rootFindingService.plot(
+      funcsToSend,
+      this.plotStart,
+      this.plotEnd,
+      this.plotStartY,
+      this.plotEndY
+    ).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         this.plotComplete.emit(url);
@@ -327,7 +353,6 @@ export class InputComponent {
       }
     });
   }
-
 
 
 

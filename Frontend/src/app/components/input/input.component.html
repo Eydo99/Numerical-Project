@@ -138,31 +138,46 @@
 
   <!-- PLOT SETTINGS -->
   <h3 class="section-title">Plot Settings</h3>
-  <div class="settings-grid">
-    <label>Plot Start
+
+  <div class="settings-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 8px;">
+    <label>X Start
       <input type="number" [(ngModel)]="plotStart" />
     </label>
-
-    <label>Plot End
+    <label>X End
       <input type="number" [(ngModel)]="plotEnd" />
     </label>
   </div>
 
-  <div class="run-row" style="margin-top: 12px;">
-    <button
-      class="plot-btn"
-      (click)="plotFunction()"
-      [disabled]="isPlotting || !fx">
+  <div class="settings-grid" style="grid-template-columns: 1fr 1fr;">
+    <label>Y Start
+      <input type="number" [(ngModel)]="plotStartY" />
+    </label>
+    <label>Y End
+      <input type="number" [(ngModel)]="plotEndY" />
+    </label>
+  </div>
+
+  <div class="run-row" style="margin-top: 12px; display: flex; gap: 10px;">
+
+    <button *ngIf="selectedMethod !== 'fixed-point'"
+            class="plot-btn"
+            (click)="plotFunction('standard')"
+            [disabled]="isPlotting || !fx">
       <svg *ngIf="!isPlotting" class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
       </svg>
-      <svg *ngIf="isPlotting" class="btn-icon animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-      </svg>
-      {{ isPlotting ? 'PLOTTING...' : 'PLOT FUNCTION' }}
+      {{ isPlotting ? 'PLOTTING...' : 'PLOT f(x)' }}
     </button>
+
+    <ng-container *ngIf="selectedMethod === 'fixed-point'">
+      <button class="plot-btn" (click)="plotFunction('fg')" [disabled]="isPlotting || !fx || !gx" style="flex: 1;">
+        Plot f(x) & g(x)
+      </button>
+      <button class="plot-btn" (click)="plotFunction('xg')" [disabled]="isPlotting || !gx" style="flex: 1;">
+        Plot x & g(x)
+      </button>
+    </ng-container>
+
   </div>
 
   <!-- METHOD PARAMETERS (conditional) -->
