@@ -12,7 +12,7 @@ class fixedPointSolver:
         self.recorder=openMethodStepRecorder(single_step)
         self.gx=gx_lambda
 
-    def solve(self, oldGuess : float, max_itrs : int, tol : float, sig_figs : int) ->tuple[float,int, int, float, float]:
+    def solve(self, oldGuess : float, max_itrs : int, tol : float, sig_figs : int) ->tuple[float,int, int, float, int]:
         # rounding the x0 and making ea=infinity at first
         oldGuess = round_sig(oldGuess, sig_figs)
         absoluteDiff=float('inf')

@@ -11,7 +11,7 @@ class bisectionSolver :
         self.func = func_lambda
         self.recorder=openMethodStepRecorder(single_step)
 
-    def solve(self, xl : float, xu :float, max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int, float, float] | None :
+    def solve(self, xl : float, xu :float, max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int, float, int] | None :
 
             #if f(xl)*f(xu)>0 -> no root exists in this interval
             if self.func(xl)*self.func(xu) > 0:

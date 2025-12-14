@@ -24,7 +24,7 @@ class modifiedNewtonSolver:
         tol: float,
         sig_figs: int,
         multiplicity: Optional[float] = None
-    ) -> Tuple[float, int, int, float, float]:
+    ) -> Tuple[float, int, int, float, int]:
        
         
         oldGuess = round_sig(oldGuess, sig_figs)
@@ -103,4 +103,4 @@ class modifiedNewtonSolver:
         print(f"Test:, root={root}, iterations={iterations} , status = {status}")
         
         
-modifiedNewtonSolver.test()                      
+                    

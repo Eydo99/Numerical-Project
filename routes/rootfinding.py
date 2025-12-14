@@ -31,7 +31,7 @@ def handle_secant():
         solver = SecantSolver(lambda_func, single_step)
 
         start_time = time.perf_counter()
-        res, itrs, status = solver.solve(first, second, max_itrs, tol, sig_figs)
+        res, itrs, status, rel_err, corr_sig_figs = solver.solve(first, second, max_itrs, tol, sig_figs)
         end_time = time.perf_counter()
 
         steps = []
@@ -48,7 +48,9 @@ def handle_secant():
             "itrs": itrs,
             "steps": steps,
             "status": status,
-            "exec_time": end_time - start_time
+            "exec_time": end_time - start_time,
+            "rel_err" : rel_err ,
+            "corr_sig_figs" : corr_sig_figs
         }
 
         return json.dumps(response)
@@ -75,7 +77,7 @@ def handle_og_newton():
         solver = originalNewtonSolver(lambda_func, diff_func, single_step)
 
         start_time = time.perf_counter()
-        res, itrs, status = solver.solve(first, max_itrs, tol, sig_figs)
+        res, itrs, status, rel_err, corr_sig_figs  = solver.solve(first, max_itrs, tol, sig_figs)
         end_time = time.perf_counter()
 
         steps = []
@@ -91,7 +93,9 @@ def handle_og_newton():
             "itrs": itrs,
             "steps": steps,
             "status": status,           
-            "exec_time": end_time - start_time
+            "exec_time": end_time - start_time,
+            "rel_err" : rel_err ,
+            "corr_sig_figs" : corr_sig_figs
         }
 
         return json.dumps(response)
@@ -218,7 +222,7 @@ def handle_false_position():
         solver = falsePositionSolver(func_lambda, single_step)
 
         start_time = time.perf_counter()
-        res, itrs = solver.solve(low, high, max_itrs, tol, sig_figs)
+        res, itrs,rel_err, corr_sig_figs  = solver.solve(low, high, max_itrs, tol, sig_figs)
         end_time = time.perf_counter()
 
         steps = []
@@ -234,7 +238,9 @@ def handle_false_position():
             "sol": res,
             "itrs": itrs,
             "steps": steps,
-            "exec_time": end_time - start_time
+            "exec_time": end_time - start_time,
+            "rel_err" : rel_err ,
+            "corr_sig_figs" : corr_sig_figs
         }
 
         return json.dumps(response)
@@ -266,7 +272,7 @@ def handle_modified_newton():
         solver = modifiedNewtonSolver(func_lambda, diff_lambda, d2_lambda, single_step)
 
         start_time = time.perf_counter()
-        res, itrs, status = solver.solve(first, max_itrs, tol, sig_figs, multiplicity)
+        res, itrs, status, rel_err, corr_sig_figs  = solver.solve(first, max_itrs, tol, sig_figs, multiplicity)
         end_time = time.perf_counter()
 
         steps = []
@@ -282,7 +288,9 @@ def handle_modified_newton():
             "itrs": itrs,
             "steps": steps,
             "status": status,
-            "exec_time": end_time - start_time
+            "exec_time": end_time - start_time,
+            "rel_err" : rel_err ,
+            "corr_sig_figs" : corr_sig_figs
         }
 
         return json.dumps(response)
