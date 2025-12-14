@@ -15,13 +15,21 @@ class SecantSolver :
         self.recorder =openMethodStepRecorder(single_step)
     
 
-    def solve(self, first : float, second : float,  max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int] :
+    def solve(self,
+              first : float, second : float,  
+              max_itrs : int, tol : float, sig_figs : int) -> tuple[float, int] :
         
         for i in range(max_itrs) :
             if(self.func(second) - self.func(first) < tol):
                 raise ZeroDivision("division by zero encountered at itr " + str(i + 1) + " f(xi) - f(xi-1) = 0")
 
-            diff = round_sig(self.func(second) * round_sig((second - first) / round_sig(self.func(second) - self.func(first), sig_figs), sig_figs), sig_figs)
+            diff = round_sig(
+                self.func(second) * round_sig(
+                    (second - first) / round_sig(
+                        self.func(second) - self.func(first)
+                        , sig_figs)
+                    , sig_figs)
+                , sig_figs)
             third = round_sig(second - diff, sig_figs)
 
             self.recorder.record(SecantStep(first, second, third, round_sig(self.func(third), sig_figs)))
