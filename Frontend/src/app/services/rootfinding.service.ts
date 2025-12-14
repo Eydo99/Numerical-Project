@@ -37,8 +37,12 @@ export class RootFindingService {
     return this.http.post<RootFindingResponse>(`${this.baseUrl}${endpoint}`, payload);
   }
 
-  plot(func: string, start: number, end: number): Observable<Blob> {
-    const payload = { func, start, end };
+  plot(funcs: string[], start: number, end: number): Observable<Blob> {
+    const payload = {
+      funcs: funcs,
+      start: start,
+      end: end
+    };
     return this.http.post(`${this.baseUrl}/plot`, payload, { responseType: 'blob' });
   }
 

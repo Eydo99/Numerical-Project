@@ -299,22 +299,35 @@ export class InputComponent {
   constructor(private rootFindingService: RootFindingService) {}
 
   plotFunction() {
-    if (!this.fx) {
-      alert('Please enter a function first!');
-      return;
-    }
+    const funcsToSend: string[] = [];
 
-    const validation = FunctionParser.isValidFunction(this.fx);
-    if (!validation.valid) {
-      alert(`Invalid function: ${validation.error}`);
-      return;
+    if (this.gx && this.gx.trim() !== '') {
+      const validation = FunctionParser.isValidFunction(this.gx);
+      if (!validation.valid) {
+        alert(`Invalid g(x): ${validation.error}`);
+        return;
+      }
+
+      funcsToSend.push('x');
+      funcsToSend.push(FunctionParser.toPythonSyntax(this.gx));
+
+    } else {
+      if (!this.fx || this.fx.trim() === '') {
+        alert('Please enter a function to plot!');
+        return;
+      }
+
+      const validation = FunctionParser.isValidFunction(this.fx);
+      if (!validation.valid) {
+        alert(`Invalid f(x): ${validation.error}`);
+        return;
+      }
+      funcsToSend.push(FunctionParser.toPythonSyntax(this.fx));
     }
 
     this.isPlotting = true;
-    const parsedFunc = FunctionParser.toPythonSyntax(this.fx);
-    console.log('Plotting function:', parsedFunc);
-
-    this.rootFindingService.plot(parsedFunc, this.plotStart, this.plotEnd).subscribe({
+    console.log('Sending to Backend:', funcsToSend);
+    this.rootFindingService.plot(funcsToSend, this.plotStart, this.plotEnd).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         this.plotComplete.emit(url);
@@ -327,7 +340,6 @@ export class InputComponent {
       }
     });
   }
-
 
 
 
