@@ -2,16 +2,13 @@
 
 <div class="phase-wrapper">
 
-  <!-- TITLE AREA -->
   <div class="title-area">
     <h1 class="title">Root Finding <span class="glow-text">Program</span></h1>
     <p class="subtitle">Interactive step-by-step nonlinear equation solving methods.</p>
   </div>
 
-  <!-- PANELS -->
   <div class="panels-container">
 
-    <!-- LEFT PANEL: INPUT -->
     <div class="left-panel">
       <app-input
         [selectedMethod]="selectedMethod"
@@ -20,7 +17,6 @@
       </app-input>
     </div>
 
-    <!-- RIGHT PANEL: OUTPUT -->
     <div class="right-panel">
       <app-output
         [solution]="solution"
@@ -30,13 +26,14 @@
         [error]="error"
         [selectedMethod]="selectedMethod"
         [convergenceStatus]="convergenceStatus"
-        [plotImageUrl]="plotImageUrl">
+        [plotImageUrl]="plotImageUrl"
+        [relativeError]="relativeError"
+        [significantFigures]="significantFigures">
       </app-output>
     </div>
 
   </div>
 
-  <!-- FLOATING SYMBOLS -->
   <div class="floating-symbol symbol-a">√</div>
   <div class="floating-symbol symbol-b">π</div>
   <div class="floating-symbol symbol-c">ƒ(x)</div>

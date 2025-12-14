@@ -19,17 +19,23 @@ export class Phase2Component {
   error: string | null = null;
   convergenceStatus: number | null = null;
   plotImageUrl: string | null = null;
+
+  relativeError: number | null = null;
+  significantFigures: number | null = null;
   selectMethod(method: string) {
     this.selectedMethod = method;
     this.clearResults();
   }
   handleSolveComplete(result: any) {
+    console.log('Parent received solve data:',result); // Debug log
     this.solution = result.solution;
     this.iterations = result.iterations;
     this.executionTime = result.executionTime;
     this.steps = result.steps;
     this.error = result.error;
     this.convergenceStatus = result.convergenceStatus;
+    this.relativeError =result.relativeError;
+    this.significantFigures =result.significantFigures;
   }
   handlePlotComplete(imageUrl: string) {
     this.plotImageUrl = imageUrl;

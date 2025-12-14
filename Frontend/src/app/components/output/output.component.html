@@ -32,36 +32,33 @@
       <div class="root-value">x ≈ {{ solution }}</div>
     </div>
 
-    <div class="grid grid-cols-2 gap-4" style="margin-top: 20px; margin-bottom: 20px;">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Iterations</div>
+        <div class="stat-value">{{ iterations }}</div>
+      </div>
 
-      <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-        <div class="text-sm text-blue-700 font-medium mb-1">Execution Time</div>
-        <div class="text-2xl font-bold text-blue-900">
-          {{ executionTime.toFixed(6) }} s
+      <div class="stat-card">
+        <div class="stat-label">Execution Time</div>
+        <div class="stat-value">{{ (executionTime * 1000).toFixed(4) }} ms</div>
+      </div>
+
+      <div *ngIf="convergenceStatus !== null" class="stat-card">
+        <div class="stat-label">Convergence</div>
+        <div class="stat-value" [ngClass]="getConvergenceStatusClass()">
+          {{ getConvergenceStatusText() }}
         </div>
       </div>
 
-      <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
-        <div class="text-sm text-purple-700 font-medium mb-1">Iterations</div>
-        <div class="text-2xl font-bold text-purple-900">{{ iterations }}</div>
+      <div *ngIf="relativeError !== null && relativeError !== undefined" class="stat-card">
+        <div class="stat-label">Relative Error</div>
+        <div class="stat-value">{{ relativeError.toExponential(4) }}</div>
       </div>
 
-      <div *ngIf="relativeError !== null && relativeError !== undefined"
-           class="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
-        <div class="text-sm text-orange-700 font-medium mb-1">Relative Error</div>
-        <div class="text-xl font-bold text-orange-900 truncate" title="{{ relativeError }}">
-          {{ relativeError.toExponential(4) }}
-        </div>
+      <div *ngIf="significantFigures !== null && significantFigures !== undefined" class="stat-card">
+        <div class="stat-label">Correct Sig. Figs</div>
+        <div class="stat-value">{{ significantFigures }}</div>
       </div>
-
-      <div *ngIf="significantFigures !== null && significantFigures !== undefined"
-           class="bg-teal-50 border-2 border-teal-200 rounded-xl p-4">
-        <div class="text-sm text-teal-700 font-medium mb-1">Correct Sig. Figs</div>
-        <div class="text-2xl font-bold text-teal-900">
-          {{ significantFigures }}
-        </div>
-      </div>
-
     </div>
 
     <button
