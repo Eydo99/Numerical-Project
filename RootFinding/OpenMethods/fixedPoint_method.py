@@ -1,7 +1,7 @@
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.models import fixedPointStep
 from RootFinding.utils.step_recorder import openMethodStepRecorder
-from .checks import convergence_status
+from .checks import convergence_status, ConvStatus
 import math
 
 class fixedPointSolver:
@@ -14,17 +14,24 @@ class fixedPointSolver:
 
     def solve(self, oldGuess : float, max_itrs : int, tol : float, sig_figs : int) ->tuple[float,int, int, float, int]:
         # rounding the x0 and making ea=infinity at first
-        oldGuess = round_sig(oldGuess, sig_figs)
+        oldGuessUnrounded = oldGuess
+        oldGuess = round_sig(oldGuessUnrounded, sig_figs)
         absoluteDiff=float('inf')
         errors = []
         newGuess = 0
         i = 0
+        err = 100
+        
         for i in range(max_itrs):
             #x(i+1)=g(xi)
-            newGuess=round_sig(self.gx(oldGuess),sig_figs)
+            newGuessUnrounded = self.gx(oldGuess)
+            newGuess=round_sig(newGuessUnrounded,sig_figs)
 
             #record current loop
-            print(newGuess)
+            # print(newGuess)
+            if math.isnan(newGuess) or math.isinf(newGuess) :
+                return oldGuess, i + 1, ConvStatus.DIVERGENT, err, 0
+            
             self.recorder.record(fixedPointStep(oldGuess,newGuess,round_sig(self.func(newGuess), sig_figs)))
 
             # ea cannot be determined in first loop
@@ -33,18 +40,27 @@ class fixedPointSolver:
 
             
             # if ea<es break
-            if absoluteDiff<tol:
+            
+            err = abs(newGuessUnrounded - oldGuessUnrounded)/max(1, abs(newGuessUnrounded))*100
+
+            if err < tol or abs(self.func(newGuess)) < tol:
                 break
             
             errors.append(absoluteDiff)
             oldGuess=newGuess
+            oldGuessUnrounded = newGuessUnrounded
 
-        rel_err = abs((newGuess - oldGuess)/newGuess) * 100
-        if(rel_err == 0):
-            corr_sig_figs = 5
-        else :
-            corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10)) 
-        status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_itrs)    
+        # print(oldGuessUnrounded)
+        # print(newGuessUnrounded)
+        # rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/newGuessUnrounded) * 100
         
+        if(err == 0):
+            corr_sig_figs = sig_figs
+        else :
+            corr_sig_figs = math.floor(2-math.log(err/0.5, 10)) 
+        status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_itrs)  
+
+    
+    
         # return the approximate root and no. of iterations
-        return newGuess, i+1, status, rel_err, corr_sig_figs
+        return newGuess, i+1, status, err, corr_sig_figs

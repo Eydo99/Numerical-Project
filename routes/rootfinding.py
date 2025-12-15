@@ -112,6 +112,7 @@ def handle_fixed_point():
     try:
         data = request.json
         func_str = data.get("func")
+        gx_str = data.get("g_x")
         first = data.get("first")
         tol = data.get("tol", 1e-6)
         max_itrs = data.get("max_itrs", 50)
@@ -119,7 +120,7 @@ def handle_fixed_point():
         single_step = data.get("single_step", False)
 
         func_lambda = get_lambda_func(func_str)
-        g_x_lambda = get_lambda_gx(func_str)
+        g_x_lambda = get_lambda_gx(gx_str)
 
         solver = fixedPointSolver(func_lambda, g_x_lambda, single_step)
         

@@ -7,7 +7,7 @@ from RootFinding.utils.auxilary import get_lambda_func, round_sig
 from RootFinding.utils.models import SecantStep
 from RootFinding.utils.step_recorder import openMethodStepRecorder
 
-from .checks import convergence_status
+from .checks import convergence_status, ConvStatus
 
 
 class SecantSolver:
@@ -19,6 +19,9 @@ class SecantSolver:
         self, first: float, second: float, max_itrs: int, tol: float, sig_figs: int
     ) -> tuple[float, int, int, float, int]:
         errors = []
+        err = 0
+        thirdUnrounded = second
+        secondUnrounded = second
         for i in range(max_itrs):
             if abs(round_sig(self.func(second) - self.func(first), sig_figs)) == 0:
                 raise ZeroDivision(
@@ -36,7 +39,12 @@ class SecantSolver:
                 ),
                 sig_figs,
             )
-            third = round_sig(second - diff, sig_figs)
+
+            thirdUnrounded = second - diff
+            third = round_sig(thirdUnrounded, sig_figs)
+            
+            if math.isnan(third) or math.isinf(third) :
+                return second, i + 1, ConvStatus.DIVERGENT, err, 0
 
             errors.append(abs(diff))
 
@@ -44,19 +52,21 @@ class SecantSolver:
                 SecantStep(first, second, third, round_sig(self.func(third), sig_figs))
             )
 
-            if abs(diff) < tol:
+            err = abs((thirdUnrounded - secondUnrounded) / max(1, abs(thirdUnrounded))) * 100
+
+            if err < tol or abs(self.func(third)) < tol:
                 break
             first = second
             second = third
+            secondUnrounded = thirdUnrounded
 
-        rel_err = abs((third - second) / third) * 100
-        if rel_err == 0:
-            corr_sig_figs = 5
+        if err == 0:
+            corr_sig_figs = sig_figs
         else:
-            corr_sig_figs = math.floor(2 - math.log(rel_err / 0.5, 10))
+            corr_sig_figs = math.floor(2 - math.log(err / 0.5, 10))
 
         status = convergence_status(
             error_history=errors, iterations=i + 1, max_iterations=max_itrs
         )
 
-        return third, i + 1, status, rel_err, corr_sig_figs
+        return third, i + 1, status, err, corr_sig_figs
