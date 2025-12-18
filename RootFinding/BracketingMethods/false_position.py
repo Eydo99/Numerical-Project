@@ -65,11 +65,13 @@ class falsePositionSolver:
 
             # stopping condition
             if absoluteDiff < tol:
+                print("BREAK")
                 break
             
             old = xr    
-        
+
         rel_err = abs((xr - old)/xr) * 100
+        print(rel_err)
         if(rel_err == 0):
             corr_sig_figs = 5
         else :

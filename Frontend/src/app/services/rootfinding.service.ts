@@ -11,7 +11,7 @@ export interface RootFindingRequest {
   sig_figs: number;
   single_step: boolean;
   multiplicity?: number | null;
-  gx?: string;
+  g_x?: string;
 }
 
 export interface RootFindingResponse {

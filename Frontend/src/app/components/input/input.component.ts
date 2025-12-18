@@ -391,7 +391,6 @@ export class InputComponent {
       single_step: true
     };
 
-    // Add method-specific parameters
     switch (this.selectedMethod) {
       case 'bisection':
       case 'false-position':
@@ -412,18 +411,16 @@ export class InputComponent {
           alert('Please enter g(x) function!');
           return;
         }
+
         const gxValidation = FunctionParser.isValidFunction(this.gx);
         if (!gxValidation.valid) {
           alert(`Invalid g(x) function: ${gxValidation.error}`);
           return;
         }
-
-
         payload.first = this.initialX;
+        payload.func = parsedFunc;
         const parsedGx = FunctionParser.toPythonSyntax(this.gx);
-        console.log('Original g(x):', this.gx);
-        console.log('Parsed g(x):', parsedGx);
-        payload.func = parsedGx; ////////////////////////////////////
+        payload.g_x = parsedGx;
         break;
 
       case 'newton-orig':
