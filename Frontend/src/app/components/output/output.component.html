@@ -52,7 +52,8 @@
 
       <div *ngIf="relativeError !== null && relativeError !== undefined" class="stat-card">
         <div class="stat-label">Relative Error Percentage</div>
-        <div class="stat-value">{{ relativeError.toExponential(4) }}</div>
+        <div class="stat-value">{{ relativeError.toExponential(4) }}
+          </div>
       </div>
 
       <div *ngIf="significantFigures !== null && significantFigures !== undefined" class="stat-card">
