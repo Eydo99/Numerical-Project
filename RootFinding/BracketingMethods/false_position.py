@@ -72,11 +72,11 @@ class falsePositionSolver:
                 old = xr    
         
         if(i != 0) :    
-            err = abs((xr - old)/max(1,abs(xr))) * 100
-        if( i == 0 or err == 0):
+            rel_err = abs((xr - old)/abs(xr)) * 100
+        if( i == 0 or rel_err == 0):
             corr_sig_figs = sig_figs
-        elif(err) :
-            corr_sig_figs = math.floor(2-math.log(err/0.5, 10))       
+        elif(rel_err) :
+            corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))       
         
         return xr, i + 1 , err , corr_sig_figs
 

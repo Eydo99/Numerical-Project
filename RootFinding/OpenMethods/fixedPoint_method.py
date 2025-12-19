@@ -43,7 +43,7 @@ class fixedPointSolver:
             
             # if ea<es break
             
-            err = abs(newGuessUnrounded - oldGuessUnrounded)/max(1, abs(newGuessUnrounded))*100
+            err = abs(newGuessUnrounded - oldGuessUnrounded)/max(1, abs(newGuessUnrounded))
 
             if err < tol or abs(self.func(newGuess)) < tol:
                 if(i == 0) :
@@ -58,10 +58,11 @@ class fixedPointSolver:
         # print(newGuessUnrounded)
         # rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/newGuessUnrounded) * 100
         
-        if(err == 0 or err is None):
+        rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/newGuessUnrounded) * 100
+        if(rel_err == 0 or rel_err is None):
             corr_sig_figs = sig_figs
-        elif(err) :
-            corr_sig_figs = math.floor(2-math.log(err/0.5, 10)) 
+        elif(rel_err) :
+            corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10)) 
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_itrs)  
         
     

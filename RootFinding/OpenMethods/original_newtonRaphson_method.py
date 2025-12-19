@@ -41,7 +41,7 @@ class originalNewtonSolver:
             #record the current loop
             self.recorder.record(originalNewtonStep(oldGuess,newGuess,round_sig(self.func(newGuess),sig_figs)))
 
-            err = abs(newGuess - oldGuess)/max(1,abs(newGuess)) * 100
+            err = abs(newGuess - oldGuess)/max(1,abs(newGuess))
             #if ea<es break
             if err < tol or abs(self.func(newGuess)) < tol:
                 if(i == 0):
@@ -50,11 +50,11 @@ class originalNewtonSolver:
 
             oldGuess=newGuess
         
-        
-        if(err == 0 or  err is None ):
+        rel_err = abs((newGuess - oldGuess)/newGuess)*100
+        if(rel_err == 0 or  rel_err is None ):
             corr_sig_figs = sig_figs
-        elif(err) :
-            corr_sig_figs = math.floor(2-math.log(err/0.5, 10)) 
+        elif(rel_err) :
+            corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10)) 
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_iter)    
 
         #return the approximate root and no. of iterations

@@ -52,7 +52,7 @@ class SecantSolver:
                 SecantStep(first, second, third, round_sig(self.func(third), sig_figs))
             )
 
-            err = abs((thirdUnrounded - secondUnrounded) / max(1, abs(thirdUnrounded))) * 100
+            err = abs((thirdUnrounded - secondUnrounded) / max(1, abs(thirdUnrounded)))
 
             if err < tol or abs(self.func(third)) < tol:
                 if(i == 0):
@@ -62,11 +62,12 @@ class SecantSolver:
             second = third
             secondUnrounded = thirdUnrounded
 
-        if (err == 0 or err is None):
-            corr_sig_figs = sig_figs
-        elif(err):
-            corr_sig_figs = math.floor(2 - math.log(err / 0.5, 10))
-        
+        rel_err = abs((thirdUnrounded - secondUnrounded)/thirdUnrounded) * 100    
+        if(rel_err == 0 or  rel_err is None ):
+             corr_sig_figs = sig_figs
+        elif(rel_err) :
+             corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))  
+
         status = convergence_status(
             error_history=errors, iterations=i + 1, max_iterations=max_itrs
         )
