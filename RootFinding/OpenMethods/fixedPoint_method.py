@@ -12,7 +12,7 @@ class fixedPointSolver:
         self.recorder=openMethodStepRecorder(single_step)
         self.gx=gx_lambda
 
-    def solve(self, oldGuess : float, max_itrs : int, tol : float, sig_figs : int) ->tuple[float,int, int, float, int]:
+    def solve(self, oldGuess : float, max_itrs : int, tol : float, sig_figs : int) ->tuple[float,int, int, float | None, int]:
         # rounding the x0 and making ea=infinity at first
         oldGuessUnrounded = oldGuess
         oldGuess = round_sig(oldGuessUnrounded, sig_figs)
@@ -20,7 +20,7 @@ class fixedPointSolver:
         errors = []
         newGuess = 0
         i = 0
-        err = 100
+        err = None
         
         for i in range(max_itrs):
             #x(i+1)=g(xi)
@@ -44,6 +44,8 @@ class fixedPointSolver:
             err = abs(newGuessUnrounded - oldGuessUnrounded)/max(1, abs(newGuessUnrounded))*100
 
             if err < tol or abs(self.func(newGuess)) < tol:
+                if(i == 0) :
+                    err = None
                 break
             
             errors.append(absoluteDiff)
@@ -54,9 +56,9 @@ class fixedPointSolver:
         # print(newGuessUnrounded)
         # rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/newGuessUnrounded) * 100
         
-        if(err == 0):
+        if(err == 0 or err is None):
             corr_sig_figs = sig_figs
-        else :
+        elif(err) :
             corr_sig_figs = math.floor(2-math.log(err/0.5, 10)) 
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_itrs)  
 

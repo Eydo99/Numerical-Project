@@ -12,13 +12,14 @@ class originalNewtonSolver:
         self.dydyx=diff_lambda
         self.recorder=openMethodStepRecorder(single_step)
 
-    def solve(self, oldGuess: float, max_iter: int, tol: float, sig_figs: int)-> tuple[float, int, int, float, int] :
+    def solve(self, oldGuess: float, max_iter: int, tol: float, sig_figs: int)-> tuple[float, int, int, float | None, int] :
         #rounding the x0 and making ea=infinity at first
         oldGuess = round_sig(oldGuess, sig_figs)
         absoluteDiff=float('inf')
 
         errors = []
-        err = 0
+        err = None
+        i = 0
         for i in range(max_iter):
             #calculate f(x) and f'(x)
             f_x = round_sig(self.func(oldGuess), sig_figs)
@@ -43,14 +44,16 @@ class originalNewtonSolver:
             err = abs(newGuess - oldGuess)/max(1,abs(newGuess)) * 100
             #if ea<es break
             if err < tol or abs(self.func(newGuess)) < tol:
+                if(i == 0):
+                    err = None 
                 break
 
             oldGuess=newGuess
         
         
-        if(err == 0):
+        if(err == 0 or  err is None ):
             corr_sig_figs = sig_figs
-        else :
+        elif(err) :
             corr_sig_figs = math.floor(2-math.log(err/0.5, 10)) 
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_iter)    
 

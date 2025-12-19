@@ -22,7 +22,7 @@ export interface RootFindingResponse {
   status?: number;
   error?: string;
   problem?: string;
-  rel_err?: number;
+  rel_err?: number | null;
   corr_sig_figs?: number;
 }
 

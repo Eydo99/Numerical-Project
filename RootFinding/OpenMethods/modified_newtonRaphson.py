@@ -24,7 +24,7 @@ class modifiedNewtonSolver:
         tol: float,
         sig_figs: int,
         multiplicity: Optional[float] = None
-    ) -> Tuple[float, int, int, float, int]:
+    ) -> Tuple[float, int, int, float | None, int]:
        
         
         oldGuess = round_sig(oldGuess, sig_figs)
@@ -32,7 +32,7 @@ class modifiedNewtonSolver:
         absoluteDiff = float('inf')
         i = 0  
         error_history = []
-        err = 100
+        err = None
         for i in range(max_iter):
             #  f(x) , f'(x)
             f_x = round_sig(self.func(oldGuess), sig_figs)
@@ -83,17 +83,18 @@ class modifiedNewtonSolver:
             err = abs((newGuessUnrounded - oldGuessUnrounded)/max(1, newGuessUnrounded))*100
             # stopping conditions 
             if err < tol or abs(f_newGuess) < tol:
+                if(i == 0):
+                    err = None
                 break
-
+            
             oldGuess = newGuess
             oldGuessUnrounded = newGuessUnrounded
-        
-                
-        if(err == 0):
-            corr_sig_figs = sig_figs
-        else :
-            corr_sig_figs = math.floor(2-math.log(err/0.5, 10)) 
-
+            
+        if(err == 0 or  err is None ):
+             corr_sig_figs = sig_figs
+        elif(err) :
+             corr_sig_figs = math.floor(2-math.log(err/0.5, 10))  
+            
         status = convergence_status(error_history=error_history,iterations=i + 1,max_iterations=max_iter)    
 
         return newGuess, i + 1 , status, err, corr_sig_figs

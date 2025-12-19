@@ -17,9 +17,9 @@ class SecantSolver:
 
     def solve(
         self, first: float, second: float, max_itrs: int, tol: float, sig_figs: int
-    ) -> tuple[float, int, int, float, int]:
+    ) -> tuple[float, int, int, float | None, int]:
         errors = []
-        err = 0
+        err = None
         thirdUnrounded = second
         secondUnrounded = second
         for i in range(max_itrs):
@@ -55,16 +55,18 @@ class SecantSolver:
             err = abs((thirdUnrounded - secondUnrounded) / max(1, abs(thirdUnrounded))) * 100
 
             if err < tol or abs(self.func(third)) < tol:
+                if(i == 0):
+                    err = None
                 break
             first = second
             second = third
             secondUnrounded = thirdUnrounded
 
-        if err == 0:
+        if (err == 0 or err is None):
             corr_sig_figs = sig_figs
-        else:
+        elif(err):
             corr_sig_figs = math.floor(2 - math.log(err / 0.5, 10))
-
+        
         status = convergence_status(
             error_history=errors, iterations=i + 1, max_iterations=max_itrs
         )

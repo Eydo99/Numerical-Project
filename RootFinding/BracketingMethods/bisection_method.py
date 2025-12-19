@@ -13,7 +13,7 @@ class bisectionSolver:
 
     def solve(
         self, xl: float, xu: float, max_itrs: int, tol: float, sig_figs: int
-    ) -> tuple[float, int, float, int] | None:
+    ) -> tuple[float, int, float | None, int] | None:
         # if f(xl)*f(xu)>0 -> no root exists in this interval
         if self.func(xl) * self.func(xu) > 0:
             return None
@@ -26,7 +26,7 @@ class bisectionSolver:
         old = round_sig((xl + xu) / 2, sig_figs)
         xr = 0
         i = 0
-
+        err = None
         for i in range(max_itrs):
             # xr=(xl+xu)/2
             xr = round_sig((xl + xu) / 2, sig_figs)
@@ -56,11 +56,12 @@ class bisectionSolver:
             if i != max_itrs - 1:
                 old = xr
 
-        err = abs((xr - old) / max(1, abs(xr))) * 100
-        if err == 0:
-            corr_sig_figs = 5
-        else:
-            corr_sig_figs = math.floor(2 - math.log(err / 0.5, 10))
+        if(i != 0) :    
+            err = abs((xr - old)/max(1,abs(xr))) * 100
+        if( i == 0 or err == 0):
+            corr_sig_figs = sig_figs
+        elif(err) :
+            corr_sig_figs = math.floor(2-math.log(err/0.5, 10))   
         #
         # return the approximate root and no. of iterations
         return xr, i + 1, err, corr_sig_figs

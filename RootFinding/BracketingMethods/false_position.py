@@ -18,7 +18,7 @@ class falsePositionSolver:
         max_itrs: int,
         tol: float,
         sig_figs: int
-    ) -> tuple[float, int ,float , int] :
+    ) -> tuple[float, int ,float | None , int] :
         
          # If f(xl)*f(xu) > 0 -> no root exists in this interval
         if self.func(xl) * self.func(xu) > 0:
@@ -26,11 +26,12 @@ class falsePositionSolver:
                     
         absoluteDiff = float('inf')
         temp = 0
-        xl = round_sig(xl, sig_figs)
-        xu = round_sig(xu, sig_figs)
+        xl = round_sig(xl, sig_figs)  # -1 
+        xu = round_sig(xu, sig_figs)  # 2
         xr = 0
         i = 0
         old = 0
+        err = None
         for i in range(max_itrs):
             
             f_xl = round_sig(self.func(xl), sig_figs)
@@ -70,10 +71,11 @@ class falsePositionSolver:
             if(i != max_itrs -1 ) :
                 old = xr    
         
-        err = abs((xr - old)/max(1,abs(xr))) * 100
-        if(err == 0):
-            corr_sig_figs = 5
-        else :
+        if(i != 0) :    
+            err = abs((xr - old)/max(1,abs(xr))) * 100
+        if( i == 0 or err == 0):
+            corr_sig_figs = sig_figs
+        elif(err) :
             corr_sig_figs = math.floor(2-math.log(err/0.5, 10))       
         
         return xr, i + 1 , err , corr_sig_figs
