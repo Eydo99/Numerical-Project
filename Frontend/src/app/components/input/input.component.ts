@@ -541,4 +541,15 @@ export class InputComponent {
       }
     });
   }
+
+
+  plotAndRun() {
+    if (this.selectedMethod === 'fixed-point') {
+      this.plotFunction('xg');
+    } else {
+      this.plotFunction('standard');
+    }
+
+    this.runMethod();
+  }
 }
