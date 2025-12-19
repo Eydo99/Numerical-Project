@@ -1,4 +1,5 @@
 import math
+from multiprocessing import RLock
 
 from RootFinding.utils.auxilary import round_sig
 from RootFinding.utils.models import bisectionStep
@@ -17,7 +18,11 @@ class bisectionSolver:
         # if f(xl)*f(xu)>0 -> no root exists in this interval
         if self.func(xl) * self.func(xu) > 0:
             return None
-
+            
+        if(self.func(xl) == 0):
+            return xl , 1 , None , sig_figs
+        if(self.func(xu) == 0):
+             return xu , 1 , None , sig_figs    
         # round xl,xr,initialize ea=infinity
         absoluteDiff = float("inf")
         temp = None
@@ -48,7 +53,8 @@ class bisectionSolver:
                 xl = xr
             else:
                 absoluteDiff = 0
-
+            
+            print(absoluteDiff)    
             # if ea<es:break
             if absoluteDiff < tol:
                 break
