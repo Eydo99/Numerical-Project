@@ -67,7 +67,8 @@ class falsePositionSolver:
             if absoluteDiff < tol:
                 break
             
-            old = xr    
+            if(i != max_itrs -1 ) :
+                old = xr    
         
         err = abs((xr - old)/max(1,abs(xr))) * 100
         if(err == 0):
