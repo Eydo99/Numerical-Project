@@ -31,7 +31,7 @@ class falsePositionSolver:
         xr = 0
         i = 0
         old = 0
-        err = None
+        rel_err = None
         for i in range(max_itrs):
             
             f_xl = round_sig(self.func(xl), sig_figs)
@@ -78,7 +78,7 @@ class falsePositionSolver:
         elif(rel_err) :
             corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))       
         
-        return xr, i + 1 , err , corr_sig_figs
+        return xr, i + 1 , rel_err , corr_sig_figs
 
 
 

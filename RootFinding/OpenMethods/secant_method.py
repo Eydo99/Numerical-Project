@@ -43,8 +43,9 @@ class SecantSolver:
             thirdUnrounded = second - diff
             third = round_sig(thirdUnrounded, sig_figs)
             
-            if math.isnan(third) or math.isinf(third) :
-                return second, i + 1, ConvStatus.DIVERGENT, err, 0
+            if abs(thirdUnrounded) > 9e15 :
+                rel_err = abs((thirdUnrounded - secondUnrounded)/max(1e-14,thirdUnrounded)) * 100
+                return second, i + 1, ConvStatus.DIVERGENT, rel_err, 0
 
             errors.append(abs(diff))
 
@@ -72,4 +73,4 @@ class SecantSolver:
             error_history=errors, iterations=i + 1, max_iterations=max_itrs
         )
 
-        return third, i + 1, status, err, corr_sig_figs
+        return third, i + 1, status, rel_err, corr_sig_figs

@@ -31,8 +31,9 @@ class originalNewtonSolver:
             # x(i+1)=x(i)-f(xi)/f'(xi)
             newGuess =round_sig(oldGuess-(round_sig(f_x/dydx,sig_figs)),sig_figs)
             
-            if math.isnan(newGuess) or math.isinf(newGuess) :
-                return oldGuess, i + 1, ConvStatus.DIVERGENT, err, 0
+            if abs(newGuess) > 9e15 :
+                rel_err = abs((newGuess - oldGuess)/max(1e-14,newGuess)) * 100
+                return oldGuess, i + 1, ConvStatus.DIVERGENT, rel_err, 0
             #ea cannot be determined in first loop
             if i!=0:
                 absoluteDiff=round_sig(abs(newGuess-oldGuess),sig_figs)
@@ -58,5 +59,5 @@ class originalNewtonSolver:
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_iter)    
 
         #return the approximate root and no. of iterations
-        return newGuess, i+1, status, err, corr_sig_figs
+        return newGuess, i+1, status, rel_err, corr_sig_figs
 

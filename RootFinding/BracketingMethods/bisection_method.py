@@ -64,4 +64,4 @@ class bisectionSolver:
             corr_sig_figs = math.floor(2-math.log(rel_err/0.5, 10))   
         #
         # return the approximate root and no. of iterations
-        return xr, i + 1, err, corr_sig_figs
+        return xr, i + 1, rel_err, corr_sig_figs

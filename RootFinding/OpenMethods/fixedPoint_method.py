@@ -33,8 +33,9 @@ class fixedPointSolver:
             
             self.recorder.record(fixedPointStep(oldGuess,newGuess,round_sig(self.func(newGuess), sig_figs)))
             
-            if math.isnan(newGuess) or math.isinf(newGuess) or newGuess > 9e15 :
-                return oldGuess, i + 1, ConvStatus.DIVERGENT, err, 0
+            if newGuess > 9e15 :
+                rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/max(1e-14,newGuessUnrounded)) * 100
+                return oldGuess, i + 1, ConvStatus.DIVERGENT, rel_err, 0
 
             # ea cannot be determined in first loop
             if i!=0:
@@ -58,7 +59,7 @@ class fixedPointSolver:
         # print(newGuessUnrounded)
         # rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/newGuessUnrounded) * 100
         
-        rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/newGuessUnrounded) * 100
+        rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/max(1e-14,newGuessUnrounded)) * 100
         if(rel_err == 0 or rel_err is None):
             corr_sig_figs = sig_figs
         elif(rel_err) :
@@ -68,4 +69,4 @@ class fixedPointSolver:
     
     
         # return the approximate root and no. of iterations
-        return newGuess, i+1, status, err, corr_sig_figs
+        return newGuess, i+1, status, rel_err, corr_sig_figs

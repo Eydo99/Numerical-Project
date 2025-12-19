@@ -66,8 +66,9 @@ class modifiedNewtonSolver:
                 newGuessUnrounded = oldGuess - term
                 newGuess = round_sig(newGuessUnrounded, sig_figs)
 
-            if math.isnan(newGuess) or math.isinf(newGuess) :
-                return oldGuess, i + 1, ConvStatus.DIVERGENT, err, 0
+            if newGuess > 9e15 :
+                rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/max(1e-14,newGuessUnrounded)) * 100
+                return oldGuess, i + 1, ConvStatus.DIVERGENT, rel_err, 0
             
             # ea
             if i != 0:
@@ -90,7 +91,7 @@ class modifiedNewtonSolver:
             oldGuess = newGuess
             oldGuessUnrounded = newGuessUnrounded
 
-        rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/newGuessUnrounded) * 100    
+        rel_err = abs((newGuessUnrounded - oldGuessUnrounded)/max(1e-14,newGuessUnrounded)) * 100    
         if(rel_err == 0 or  rel_err is None ):
              corr_sig_figs = sig_figs
         elif(rel_err) :
@@ -98,7 +99,7 @@ class modifiedNewtonSolver:
             
         status = convergence_status(error_history=error_history,iterations=i + 1,max_iterations=max_iter)    
 
-        return newGuess, i + 1 , status, err, corr_sig_figs
+        return newGuess, i + 1 , status, rel_err, corr_sig_figs
         
     # @staticmethod
     # def test():
