@@ -34,9 +34,13 @@ class falsePositionSolver:
         rel_err = None
         for i in range(max_itrs):
             
+            
             f_xl = round_sig(self.func(xl), sig_figs)
             f_xu = round_sig(self.func(xu), sig_figs)
-
+            
+            
+            
+                
             # zero division
             denominator = round_sig(f_xl - f_xu, sig_figs)
             if denominator == 0:

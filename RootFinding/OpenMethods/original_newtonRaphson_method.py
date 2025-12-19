@@ -59,5 +59,5 @@ class originalNewtonSolver:
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_iter)    
 
         #return the approximate root and no. of iterations
-        return newGuess, i+1, status, rel_err, corr_sig_figs
+        return newGuess, i+1, status, rel_err,  max(0 ,corr_sig_figs)
 

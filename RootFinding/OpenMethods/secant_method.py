@@ -73,4 +73,4 @@ class SecantSolver:
             error_history=errors, iterations=i + 1, max_iterations=max_itrs
         )
 
-        return third, i + 1, status, rel_err, corr_sig_figs
+        return third, i + 1, status, rel_err, max(0,corr_sig_figs)
