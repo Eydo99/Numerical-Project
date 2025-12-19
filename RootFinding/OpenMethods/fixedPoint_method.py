@@ -28,11 +28,13 @@ class fixedPointSolver:
             newGuess=round_sig(newGuessUnrounded,sig_figs)
 
             #record current loop
-            # print(newGuess)
-            if math.isnan(newGuess) or math.isinf(newGuess) :
-                return oldGuess, i + 1, ConvStatus.DIVERGENT, err, 0
+            
+            
             
             self.recorder.record(fixedPointStep(oldGuess,newGuess,round_sig(self.func(newGuess), sig_figs)))
+            
+            if math.isnan(newGuess) or math.isinf(newGuess) or newGuess > 9e15 :
+                return oldGuess, i + 1, ConvStatus.DIVERGENT, err, 0
 
             # ea cannot be determined in first loop
             if i!=0:
@@ -61,7 +63,7 @@ class fixedPointSolver:
         elif(err) :
             corr_sig_figs = math.floor(2-math.log(err/0.5, 10)) 
         status = convergence_status(error_history=errors,iterations=i + 1,max_iterations=max_itrs)  
-
+        
     
     
         # return the approximate root and no. of iterations
